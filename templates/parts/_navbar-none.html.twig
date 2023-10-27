@@ -1,0 +1,28 @@
+<nav id="navbar-none" class="navbar navbar-expand-lg bg-black border-bottom" data-bs-theme="dark">
+  <div class="container">
+  <a class="navbar-brand" href="{{path('app_home')}}">
+    <img src="{{ asset('images/logo-olona-talents.jpg')}}" alt="Olona Talents" width="122" height="50">
+  </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <div class="navbar-nav mx-auto mb-2 mb-lg-0 text-light fs-6">
+      {{ title }}
+      </div>
+      {% if app.user %}
+        <div class="">
+          <button class="btn btn-lg btn-dark" data-bs-toggle="dropdown" aria-expanded="false">
+          {% if app.user.gravatar is not null %}
+          <img src="{{ app.user.gravatar}}" alt="Avatar" style="height: 27px; width: auto;" class="rounded-circle">
+          {% else %}  
+          <i class="bi bi-person-circle"></i>
+          {% endif %}  
+          </button>
+        </div>
+      {% else %}
+        <a href="{{path('app_login')}}" class="btn btn-dark">{{ 'app_login.menu'|trans }}</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>

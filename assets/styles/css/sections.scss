@@ -1,0 +1,148 @@
+
+.background-div {
+    height: 100vh; /* Prend la hauteur totale de la fenêtre de vision */
+    background-size: cover; /* Assure que l'image couvre tout le div */
+    background-position: center; /* Centre l'image */
+    background-repeat: no-repeat; /* Empêche la répétition de l'image */
+}
+.vich-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* Pour centrer horizontalement les éléments dans le conteneur */
+}
+/* L'image doit apparaître en premier */
+.vich-image a {
+    order: 1;
+}
+
+/* L'input doit apparaître après l'image */
+.vich-image input {
+    order: 2;
+    display: none;
+}
+.vich-image img{
+    border-radius: 50%;        /* Rend l'image complètement arrondie */
+    border: 6px solid $indigo;    /* Ajoute une bordure solide de 3 pixels avec la couleur #333 (gris foncé) */
+    object-fit: cover;        /* Garde les proportions de l'image */
+    width: 200px;              /* Exemple de largeur, ajustez selon vos besoins */
+    height: 200px; 
+}
+.flex-centre{
+    display: flex;
+    align-items: center;  /* Centre verticalement */
+    justify-content: center;  /* Centre horizontalement */
+}
+#step_one_file_file{
+    margin-top: 1.5rem;
+}
+#step_one_expert_birthday_day, #step_one_expert_birthday_month, #step_one_expert_birthday_year{
+    border: 0 !important;
+}
+#step-one .rounded-circle{
+    border: 7px solid lightgray;
+}
+// .filter-buttons {
+//     display: flex;
+//     gap: 10px;
+//     margin-bottom: 20px;
+// }
+
+// .filter-buttons button {
+//     padding: 8px 15px;
+//     border: none;
+//     border-radius: 4px;
+//     cursor: pointer;
+//     transition: background-color 0.3s;
+// }
+
+// .filter-buttons button:hover {
+//     opacity: 0.9;
+// }
+
+// .filter-buttons .status-filter[data-status="ACCEPTED"] {
+//     background-color: #4CAF50; /* Vert */
+//     color: white;
+// }
+
+// .filter-buttons .status-filter[data-status="FINISHED"] {
+//     background-color: #007BFF; /* Bleu */
+//     color: white;
+// }
+
+// .filter-buttons .status-filter[data-status="PENDING"] {
+//     background-color: #FFC107; /* Jaune */
+//     color: white;
+// }
+
+// .filter-buttons .reset-filter {
+//     background-color: #6c757d; /* Gris */
+//     color: white;
+// }
+
+// .application {
+//     display: none;
+// }
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-buttons button {
+    padding: 8px 15px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.filter-buttons button:hover {
+    opacity: 0.9;
+}
+
+.filter-buttons .status-filter[data-status="ACCEPTED"] {
+    color: #4CAF50; /* Vert */
+}
+
+.filter-buttons .status-filter[data-status="FINISHED"] {
+    color: #007BFF; /* Bleu */
+}
+
+.filter-buttons .status-filter[data-status="PENDING"] {
+    color: #FFC107; /* Jaune */
+}
+
+.filter-buttons .reset-filter {
+    color: #6c757d; /* Gris */
+    position: relative;
+}
+
+.filter-buttons .reset-filter::before {
+    content: "×";
+    position: absolute;
+    top: 0;
+    right: -10px;
+    font-size: 20px;
+    line-height: 1;
+    color: red;
+}
+
+.application {
+    display: none;
+}
+.filter-buttons input,
+.filter-buttons button {
+    margin-right: 10px;
+}
+
+.filter-buttons button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.filter-buttons button:hover {
+    opacity: 0.9;
+}

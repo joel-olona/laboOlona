@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Olona Talents{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
+        <meta name="description" content="{{ meta_description() }}">
+        <meta name="keywords" content="{{ meta_keywords()}}">
+        <meta property="og:title" content="{{ meta_title()}}">
+        <meta property="og:description" content="{{ meta_description() }}">
+        <meta property="og:url" content="{% block og_url %}{{ app.request.uri }}{% endblock %}">
+        <meta property="og:image" content="{% block og_image %}{{ app.request.schemeAndHttpHost ~ asset('/images/logo-og.png') }}{% endblock %}">
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+        {% endblock %}
+
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
+    </head>
+    <body style="background:black;" class="container-fluid">
+        {% block header %} {% include "parts/_navbar.html.twig" %} {% endblock %}
+        <div class="bg-black text-white mt-auto mb-auto">
+            {% block fluid %}<div class="container">{% endblock %}            
+                {% block body %}{% endblock %}
+            </div>
+        </div>
+        {% block footer %} {% include "parts/_footer.html.twig" %} {% endblock %}
+    </body>
+</html>

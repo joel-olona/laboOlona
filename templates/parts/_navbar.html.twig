@@ -1,0 +1,59 @@
+{% set current_route = app.request.attributes.get('_route') %}
+<nav id="navbar" class="navbar navbar-expand-lg bg-black border-bottom" data-bs-theme="dark">
+  <div class="container">
+    <a class="navbar-brand" href="{{ path('app_home') }}">
+      <img src="{{ asset('images/logo-olona-talents.jpg') }}" alt="Olona Talents" width="122" height="50"></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link {{ current_route == 'app_dashboard_entreprise_new_annonce' ? 'active' : '' }}" {{ current_route == 'app_dashboard_entreprise_new_annonce' ? 'aria-current=page' : '' }} href="{{ path('app_dashboard_entreprise_new_annonce') }}">
+              {{ 'app_dashboard_company_posting_new.menu'|trans }}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ current_route == 'app_home_experts' ? 'active' : '' }}" {{ current_route == 'app_home_experts' ? 'aria-current=page' : '' }} href="{{ path('app_dashboard_entreprise_candidats') }}">
+              {{ 'app_home_experts.menu'|trans }}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {{ current_route == 'app_home_posting' ? 'active' : '' }}" {{ current_route == 'app_home_posting' ? 'aria-current=page' : '' }} href="{{ path('app_dashboard_candidat_annonce') }}">
+              {{ 'app_home_posting.menu'|trans }}
+            </a>
+          </li>
+        </ul>
+        {% if app.user %}
+          <div class="dropdown">
+            <button class="dropdown-toggle btn btn-lg btn-dark" type="button" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              {% if app.user.gravatar is not null %}
+                <img
+                src="{{ app.user.gravatar }}" alt="Avatar" style="height: 27px; width: auto;" class="rounded-circle">
+                  {% else %}
+                  <i class="bi bi-person-circle"></i>
+                {% endif %}
+              </button>
+
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="{{ path('app_connect') }}">
+                    {{ 'app_connect.menu'|trans }}
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{{ path('app_logout') }}">
+                    {{ 'app_logout.menu'|trans }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          {% else %}
+            <a href="{{ path('app_login') }}" class="btn btn-dark">
+              {{ 'app_login.menu'|trans }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+    

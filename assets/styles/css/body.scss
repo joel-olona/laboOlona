@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
+body{
+    font-family: 'Poppins';
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+.min-vh-100 {
+    flex: 1;
+}
+a{
+    text-decoration: none!important;
+}
+.content-padded {
+    flex: 1;
+    padding-top: 200px; /* Ajustez cette valeur en fonction de la hauteur de votre navbar. */
+}
+#footer a, #login a, #register label a{
+    color: $indigo!important;
+    text-decoration: none;
+}
+#navbar a i{
+    color: $indigo!important;
+    text-decoration: none;
+}
+#hero .img-container {
+    position: relative;
+    object-fit: cover;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+}
+#hero .img-container img {
+    width: 100%;
+    height: 100%;
+}
+#hero .img-container button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+#hero .image-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+#hero .image-wrapper img {
+    width: auto;
+    height: auto;
+    object-fit: cover;
+}
+#hero .image-wrapper a {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.bg-gradient-sector {
+    background-image: linear-gradient(to right, #2204a3, #92c6c8);
+    -webkit-background-image: linear-gradient(to right, #2204a3, #92c6c8);
+}
+
+.text-strong{
+    font-weight: bolder;
+}
+
+label.form-check-label.required{
+    display: none !important;;
+}
+.custom-min-height {
+    min-height: 100vh;  /* 75% de la hauteur de l'écran */
+}
+.carousel-indicators {
+    bottom: -80px!important; /* Ajustez cette valeur selon le déplacement souhaité */
+}
+.carousel-indicators [data-bs-target] {
+    background-color: #ff0000; /* Couleur de fond */
+    width: 10px; /* Largeur */
+    height: 10px; /* Hauteur */
+    border-radius: 50%; /* Forme ronde */
+}
+.carousel-indicators .active[data-bs-target] {
+    background-color: #00ff00; /* Changez ceci à la couleur souhaitée, ici c'est du vert */
+}
+.div-plein-ecran {
+    min-height: 100vh;
+    box-sizing: border-box; 
+}
+.text-green{
+    color: $green;
+}
+.small{
+    font-size: small;
+}
+.five-cols .col-2-25 {
+    flex: 0 0 8%; /* 2/25 de la largeur totale */
+    max-width: 8%;
+}
+
+.five-cols .col-5-25 {
+    flex: 0 0 20%; /* 5/25 de la largeur totale */
+    max-width: 20%;
+}
+
+.five-cols .col-3-25 {
+    flex: 0 0 12%; /* 3/25 de la largeur totale */
+    max-width: 12%;
+}
+.img-border {
+    border: 2px solid black;
+}
+.image-container {
+    display: flex;
+    justify-content: center; /* Centrer horizontalement */
+    align-items: center;     /* Centrer verticalement */
+    height: 100%; /* ou toute autre valeur selon vos besoins */
+}
+.modal-body ul li{
+    list-style: none!important;
+}
+#button-text a{
+    color: black!important;
+}
+.text-right{
+    text-align: right!important;
+}

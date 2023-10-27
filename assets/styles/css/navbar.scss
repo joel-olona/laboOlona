@@ -1,0 +1,33 @@
+#navbar {
+    // position: fixed;
+    // top: -100%;
+    width: 100%;
+    transition: top 0.3s ease;
+    z-index: 1000; /* Assurez-vous que la navbar est au-dessus des autres éléments */
+    
+    .nav-link {
+        color: white !important; 
+
+        &:hover {
+            color: #ddd !important;
+        }
+
+        &.active {
+            font-weight: bold; 
+            text-shadow: 1px 1px 2px $indigo;
+        }
+        &.disabled {
+          color: rgba(255, 255, 255, 0.5) !important; 
+          cursor: not-allowed; 
+        }
+    }
+}
+
+#navbar.show {
+    top: 0;
+}
+
+.custom-margin-h2 {
+    margin-top: -20px;  /* Ajustez cette valeur selon vos besoins */
+}
+

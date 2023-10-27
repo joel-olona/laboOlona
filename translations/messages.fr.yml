@@ -1,0 +1,528 @@
+menu:
+    legal: "Mentions légales"
+status:
+    DRAFT: L'annonce a été créée mais n'est pas encore visible par le public.
+    PUBLISHED: L'annonce est actuellement active et visible par le public.
+    PENDING: L'annonce est soumise pour examen ou approbation par un modérateur/administrateur.
+    REJECTED: L'annonce a été examinée et n'a pas été approuvée pour la publication.
+    EXPIRED: La durée de vie de l'annonce est terminée. Elle n'est plus active ni visible par le public.
+    ARCHIVED: L'annonce n'est plus active, mais est conservée à des fins d'enregistrement ou d'historique.
+    UNPUBLISHED: L'annonce a été manuellement désactivée et n'est pas visible par le public, mais peut être réactivée plus tard.
+    DELETED: L'annonce a été supprimée
+    FEATURED: L'annonce est mise en évidence ou priorisée par rapport à d'autres annonces.
+    RESERVED: L'annonce a été "réservée" ou "retenue" par un utilisateur ou un acheteur potentiel.
+
+
+app_home:
+    title: "Top 1 Plateforme d'Emploi et Freelance Francophone & Malagache"
+    menu: "Accueil"
+    description: "Trouvez des projets, postulez à des offres d'emploi et collaborez avec les meilleurs professionnels de Madagascar et francophones. Rejoignez-nous dès maintenant."
+    keywords: "freelance, projet, offre"
+    section: 
+        hero:
+            h1: DÉCOUVREZ
+            h2: LE POTENTIEL DES PROFESSIONNELS 
+            h3: DE MADAGASCAR, D'AFRIQUE ET DE L'OCEAN INDIEN.
+            p: Collaborez avec des experts, explorez des opportunités inégalées et propulsez votre carrière vers de nouveaux sommets
+        postings:
+            h2: LES DERNIÈRES OFFRES D'EMPLOIS
+            h3: PROFESSIONNEL FRANCOPHONE ET MALGACHE.
+            p: Collaborez avec des experts, explorez des opportunités inégalées et propulsez votre carrière vers de nouveaux sommets.
+        about:
+            h2: "COMMENT ÇA MARCHE (HOW IT WORKS) :"
+            step: Étape
+            p1_title: "Publiez ou recherchez des offres"
+            p1_desc: Mettez en avant vos compétences ou trouvez le talent parfait pour votre projet.
+            p2_title: "Collaborez en toute sécurité"
+            p2_desc: Utilisez nos outils intégrés pour une collaboration transparente et sécurisée.
+            p3_title: "Finalisez et évaluez"
+            p3_desc: Recevez des paiements sécurisés et donnez votre avis sur la collaboration.
+        sector:
+            h2: SECTEURS QUI RECRUTENT !!
+            p1: Êtes-vous un professionnel créatif cherchant à mettre en avant vos talents dans un environnement inspirant ? Ne cherchez pas plus loin que Studio Agatho, une agence qui conçoit le futur.
+            p2: Rejoignez notre équipe et libérez votre art dans un lieu de travail collaboratif et dynamique.
+            dev_title: DÉVELOPPEMENT WEB
+            dev_desc: Transformez votre vision en réalité avec des développeurs experts
+            design_title: DESIGN
+            design_desc: Donnez vie à vos idées avec des designs époustouflants
+            marketing_title: MARKETING
+            marketing_desc: Atteignez votre public cible avec des stratégies innovante
+        candidates:
+            h2: NOS DERNIERS CANDIDATS
+            p1: Êtes-vous un professionnel créatif cherchant à mettre en avant vos talents dans un environnement inspirant ? Ne cherchez pas plus loin que Studio Agatho, une agence qui conçoit le futur.
+            p2: Rejoignez notre équipe et libérez votre art dans un lieu de travail collaboratif et dynamique.
+        contact:
+            h2: PRÊT À TRANSFORMER VOTRE CARRIÈRE OU VOTRE ENTREPRISE ?
+            p1: Êtes-vous un professionnel créatif cherchant à mettre en avant vos talents dans un environnement inspirant ? Ne cherchez pas plus loin que Studio Agatho, une agence qui conçoit le futur.
+            p2: Rejoignez notre équipe et libérez votre art dans un lieu de travail collaboratif et dynamique.
+
+
+
+app_home_experts:
+    menu: "Trouver un profil"
+    title: "Découvrez nos Experts - Top 1 Plateforme d'Emploi et Freelance Francophone & Malagache"
+    description: "Explorez notre communauté d'experts qualifiés prêts à collaborer sur votre projet. Trouvez le professionnel idéal dans notre réseau de talents francophones et malgaches."
+    keywords: "experts, professionnels, freelance, talents, Madagascar, francophone"
+    see_all: "Tout voir"
+
+app_connect:
+    menu: Tableau de bord
+
+app_home_posting:
+    menu: "Trouver une offre"
+    title: "Publiez votre Projet - Top 1 Plateforme d'Emploi et Freelance Francophone & Malagache"
+    description: "Publiez votre projet et recevez des propositions de nos professionnels qualifiés. Découvrez la simplicité de l'embauche de freelances et d'employés à travers notre plateforme."
+    keywords: "publier, projet, emploi, freelance, embauche, Madagascar, francophone"
+    see_all: "Tout voir"
+
+app_home_formation:
+    menu: "Nos formations"
+    title: "Formations Professionnelles - Top 1 Plateforme d'Emploi et Freelance Francophone & Malagache"
+    description: "Élargissez vos compétences avec nos formations professionnelles conçues pour booster votre carrière. Découvrez des cours interactifs dans une multitude de domaines."
+    keywords: "formation, cours, compétences, carrière, professionnelle, apprentissage"
+
+app_home_ia:
+    menu: "Bon plan IA"
+    title: "Innovation en Intelligence Artificielle - Top 1 Plateforme d'Emploi et Freelance Francophone & Malagache"
+    description: "Découvrez comment l'intelligence artificielle transforme le monde du travail. Explorez nos ressources, nos projets et collaborez avec des experts en IA."
+    keywords: "intelligence artificielle, IA, innovation, technologie, projets, collaboration"
+
+app_home_contact:
+    menu: "Nous contacter"
+    title: "Contactez-nous - Top 1 Plateforme d'Emploi et Freelance Francophone & Malagache"
+    description: "Avez-vous des questions ou besoin d'assistance ? Contactez-nous et notre équipe dédiée sera ravie de vous aider. Votre succès est notre priorité."
+    keywords: "contact, assistance, questions, support, équipe, succès"
+
+app_home_legal:
+    menu: "Mentions légales"
+    title: "Mentions Légales - Top 1 Plateforme d'Emploi et Freelance Francophone & Malagache"
+    description: "Consultez nos mentions légales pour obtenir des informations sur l'identification légale, les conditions d'utilisation et autres aspects juridiques de notre plateforme."
+    keywords: "mentions légales, identification légale, conditions d'utilisation"
+
+app_home_privacy:
+    menu: "Politique de confidentialité"
+    title: "Politique de Confidentialité - Top 1 Plateforme d'Emploi et Freelance Francophone & Malagache"
+    description: "Notre politique de confidentialité détaille la manière dont nous collectons, utilisons et protégeons vos données personnelles. Votre sécurité est notre priorité."
+    keywords: "politique de confidentialité, protection des données, sécurité des données"
+
+app_home_terms:
+    menu: "Conditions générales"
+    title: "Conditions Générales - Top 1 Plateforme d'Emploi et Freelance Francophone & Malagache"
+    description: "Découvrez nos conditions générales d'utilisation qui régissent votre utilisation de notre plateforme, incluant les droits et les responsabilités des utilisateurs."
+    keywords: "conditions générales, utilisation, droits, responsabilités"
+
+
+
+app_login:
+    menu: "Connexion"
+    title: "Connexion à Olona-talents.com"
+    description: "Accédez à votre espace professionnel et découvrez des opportunités inégalées."
+    keywords: "freelance, project, talent"
+    email: "Adresse email"
+    password: "Mot de passe"
+    remember: "Se souvenir de moi"
+    not_member: "Pas encore membre ?"
+    register: "Inscrivez-vous dès maintenant"
+    join: "et rejoignez la communauté Olona-talents."
+    button: "Se connecter"
+
+app_logout:
+    menu: "Deconnexion"
+    
+app_register:
+    menu: Créer mon compte
+    title: "Inscription à Olona-talents.com"
+    description: "Créez votre compte professionnel et accédez à une plateforme dédiée aux talents francophones et malgaches."
+    already_member: Déjà membre ? <a href=%login_url%>Connectez-vous ici</a>
+    keywords: "freelance, project, talent"
+    email: "Adresse éléctronique"
+    first_name: "Nom *"
+    last_name: "Prénom(s) *"
+    password: "Mot de passe"
+    repeat_password: "Repeter le mot de passe"
+    agree_terms: "<small>En vous inscrivant, vous acceptez nos <a href=\"%terms_url%\">Conditions Générales d'Utilisation</a> et notre <a href=\"%privacy_url%\">Politique de Confidentialité</a>.</small>"
+    continue: "Continuer avec "
+
+app_email_sending:
+    title: "Email de confirmation envoyé"
+    description: Nous avons envoyé un email de confirmation à l'adresse que vous avez fourni lors de l'inscription. Veillez consulter votre boîte de reception et suivre les instructions pour activer votre compte.
+    not_received: Si vous n'avez pas reçu l'email, veuillez vérifier vos dossiers spam ou cliquer <a href="%resend_confirmation%">ici</a> pour réenvoyer l'email.
+
+app_forgot_password_request:
+    title: "Réinitialisez votre mot de passe"
+    link: "Mot de passe oublié?"
+    message: "Entrez votre adresse email, et nous vous enverrons un lien pour réinitialiser votre mot de passe."
+    description: "Créez votre compte professionnel et accédez à une plateforme dédiée aux talents francophones et malgaches."
+    keywords: "freelance, project, talent"
+    button: "Envoyer l'email de réinitialisation du mot de passe"
+    new_password: Nouveau mot de passe
+    repeat: Répetez le nouveau mot de passe
+    not_received: Si vous ne recevez pas d'email, veuillez vérifier votre dossier de spams ou <a href="%resend_reset_password%"> réessayer </a>.
+
+app_check_email:
+    title: "Email de réinitialisation du mot de passe envoyé"
+    message: "Si un compte correspondant à votre email existe, alors un email vient d'être envoyé contenant un lien que vous pouvez utiliser pour réinitialiser votre mot de passe."
+    massage2: "Si vous ne recevez pas d'email, veuillez vérifier votre dossier spam ou réessayez"
+    description: "Créez votre compte professionnel et accédez à une plateforme dédiée aux talents francophones et malgaches."
+    keywords: "freelance, project, talent"
+
+app_reset_password:
+    title: "Réinitialisez votre mot de passe"
+    button: "Réinitialiser le mot de passe"
+
+app_identity_create:
+    title: "Bienvenue sur Olona-talents.com !"
+    description: "Votre première étape vers des opportunités professionnelles inégalées."
+    keywords: "freelance, project, talent"
+    message: "Nous sommes ravis de vous avoir parmi nous. Pour commencer, prenez quelques instants pour créer votre profil. Cela nous aidera à vous offrir une expérience personnalisée."
+    button: "Créer mon profil"
+    hey: "Bienvenue sur Olona-talents.com !"
+
+
+app_identity_account:
+    title: "Quelle est votre intention sur Olona-talents.com ?"
+    description: "Explorez Olona-talents.com et découvrez une plateforme conçue pour mettre en lumière vos intentions et vos talents. Quelle que soit votre ambition, nous vous offrons l'espace pour vous exprimer, apprendre et grandir au sein d'une communauté dynamique."
+    keywords: "freelance, projet, offre"
+    button: "Continuer"
+    message: "Choisissez ce que vous souhaitez qu'Olona-talents vous accompagne"
+
+app_identity_company:
+    title: "Précisez vos besoins en tant qu'entreprise."
+    description: "Plus nous en savons sur vos besoins, mieux nous pouvons vous servir."
+    button: "Enregistrer et continuer"
+    keywords: "freelance, project, talent"
+    name: "Nom de l'entreprise *"
+    size: "Taille de l'entreprise"
+    country: Pays *
+    sector_multiple: "Secteur d'expertise (Utilisez Ctrl pour faire un choix multiple)"
+    desc: Decrivez votre entreprise en quelques ligne
+    budget: Budget pour le poste/projet
+    email: "Adresse mail *"
+    phone: "Téléphone *"
+    select: "Séléctionner"
+    website: "Site Web"
+    project: "Description du poste ou du projet"
+    sector: "Secteur d'activité"
+    type_posting: "Type d'emploi proposé "
+
+
+app_identity_expert:
+    title: "Créez votre profil professionnel détaillé."
+    description: "Plus nous en savons sur vous, mieux nous pouvons vous mettre en relation avec les bonnes opportunités."
+    keywords: "freelance, project, talent"
+    button: "Enregistrer et continuer"
+    name: "Votre titre"
+    professionnal: "Titre professionnel *"
+    sector: "Secteur d'activité"
+    year: "Années d'expérience"
+    localisation: "Localisation"
+    select: "Séléctionner"
+    type_job: "Type d'emploi recherché"
+    main_skills: "Compétences principales"
+    aspiration: Biographie
+    preference: "Conditions et préférences"
+    website: "Portfolio ou site web"
+    cv: "Ajouter un CV"
+    email: "Adresse mail"
+    phone: "Téléphone"
+    birthday: "Votre anniversaire"
+
+app_identity_confirmation:
+    title: "Félicitations !"
+    description: "Votre profil est maintenant créé et prêt à être exploré"
+    message: "Vous pouvez maintenant naviguer sur Olona-talents.com, découvrir des offres, collaborer avec des professionnels ou simplement enrichir davantage votre profil."
+    keywords: "freelance, project, talent"
+    button: "Accéder à mon tableau de bord"
+
+# app_home_experts:
+#     title: "Experts Francophones et Malgaches | Olona-talents.com"
+#     description: "Votre profil est maintenant créé et prêt à être exploré"
+#     message: "Découvrez une sélection rigoureuse d'experts professionnels francophones et malgaches. Collaborez et enrichissez vos projets grâce à l'excellence locale sur Olona-Talents."
+#     keywords: "freelance, project, talent"
+#     button: "Accéder à mon tableau de bord"
+
+app_catalog_expert:
+    title: ""
+    description: ""
+    keywords: "freelance, project, talent"
+    presentation: "Présentation"
+    evaluation: "Evaluation"
+    preference: "Préférence"
+    contact: "Contact"
+    stats_title: "Statistique"
+    stats: "depuis la création de compte"
+    projects: "Projets réalisés"
+    connected: "Derière connexion"
+    member: "Membre depuis"
+    certificated: "Certifié Olona Talents"
+    realised: "projets réalisés"
+    view: "Profil vue"
+
+app_catalog_posting:
+    title: "Annonces | Olona-talents.com"
+    description: "Votre profil est maintenant créé et prêt à être exploré"
+    message: "Découvrez une sélection rigoureuse d'experts professionnels francophones et malgaches. Collaborez et enrichissez vos projets grâce à l'excellence locale sur Olona-Talents."
+    keywords: "freelance, project, talent"
+    continue: "Continuer pour postuler"
+    signal: "Signaler l'offre"
+    offer: "Postuler à cette offre"
+    button: "Postuler"
+    motivation: "Votre message"
+
+app_dashboard_company:
+    title: "Tableau de bord"
+    dashboard_title: "Bienvenue dans votre espace Entreprise : %company_name%"
+    description: "Votre profil est maintenant créé et prêt à être exploré"
+    message: "Bienvenu dans votre espace Entreprise : "
+    publish: "Publier une annonce"
+    my_posting: "Mes annonces"
+    find: "Trouver un profil"
+    messaging: "Messagerie"
+    notification: "Notification"
+    my_account: "Mon compte"
+    logout: "Sortir"
+    all_expert: "Parcourir le catalogue de profil"
+    get_started: "Lancez votre recherche de talent en quelques clics!"
+    talent: "Découvrez les talents qui correspondent à vos besoins !"
+    follow_us: "Suivez nos actualités sur les réseaux :"
+    contact_us: "Contactez-nous à contact@olona-talents.com ou +261 XX XX XX XX"
+    more_info: "Besoin d'informations ou de partenariat ?"
+    optimize: "Suivez l'état de vos annonces et optimisez-les pour de meilleurs résultats !"
+    posting: 
+        publish: "Annonces publiées"
+        refused: "Annonces refusées"
+        all: "Voir toutes les annonces"
+
+app_dashboard_company_posting_new:
+    title: "Deposer une annonce"
+    form_title: "Deposer une annonce"
+    dashboard_title: "Titre de l'annonce"
+    menu: "Deposer une annonce"
+    button:
+        view: "Prévisualiser"
+        publish: "Publier"
+        cancel: "Annuler"
+
+    description: "Votre profil est maintenant créé et prêt à être exploré"  
+    title_form: "Donnez un titre accrocheur à votre annonce."
+    desc_form: "Décrivez les responsabilités et les tâches du poste."
+    tarif: "Budget prévu pour la mission "
+    number: "Nombre de profil à chercher"
+    type: "Sélectionnez le type de contrat"
+    planned_date: "Date de début "
+    sector: "Quel secteur d'activité de votre entreprise sera sollicité pour cette mission ? "
+
+app_dashboard_company_posting_all:
+    title: "Mes annonces"
+    dashboard_title: "Mes annonces - %company_name%"
+    get_started: "Déposez votre annonce en 1 clic"
+    list: "Votre liste d'annonces"
+    response: "Ils ont repondu à vos annonces"
+    status:
+        published: "Publiée"
+        finished: "Terminée"
+        moderate: "En cours de moderation"
+        unpublished: "Non publiée"
+
+app_dashboard_company_posting_edit:
+    title: "Modifier une annonce"
+    dashboard_title: "Modifier une annonce - %company_name%"
+    get_started: "Déposez votre annonce en 1 clic"
+    list: "Votre liste d'annonces"
+    response: "Ils ont repondu à vos annonces"
+    status:
+        published: "Publiée"
+        finished: "Terminée"
+        moderate: "En cours de moderation"
+        unpublished: "Non publiée"
+
+app_dashboard_company_profile:
+    title: "Trouver un profil"
+    get_started: "Entrez des compétances, un nom ou un domaine pour trouver le profil ideal"
+    dashboard_title: "Decouvrez des talents"
+    recommanded: "Profils recommandés"
+    catalog: "Catalogue de profils"
+
+app_dashboard_company_message:
+    title: "Messagerie"
+    dashboard_title: "Messagerie"
+
+app_dashboard_company_notification:
+    title: "Notifications"
+    dashboard_title: "Notifications"
+
+app_dashboard_company_account:
+    title: "Mon compte"
+    dashboard_title: "Mon compte"
+    edit: "Mes informations"
+    button: "Mettre à jour"
+
+app_dashboard_expert:
+    title: "Tableau de bord"
+    dashboard_title: "Bienvenue %company_name%! Decouvrez les offres qui correspondent à votre profil"
+    description: "Votre profil est maintenant créé et prêt à être exploré"
+    publish: "Publier une annonce"
+    my_applies: "Mes candidatures"
+    find: "Trouver une mission"
+    messaging: "Messagerie"
+    notification: "Notification"
+    my_list: Ma liste de missions
+    apply: Voir les détails et postuler
+    catalog_posting: Catalogue des annonces
+    offer: Envoyer ma candidature
+    offered: Vous avez postulé pour ce poste.
+    astuce: Astuce du jour
+    read_more: En savoir plus
+    groups: Ne sous-estimez pas le pouvoir du réseautage. Rejoignez des groupes professionnels ou des forums en ligne pour elargir votre réseau et découvrir de nouvelles opportunités
+    personnalize: Personnalisez votre lettre de motivation pour chaque mission à laquelle vous postulez. Cela montre à l'employeur que vous avez pris le temps de comprendre leur besoin.
+    curriculum: Assurez-vous que votre CV est clair, concis et à jour. Les employeurs passent en moyenne 6 secondes sur un CV. Faites en sorte que chaque seconde compte.
+    olona_formation: Voir nos formations et obtenir votre certification OLONA TALENTS!!
+    investigate: Investissez toujours dans votre apprentissage et votre developpement. Les compétences et connaissances supplémentaire peuvent ouvrir des nouvelles portes
+    get_started: Trouvez des offres par mot-clé, titre de mission, entreprise etc.
+    logout: "Sortir"
+    profile_view: Votre profil a été consulté <strong>%views%</strong> fois cette semaine. Continuez à améliorer pour attirer plus d'employeurs
+    history: Vous avez <strong>%demandes%</strong> demande en attente de réponse. Restez à l'écoute et preparez-vous pour vos futurs entretiens!
+    calandar: "Entretien planifié : semaine du <strong>%formatMonday%</strong> au <strong>%formatSunday%</strong>"
+    recommanded: Annonces recommandées
+    recommanded_posting: Selon votre profil et vos recherches précédentes, voici quelques annonces de missions que nous pensons être parfaitement adaptées pour vous!
+
+app_dashboard_expert_posting:
+    title: "Tableau de bord"
+    dashboard_title: "Trouver une mission"
+    description: "Votre profil est maintenant créé et prêt à être exploré"
+    publish: "Publier une annonce"
+    my_applies: "Mes candidatures"
+    find: "Trouver une mission"
+    messaging: "Messagerie"
+    notification: "Notification"
+    my_account: "Mon compte"
+    logout: "Sortir"
+
+app_dashboard_expert_posting_all:
+    title: "Tableau de bord"
+    dashboard_title: "Mes missions"
+    my_posting: "Mes missions"
+    speed_search: Trouver rapidement une mission
+    status:
+        accepted: Acceptée
+        finished: Terminée
+        negociate: En cours de négociation
+
+app_dashboard_expert_formation:
+    title: "Tableau de bord"
+    dashboard_title: "Mes formations"
+    menu: "Mes formations"
+
+app_dashboard_expert_tools:
+    title: "Tableau de bord"
+    dashboard_title: "Mes outils de travail"
+    menu: "Mes outils de travail"
+
+app_dashboard_expert_account:
+    title: Tableau de bord
+    dashboard_title: Mon compte
+    menu: Mon compte
+    personnal_info: Informations personnelles
+    general: Informations générales
+    experiences: Informations relatives à mon CV
+    cv_option: Options de diffusion de votre CV
+    professional_info: Informations professionnelles
+    search_for: Recherche de poste
+
+
+app_identity_expert_step_one:
+    identity_title: Créez votre meilleur profil et rejoignez les Talents d'OLONA
+    user: 
+        firstName: Nom(s)
+        lastName: Prénom(s)
+    title: Qui êtes-vous?
+    avatar: Photo / Avatar
+    avatar_desc: Ajouter une photo professionnel de vous
+    message: "Découvrez une sélection rigoureuse d'experts professionnels francophones et malgaches. Collaborez et enrichissez vos projets grâce à l'excellence locale sur Olona-Talents."
+    keywords: "freelance, project, talent"
+    button: Enregistrer et continuer
+    cancel: Annuler
+
+app_identity_expert_step_two:
+    identity_title: Plus nous en savons sur vous, mieux nous pouveons vous mettre en relation avec les bonnes opportunités
+    skill: 
+        add: Ajouter une competence
+        name: Competences
+        all: Vos compétences
+        view: Aperçu
+        level: Niveau
+        one: Débutant
+        two: Intermédiaire
+        three: Confirmé
+        four: Avancé
+        five: Expert
+        submit: Ajouter
+        none: Veuillez ajouter vos compétences
+    formation: 
+        add: Ajouter une formation
+        name: Formations
+        all: Vos formations
+        view: Aperçu
+        title: Nom de l'Etablissement
+        level: Diplôme
+        description: Description
+        startDate: Début
+        endDate: Fin
+        submit: Ajouter
+        none: Veuillez ajouter vos formations
+        currently: En cours
+    experience: 
+        add: Ajouter une experience
+        name: Experiences
+        all: Vos experiences
+        view: Aperçu
+        title: Poste occupé
+        company: Entreprise
+        description: Description
+        startDate: Début
+        endDate: Fin
+        submit: Ajouter
+        none: Veuillez ajouter vos experiences
+        currently: Actuellement en poste
+    language: 
+        add: Ajouter une langues
+        name: Langue maîtrisées
+        all: Vos langues maîtrisées
+        view: Aperçu
+        title: Poste occupé
+        company: Entreprise
+        description: Description
+        label: Langues
+        submit: Ajouter
+        none: Veuillez ajouter les langues que vous maîtrisez
+    title: Détails professionnels
+    message: "Découvrez une sélection rigoureuse d'experts professionnels francophones et malgaches. Collaborez et enrichissez vos projets grâce à l'excellence locale sur Olona-Talents."
+    keywords: "freelance, project, talent"
+    button: Enregistrer et continuer
+    cancel: Retour
+
+app_identity_expert_step_three:
+    identity_title: Dernière étape, comment souhaitez vous être contacté(e) par vos prochains clients?
+    user: 
+        firstName: Nom(s)
+    title: Vos réseaux professionnels*
+    message: (*) Chez OLONA TALENTS, nous accordons une grande importance à la protection de vos données personnelles. Soyez assuré(e) que les informations fournies dans cette section ne seront utilisées que dans le cadre strict de nos services et ne seront ni rendues public, ni partagées avec des tiers sans votre consentement explicite au début de la mise en relation avec vos futurs clients. <br>Pour plus de details sur la manière dont nous partageons et utilisons vos données, veuillez consulter notre <a href=\"%privacy_url%\">Politique de confidentialité.</a>
+    keywords: "freelance, project, talent"
+    button: Valider mon profil
+    cancel: Retour
+    other: Autres
+
+app_guides_motivation:
+    title: Lettre de motivation
+    description: Personnalisez votre lettre de motivation pour chaque mission à laquelle vous postulez. Cela montre à l'employeur que vous avez pris le temps de comprendre leur besoin.
+    keywords: lettre, motivation, guide
+
+app_guides_cv:
+    title: Personnalisez votre CV
+    description: Assurez-vous que votre CV est clair, concis et à jour. Les employeurs passent en moyenne 6 secondes sur un CV. Faites en sorte que chaque seconde compte.
+    keywords: cv, curriculum, guide, vitae
+
+app_guides_reseautage:
+    title: Le réseautage
+    description: Ne sous-estimez pas le pouvoir du réseautage. Rejoignez des groupes professionnels ou des forums en ligne pour elargir votre réseau et découvrir de nouvelles opportunités
+    keywords: lettre, motivation, guide, reseautage
