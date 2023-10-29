@@ -2,7 +2,11 @@
 
 namespace App\Entity;
 
+use App\Entity\Enum\TypeUser;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -32,6 +36,58 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'boolean')]
     private $isVerified = false;
+
+    #[ORM\OneToOne(mappedBy: 'candidat', cascade: ['persist', 'remove'])]
+    private ?CandidateProfile $candidateProfile = null;
+
+    #[ORM\Column(enumType: TypeUser::class, nullable: true)]
+    private ?string $type = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $nom = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $prenom = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    private ?\DateTimeInterface $dateInscription = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $dernierLogin = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $telephone = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $adress = null;
+
+    #[ORM\OneToOne(mappedBy: 'entreprise', cascade: ['persist', 'remove'])]
+    private ?EntrepriseProfile $entrepriseProfile = null;
+
+    #[ORM\OneToOne(mappedBy: 'moderateur', cascade: ['persist', 'remove'])]
+    private ?ModerateurProfile $moderateurProfile = null;
+
+    #[ORM\OneToMany(mappedBy: 'expediteur', targetEntity: Notification::class, orphanRemoval: true)]
+    private Collection $envois;
+
+    #[ORM\OneToMany(mappedBy: 'destinataire', targetEntity: Notification::class, orphanRemoval: true)]
+    private Collection $recus;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: SearchHistory::class)]
+    private Collection $searchHistories;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $gravatar = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $googleId = null;
+
+    public function __construct()
+    {
+        $this->envois = new ArrayCollection();
+        $this->recus = new ArrayCollection();
+        $this->searchHistories = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -79,10 +135,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -111,6 +164,275 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function isIsVerified(): ?bool
+    {
+        return $this->isVerified;
+    }
+
+    public function getCandidateProfile(): ?CandidateProfile
+    {
+        return $this->candidateProfile;
+    }
+
+    public function setCandidateProfile(?CandidateProfile $candidateProfile): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($candidateProfile === null && $this->candidateProfile !== null) {
+            $this->candidateProfile->setCandidat(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($candidateProfile !== null && $candidateProfile->getCandidat() !== $this) {
+            $candidateProfile->setCandidat($this);
+        }
+
+        $this->candidateProfile = $candidateProfile;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): static
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(?string $nom): static
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getPrenom(): ?string
+    {
+        return $this->prenom;
+    }
+
+    public function setPrenom(?string $prenom): static
+    {
+        $this->prenom = $prenom;
+
+        return $this;
+    }
+
+    public function getDateInscription(): ?\DateTimeInterface
+    {
+        return $this->dateInscription;
+    }
+
+    public function setDateInscription(\DateTimeInterface $dateInscription): static
+    {
+        $this->dateInscription = $dateInscription;
+
+        return $this;
+    }
+
+    public function getDernierLogin(): ?\DateTimeInterface
+    {
+        return $this->dernierLogin;
+    }
+
+    public function setDernierLogin(?\DateTimeInterface $dernierLogin): static
+    {
+        $this->dernierLogin = $dernierLogin;
+
+        return $this;
+    }
+
+    public function getTelephone(): ?string
+    {
+        return $this->telephone;
+    }
+
+    public function setTelephone(?string $telephone): static
+    {
+        $this->telephone = $telephone;
+
+        return $this;
+    }
+
+    public function getAdress(): ?string
+    {
+        return $this->adress;
+    }
+
+    public function setAdress(?string $adress): static
+    {
+        $this->adress = $adress;
+
+        return $this;
+    }
+
+    public function getEntrepriseProfile(): ?EntrepriseProfile
+    {
+        return $this->entrepriseProfile;
+    }
+
+    public function setEntrepriseProfile(?EntrepriseProfile $entrepriseProfile): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($entrepriseProfile === null && $this->entrepriseProfile !== null) {
+            $this->entrepriseProfile->setEntreprise(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($entrepriseProfile !== null && $entrepriseProfile->getEntreprise() !== $this) {
+            $entrepriseProfile->setEntreprise($this);
+        }
+
+        $this->entrepriseProfile = $entrepriseProfile;
+
+        return $this;
+    }
+
+    public function getModerateurProfile(): ?ModerateurProfile
+    {
+        return $this->moderateurProfile;
+    }
+
+    public function setModerateurProfile(?ModerateurProfile $moderateurProfile): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($moderateurProfile === null && $this->moderateurProfile !== null) {
+            $this->moderateurProfile->setModerateur(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($moderateurProfile !== null && $moderateurProfile->getModerateur() !== $this) {
+            $moderateurProfile->setModerateur($this);
+        }
+
+        $this->moderateurProfile = $moderateurProfile;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Notification>
+     */
+    public function getEnvois(): Collection
+    {
+        return $this->envois;
+    }
+
+    public function addEnvoi(Notification $envoi): static
+    {
+        if (!$this->envois->contains($envoi)) {
+            $this->envois->add($envoi);
+            $envoi->setExpediteur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEnvoi(Notification $envoi): static
+    {
+        if ($this->envois->removeElement($envoi)) {
+            // set the owning side to null (unless already changed)
+            if ($envoi->getExpediteur() === $this) {
+                $envoi->setExpediteur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Notification>
+     */
+    public function getRecus(): Collection
+    {
+        return $this->recus;
+    }
+
+    public function addRecu(Notification $recu): static
+    {
+        if (!$this->recus->contains($recu)) {
+            $this->recus->add($recu);
+            $recu->setDestinataire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRecu(Notification $recu): static
+    {
+        if ($this->recus->removeElement($recu)) {
+            // set the owning side to null (unless already changed)
+            if ($recu->getDestinataire() === $this) {
+                $recu->setDestinataire(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SearchHistory>
+     */
+    public function getSearchHistories(): Collection
+    {
+        return $this->searchHistories;
+    }
+
+    public function addSearchHistory(SearchHistory $searchHistory): static
+    {
+        if (!$this->searchHistories->contains($searchHistory)) {
+            $this->searchHistories->add($searchHistory);
+            $searchHistory->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSearchHistory(SearchHistory $searchHistory): static
+    {
+        if ($this->searchHistories->removeElement($searchHistory)) {
+            // set the owning side to null (unless already changed)
+            if ($searchHistory->getUser() === $this) {
+                $searchHistory->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getGravatar(): ?string
+    {
+        return $this->gravatar;
+    }
+
+    public function setGravatar(?string $gravatar): static
+    {
+        $this->gravatar = $gravatar;
+
+        return $this;
+    }
+
+    public function getGoogleId(): ?string
+    {
+        return $this->googleId;
+    }
+
+    public function setGoogleId(?string $googleId): static
+    {
+        $this->googleId = $googleId;
 
         return $this;
     }
