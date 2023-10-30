@@ -7,12 +7,12 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>ID <i class="bi bi-filter"></i></th>
-                <th>Entreprise <i class="bi bi-filter"></i></th>
-                <th>Offres d'emploi <i class="bi bi-filter"></i></th>
-                <th>Meetings <i class="bi bi-filter"></i></th>
-                <th>Description <i class="bi bi-filter"></i></th>
-                <th>Secteurs <i class="bi bi-filter"></i></th>
+                <th class="col-1">ID <i class="bi bi-filter"></i></th>
+                <th class="col-2">Nom <i class="bi bi-filter"></i></th>
+                <th class="col-2">Annonces <i class="bi bi-filter"></i></th>
+                <th class="col-2">Meetings <i class="bi bi-filter"></i></th>
+                <th class="col-3">Localisation <i class="bi bi-filter"></i></th>
+                <th class="col-2">Secteurs <i class="bi bi-filter"></i></th>
                 <!-- Vous pouvez ajouter d'autres colonnes ici avec leurs icônes -->
             </tr>
             <tr class="filter-row" style="display: none;">
@@ -34,7 +34,7 @@
                 <td>{{ company.entreprise.nom }}</td>
                 <td>{{ company.jobListings|length }}</td>
                 <td>{{ company.mettings|length }}</td>
-                <td>{{ company.description|length > 100 ? company.description|slice(0, 97) ~ '...' : company.description }}</td>
+                <td>{{ show_country(company.localisation) }}</td>
                 <td>{{ company.secteurs|join(', ') }}</td>
                 <!-- Vous pouvez ajouter d'autres colonnes ici -->
             </tr>

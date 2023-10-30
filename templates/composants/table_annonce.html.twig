@@ -30,11 +30,12 @@
 
   </td>
   <td style="display:flex;">
-    <bouton type="button" class="btn btn-primary rounded-circle p-2 mx-1 lh-1" data-bs-target="#exampleModalToggle{{ annonce.id }}" data-bs-toggle="modal">
+    <button type="button" class="btn btn-primary rounded-circle p-2 mx-1 lh-1" data-bs-target="#exampleModal{{ annonce.id }}" data-bs-toggle="modal">
       <i class="bi bi-eye"></i>
-    </bouton>
+    </button>
   </td>
 <!-- ... Affichez les autres champs de la même manière ... -->
+</tr>
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal{{ annonce.id }}" tabindex="-1" aria-labelledby="exampleModal{{ annonce.id }}Label" aria-hidden="true">
@@ -62,5 +63,4 @@
     </div>
   </div>
 </div>
-</tr>
 
