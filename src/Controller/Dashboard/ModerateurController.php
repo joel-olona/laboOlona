@@ -80,7 +80,7 @@ class ModerateurController extends AbstractController
     public function entreprises(Request $request, EntrepriseProfileRepository $entrepriseProfileRepository): Response
     {
         return $this->render('dashboard/moderateur/entreprises.html.twig', [
-            'sectors' => $entrepriseProfileRepository->findAll(),
+            'companies' => $entrepriseProfileRepository->findAll(),
         ]);
     }
 
