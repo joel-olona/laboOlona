@@ -32,7 +32,7 @@ class Applications
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateCandidature = null;
 
-    #[ORM\Column(enumType: StatusApplication::class)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $status = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]

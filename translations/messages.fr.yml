@@ -269,6 +269,39 @@ app_catalog_posting:
     button: "Postuler"
     motivation: "Votre message"
 
+app_dashboard_moderateur:
+    title: Modération
+    dashboard_title: Hello Modérateur
+    menu: Modération
+    button:
+        view: "Prévisualiser"
+        publish: "Publier"
+        cancel: "Annuler"
+
+app_dashboard_moderateur_sector:
+    title: Modération
+    dashboard_title: Secteurs d'activité
+
+app_dashboard_moderateur_annonces:
+    title: Modération
+    dashboard_title: Toutes les annonces
+
+app_dashboard_moderateur_entreprises:
+    title: Modération
+    dashboard_title: Entreprises
+
+app_dashboard_moderateur_candidats:
+    title: Modération
+    dashboard_title: Candidats
+
+app_dashboard_moderateur_mettings:
+    title: Modération
+    dashboard_title: Tous les rendez-vous
+
+app_dashboard_moderateur_notifications:
+    title: Modération
+    dashboard_title: Mes notifications
+
 app_dashboard_company:
     title: "Tableau de bord"
     dashboard_title: "Bienvenue dans votre espace Entreprise : %company_name%"

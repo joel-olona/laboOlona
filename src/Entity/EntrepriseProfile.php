@@ -8,11 +8,22 @@ use App\Entity\Moderateur\Metting;
 use App\Repository\EntrepriseProfileRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EntrepriseProfileRepository::class)]
 class EntrepriseProfile
 {
+    const SIZE_SMALL = 'SM';
+    const SIZE_MEDIUM = 'MD';
+    const SIZE_LARGE = 'LG';
+
+    const CHOICE_SIZE = [        
+         'Petite (1-10 employés)' => self::SIZE_SMALL ,
+         'Moyenne (11-100 employés)' => self::SIZE_MEDIUM ,
+         'Grande (plus de 100 employés)' => self::SIZE_LARGE ,
+    ];
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -21,7 +32,7 @@ class EntrepriseProfile
     #[ORM\OneToOne(inversedBy: 'entrepriseProfile', cascade: ['persist', 'remove'])]
     private ?User $entreprise = null;
 
-    #[ORM\Column(enumType: TailleEntreprise::class)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $taille = null;
 
     #[ORM\Column(length: 255)]
@@ -36,10 +47,17 @@ class EntrepriseProfile
     #[ORM\OneToMany(mappedBy: 'entreprise', targetEntity: Metting::class)]
     private Collection $mettings;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\ManyToMany(targetEntity: Secteur::class, mappedBy: 'entreprise')]
+    private Collection $secteurs;
+
     public function __construct()
     {
         $this->jobListings = new ArrayCollection();
         $this->mettings = new ArrayCollection();
+        $this->secteurs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -150,6 +168,45 @@ class EntrepriseProfile
             if ($metting->getEntreprise() === $this) {
                 $metting->setEntreprise(null);
             }
+        }
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Secteur>
+     */
+    public function getSecteurs(): Collection
+    {
+        return $this->secteurs;
+    }
+
+    public function addSecteur(Secteur $secteur): static
+    {
+        if (!$this->secteurs->contains($secteur)) {
+            $this->secteurs->add($secteur);
+            $secteur->addEntreprise($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSecteur(Secteur $secteur): static
+    {
+        if ($this->secteurs->removeElement($secteur)) {
+            $secteur->removeEntreprise($this);
         }
 
         return $this;

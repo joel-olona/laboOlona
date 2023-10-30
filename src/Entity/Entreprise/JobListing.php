@@ -43,7 +43,7 @@ class JobListing
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $lieu = null;
 
-    #[ORM\Column(enumType: TypeContrat::class)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $typeContrat = null;
 
     #[ORM\OneToMany(mappedBy: 'annonce', targetEntity: Applications::class)]

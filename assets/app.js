@@ -11,3 +11,21 @@ import 'bootstrap';
 import './bootstrap.js';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import $ from 'jquery';
+
+
+$(function() {
+
+    $('#account_identity .custom-control-input').on('change', function() {
+        $(this).closest('form').submit();
+    });
+
+    $('.image-checkbox img').on('click', function() {
+        // Ajouter l'effet de clignotement
+        $(this).addClass('blinking');
+        
+        // Retirer l'effet de clignotement après 1.2 secondes (2 cycles d'animation)
+        setTimeout(() => {
+            $(this).removeClass('blinking');
+        }, 900);
+    });
+});

@@ -38,12 +38,16 @@ class CandidateProfile
     #[ORM\OneToMany(mappedBy: 'candidat', targetEntity: Metting::class)]
     private Collection $mettings;
 
+    #[ORM\ManyToMany(targetEntity: Secteur::class, mappedBy: 'candidat')]
+    private Collection $secteurs;
+
     public function __construct()
     {
         $this->competences = new ArrayCollection();
         $this->experiences = new ArrayCollection();
         $this->applications = new ArrayCollection();
         $this->mettings = new ArrayCollection();
+        $this->secteurs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -187,6 +191,33 @@ class CandidateProfile
             if ($metting->getCandidat() === $this) {
                 $metting->setCandidat(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Secteur>
+     */
+    public function getSecteurs(): Collection
+    {
+        return $this->secteurs;
+    }
+
+    public function addSecteur(Secteur $secteur): static
+    {
+        if (!$this->secteurs->contains($secteur)) {
+            $this->secteurs->add($secteur);
+            $secteur->addCandidat($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSecteur(Secteur $secteur): static
+    {
+        if ($this->secteurs->removeElement($secteur)) {
+            $secteur->removeCandidat($this);
         }
 
         return $this;

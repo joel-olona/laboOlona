@@ -17,6 +17,17 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    const ACCOUNT_CANDIDAT = 'CANDIDAT';
+    const ACCOUNT_ENTREPRISE = 'ENTREPRISE';
+    const ACCOUNT_MODERATEUR = 'MODERATEUR';
+   
+    public static function getChoices() {
+        return [
+            'Candidat' => self::ACCOUNT_CANDIDAT ,
+            'Entreprise' => self::ACCOUNT_ENTREPRISE ,
+        ];
+    }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -40,7 +51,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'candidat', cascade: ['persist', 'remove'])]
     private ?CandidateProfile $candidateProfile = null;
 
-    #[ORM\Column(enumType: TypeUser::class, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $type = null;
 
     #[ORM\Column(length: 255, nullable: true)]

@@ -1,0 +1,61 @@
+{% set current_route = app.request.attributes.get('_route') %}
+<div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark position-sticky top-0" style="width: 280px;">
+
+  <ul class="nav nav-pills flex-column mb-auto">
+    <li>
+      <a href="{{ path('app_dashboard_expert') }}" class="nav-link {{ current_route == 'app_dashboard_expert' ? 'active' : 'text-white' }}">
+        <i class="mx-2 h5 bi bi-house-door"></i>
+        {{ 'app_dashboard_expert.title'|trans }}
+      </a>
+    </li>
+  </ul>
+  <hr>
+
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li>
+        <a href="{{ path('app_dashboard_expert_posting') }}" class="nav-link {{ current_route == 'app_dashboard_expert_posting' ? 'active' : 'text-white' }}">
+          <i class="mx-2 h5 bi bi-search"></i>
+          {{ 'app_dashboard_expert.find'|trans }}
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_expert_posting_all') }}" class="nav-link {{ current_route == 'app_dashboard_expert_posting_all' ? 'active' : 'text-white' }}">
+          <i class="mx-2 h5 bi bi-megaphone"></i>
+          {{ 'app_dashboard_expert_posting_all.my_posting'|trans }}
+        </a>
+
+      </li>
+    {# <li class="nav-item">
+            <a href="{{ path('app_dashboard_expert_formation')}}" 
+                class="nav-link {{ current_route == 'app_dashboard_expert_formation' ? 'active' : 'text-white' }}" 
+                {{ current_route == 'app_dashboard_expert_formation' ? 'aria-current=page' : '' }}>
+                <i class="mx-2 h5 bi bi-archive"></i>
+                {{ 'app_dashboard_expert_formation.menu'|trans }}   
+            </a>
+          </li>
+          <li>
+            <a href="{{ path('app_dashboard_expert_tools')}}" 
+                class="nav-link {{ current_route == 'app_dashboard_expert_tools' ? 'active' : 'text-white' }}">
+                <i class="mx-2 h5 bi bi-tools"></i>
+                {{ 'app_dashboard_expert_tools.menu'|trans }}  
+            </a>
+          </li> #}
+    </ul>
+
+    <hr>
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a href="{{ path('app_dashboard_expert_account') }}" class="nav-link {{ current_route == 'app_dashboard_expert_account' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-person-circle"></i>
+            {{ 'app_dashboard_expert_account.menu'|trans }}
+          </a>
+        </li>
+        <li>
+          <a href="{{ path('app_logout') }}" class="nav-link text-white">
+            <i class="mx-2 h5 bi bi-box-arrow-right"></i>
+            {{ 'app_dashboard_company.logout'|trans }}
+          </a>
+        </li>
+      </ul>
+    </div>
+    

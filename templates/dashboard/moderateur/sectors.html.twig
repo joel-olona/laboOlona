@@ -1,0 +1,68 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+
+<div class="container mt-5">
+    <h2>Secteurs</h2>
+    <a href="{{ path('app_dashboard_moderateur_new_sector')}}" class="btn btn-info my-3">Ajouter</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>
+                    ID
+                </th>
+                <th>
+                    Nom
+                    <input type="text" id="filter-nom" data-column="0" class="form-control form-control-sm" placeholder="Filtre">
+                </th>
+                <th>
+                    Description
+                    <input type="text" id="filter-description" data-column="3" class="form-control form-control-sm" placeholder="Filtre" style="width: auto; margin-left: 10px;">
+                </th>
+                <th>
+                    Action
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sector in sectors %}
+                <tr>
+                    <td>{{ sector.id }}</td>
+                    <td>{{ sector.nom }}</td>
+                    <td>{{ sector.description }}</td>
+                    <td>
+                    <a href="{{ path('ajax_edit_sector', {'id': sector.id} )}}"><i class="bi bi-pencil"></i></a>
+                    <a href="{{ path('ajax_remove_sector', {'id': sector.id} )}}"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filters = document.querySelectorAll('input[id^="filter-"]');
+        for(let filter of filters) {
+            filter.addEventListener('keyup', function() {
+                const filterValue = filter.value.toLowerCase();
+                const tbody = document.querySelector('tbody');
+                for(let row of tbody.rows) {
+                    const columnIndex = filter.getAttribute('data-column');
+                    const cell = row.cells[columnIndex].textContent.toLowerCase();
+                    if(cell.includes(filterValue)) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
+

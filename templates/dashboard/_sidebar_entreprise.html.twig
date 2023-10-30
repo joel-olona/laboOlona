@@ -1,0 +1,64 @@
+{% set current_route = app.request.attributes.get('_route') %}
+<div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark position-sticky top-0" style="width: 280px;">
+    <a href="{{ path('app_dashboard_entreprise')}}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+      <span class="fs-4">{{ 'app_dashboard_company.title'|trans }}   </span>
+    </a>
+    <hr>
+
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item">
+        <a href="{{ path('app_dashboard_entreprise_new_annonce')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_entreprise_new_annonce' ? 'active' : 'text-white' }}" 
+            {{ current_route == 'app_dashboard_entreprise_new_annonce' ? 'aria-current=page' : '' }}>
+            <i class="mx-2 h5 bi bi-plus-lg"></i>
+            {{ 'app_dashboard_company.publish'|trans }}   
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_candidat_annonce')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_candidat_annonce' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-megaphone"></i>
+            {{ 'app_dashboard_company.my_posting'|trans }}   
+        </a>
+
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_entreprise_candidats')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_entreprise_candidats' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-search"></i>
+            {{ 'app_dashboard_company.find'|trans }}  
+        </a>
+      </li>
+      {# <li>
+        <a href="{{ path('app_dashboard_company_message')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_company_message' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-chat-right-text"></i>
+            {{ 'app_dashboard_company.messaging'|trans }} 
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_company_notification')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_company_notification' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-bell"></i>
+            {{ 'app_dashboard_company.notification'|trans }}  
+        </a>
+      </li> #}
+    </ul>
+
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item">
+        <a href="{{ path('app_dashboard_entreprise_compte')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_entreprise_compte' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-person-circle"></i>
+            {{ 'app_dashboard_company.my_account'|trans }}    
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_logout')}}" class="nav-link text-white">
+            <i class="mx-2 h5 bi bi-box-arrow-right"></i>
+            {{ 'app_dashboard_company.logout'|trans }}    
+        </a>
+      </li>
+    </ul>
+  </div>

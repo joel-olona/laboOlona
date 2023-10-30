@@ -33,7 +33,7 @@ class Metting
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $lieu = null;
 
-    #[ORM\Column(enumType: StatusMetting::class)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $status = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

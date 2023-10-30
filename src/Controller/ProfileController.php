@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\EntrepriseProfile;
 use App\Entity\Enum\TypeUser;
 use App\Form\Profile\AccountType;
+use App\Form\Profile\EntrepriseType;
 use App\Manager\ProfileManager;
 use App\Service\Mailer\MailerService;
 use App\Service\User\UserService;
@@ -29,7 +30,25 @@ class ProfileController extends AbstractController
     }
     
     #[Route('/profile', name: 'app_profile')]
-    public function index(Request $request): Response
+    public function index(): Response
+    {
+        /** @var User $user */
+        $user = $this->userService->getCurrentUser();
+        if (null === $user || $user->getType() === TypeUser::Candidat) {
+            return $this->redirectToRoute('app_profile_candidate_step_one');
+        }
+        if (null === $user || $user->getType() === TypeUser::Entreprise) {
+            return $this->redirectToRoute('app_profile_entreprise');
+        }
+        if (null === $user || $user->getType() === TypeUser::Moderateur) {
+            return $this->redirectToRoute('app_profile_create');
+        }
+        
+        return $this->redirectToRoute('app_profile_account', []);
+    }
+    
+    #[Route('/profile/account', name: 'app_profile_account')]
+    public function account(Request $request): Response
     {
         $user = $this->userService->getCurrentUser();
         $form = $this->createForm(AccountType::class, $user,[]);
@@ -48,17 +67,17 @@ class ProfileController extends AbstractController
                 ]
             );
 
-            if($user->getType() !== TypeUser::Entreprise ) return $this->redirectToRoute('app_profile_company', []);
+            if($user->getType() !== TypeUser::Entreprise ) return $this->redirectToRoute('app_profile_entreprise', []);
             
             return $this->redirectToRoute('app_profile_candidate_step_one', []);
         }
 
-        return $this->render('profile/index.html.twig', [
+        return $this->render('profile/account.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
-    #[Route('/profile/company', name: 'app_profile_company')]
+    #[Route('/profile/company', name: 'app_profile_entreprise')]
     public function company(Request $request): Response
     {
         /** @var $user User */
@@ -69,17 +88,17 @@ class ProfileController extends AbstractController
             $company = $this->profileManager->createCompany($user);
         }
 
-        $form = $this->createForm(CompanyType::class, $company, []);
+        $form = $this->createForm(EntrepriseType::class, $company, []);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $company = $form->getData();
             $this->em->persist($company);
             $this->em->flush();
 
-            return $this->redirectToRoute('app_identity_confirmation', []);
+            return $this->redirectToRoute('app_profile_confirmation', []);
         }
 
-        return $this->render('identity/company.html.twig', [
+        return $this->render('profile/entreprise.html.twig', [
             'user' => $this->getUser(),
             'form' => $form->createView(),
         ]);
@@ -103,12 +122,20 @@ class ProfileController extends AbstractController
             $this->em->persist($company);
             $this->em->flush();
 
-            return $this->redirectToRoute('app_identity_confirmation', []);
+            return $this->redirectToRoute('app_profile_confirmation', []);
         }
 
         return $this->render('identity/company.html.twig', [
             'user' => $this->getUser(),
             'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/profile/confirmation', name: 'app_profile_confirmation')]
+    public function confirmation(): Response
+    {
+        return $this->render('profile/confirmation.html.twig', [
+            'controller_name' => 'profileController',
         ]);
     }
 

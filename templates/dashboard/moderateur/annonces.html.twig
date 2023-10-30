@@ -1,0 +1,96 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+
+<div class="container mt-5">
+    <h2>Annonces</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>
+                    ID
+                    <input type="text" id="filter-id" data-column="0" class="form-control form-control-sm" placeholder="Filtre">
+                </th>
+                <th>
+                    Entreprise
+                    <input type="text" id="filter-entreprise" data-column="1" class="form-control form-control-sm" placeholder="Filtre">
+                </th>
+                <th>
+                    Titre
+                    <input type="text" id="filter-titre" data-column="2" class="form-control form-control-sm" placeholder="Filtre">
+                </th>
+                <th>
+                    Description
+                    <input type="text" id="filter-description" data-column="3" class="form-control form-control-sm" placeholder="Filtre">
+                </th>
+                <th>
+                    Status
+                    <input type="text" id="filter-titre" data-column="4" class="form-control form-control-sm" placeholder="Filtre">
+                </th>
+                <th>
+                </th>
+                <!-- ... Ajoutez les autres colonnes de la même manière ... -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for annonce in annonces %}
+                <tr>
+                    <td>{{ annonce.id }}</td>
+                    <td>{{ annonce.entreprise.entreprise.nom }}</td>
+                    <td>{{ annonce.titre }}</td>
+                    <td>{{ annonce.description|length > 100 ? annonce.description|slice(0, 97) ~ '...' : annonce.description }}</td>
+                    <td>
+                    
+                    <form action="{{ path('chemin_vers_la_route_de_mise_a_jour', {'id': annonce.id}) }}" method="post">
+                        <select name="status" class="form-control" onchange="this.form.submit()">
+                            <option value="CLOSED" {{ annonce.status == 'CLOSED' ? 'selected' : '' }}>Fermé</option>
+                            <option value="OPEN" {{ annonce.status == 'OPEN' ? 'selected' : '' }}>Ouvert</option>
+                            <option value="FILLED" {{ annonce.status == 'status' ? 'selected' : '' }}>Pourvu</option>
+                            <!-- Ajoutez autant d'options que nécessaire -->
+                        </select>
+                    </form>
+
+                    </td>
+                    <td style="display:flex;">
+                        <a href="#" class="btn btn-primary rounded-circle p-2 mx-1 lh-1"><i class="bi bi-eye"></i></a>
+                        <a href="#" class="btn btn-primary rounded-circle p-2 mx-1 lh-1"><i class="bi bi-trash"></i></a>
+                    </td>
+                    <!-- ... Affichez les autres champs de la même manière ... -->
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filters = document.querySelectorAll('input[id^="filter-"]');
+        for(let filter of filters) {
+            filter.addEventListener('keyup', function() {
+                const filterValue = filter.value.toLowerCase();
+                const tbody = document.querySelector('tbody');
+                for(let row of tbody.rows) {
+                    const columnIndex = filter.getAttribute('data-column');
+                    const cell = row.cells[columnIndex].textContent.toLowerCase();
+                    if(cell.includes(filterValue)) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{# {% block body %}
+
+{% for annonce in annonces %}
+    {% include "composants/table_annonce.html.twig" with {annonce: annonce} %}
+{% endfor %}
+
+{% endblock %} #}

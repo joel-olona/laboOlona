@@ -2,9 +2,10 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Entity\User;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
@@ -36,20 +37,17 @@ class SecurityController extends AbstractController
         /** @var User|null $user */
         $user = $this->getUser();
     
-        // if (null === $user || !$user->getIdentity() instanceof Identity) {
-        //     return $this->redirectToRoute('app_identity_create');
-        // }
+        if (null === $user || $user->getType() === User::ACCOUNT_MODERATEUR) {
+            return $this->redirectToRoute('app_dashboard_moderateur');
+        }
     
-        // /** @var Identity $identity */
-        // $identity = $user->getIdentity();
+        if (null === $user || $user->getType() === User::ACCOUNT_ENTREPRISE) {
+            return $this->redirectToRoute('app_dashboard_entreprise');
+        }
     
-        // if ($identity->getCompany() instanceof Company) {
-        //     return $this->redirectToRoute('app_dashboard_company');
-        // }
-    
-        // if ($identity->getExpert() instanceof Expert) {
-        //     return $this->redirectToRoute('app_dashboard_expert');
-        // }
+        if (null === $user || $user->getType() === User::ACCOUNT_CANDIDAT) {
+            return $this->redirectToRoute('app_dashboard_candidat');
+        }
     
         return $this->redirectToRoute('app_profile');
     }
