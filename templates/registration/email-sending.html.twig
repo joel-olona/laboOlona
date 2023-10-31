@@ -1,0 +1,20 @@
+{% extends "base.html.twig" %}
+{% block body %}
+<section id="email-sending" class="" style="background-color: black;">
+    <div class="text-center">
+        <h1 class="fs-2 mb-3 font-weight-normal">
+            {{ meta_title() }}
+        </h1>
+        <div class="col-6 offset-3">
+            <p class="my-4 text-white">
+                {{ 'app_email_sending.description'|trans }}
+            </p>
+            <p class="my-4 text-white">
+                {{ 'app_email_sending.not_received'|trans({
+                    '%resend_confirmation%': path('app_home_terms'),
+                })|raw }}
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

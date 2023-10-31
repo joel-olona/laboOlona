@@ -126,3 +126,26 @@ label.form-check-label.required{
 .text-right{
     text-align: right!important;
 }
+
+.filter-input {
+    width: 100%;
+    padding: 3px;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+}
+
+th {
+    position: relative;
+}
+
+#filter-id .filter-input .id-column {
+    width: 30px!important;
+}
+
+.entreprise-col, .titre-col, .description-col, .status-col {
+    width: 150px!important; /* Ajustez selon vos besoins */
+}
+
+.actions-col {
+    white-space: nowrap;
+}
