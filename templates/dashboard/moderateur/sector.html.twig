@@ -1,0 +1,32 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+
+<section id="hero" class="">
+    <div class="container d-flex flex-column justify-content-center">
+        <h1 class="h1 text-center py-4 text-black font-bold">
+            Ajouter un secteur d'activité
+        </h1>
+        <div class="row text-black">
+            {{ form_start(form)}}
+            {{ form_errors(form)}}
+            <div class="col-md-6 offset-md-3 text-center">
+                <hr class="my-4">
+                <div class="row">
+
+                        {{ form_widget(form) }}
+                
+                </div>
+            <button type="submit" class="btn btn-primary">Ajouter</button>
+            </div>
+            {{ form_end(form) }}
+        </div>
+                
+    </div>
+        <div class="row">
+            <div class="col-md-6"></div>
+            <div class="col-md-6"></div>
+        </div>
+    </div>
+</section>
+{% endblock %}

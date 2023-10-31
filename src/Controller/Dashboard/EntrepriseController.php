@@ -40,4 +40,11 @@ class EntrepriseController extends AbstractController
             'controller_name' => 'EntrepriseController',
         ]);
     }
+    #[Route('/compte', name: 'app_dashboard_entreprise_compte')]
+    public function compte(): Response
+    {
+        return $this->render('dashboard/entreprise/index.html.twig', [
+            'controller_name' => 'EntrepriseController',
+        ]);
+    }
 }

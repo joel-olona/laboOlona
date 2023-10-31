@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="robots" content="noindex">
+        <title>{% block title %}{{ meta_title() }}{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
+        <meta name="description" content="{{ meta_description() }}">
+        
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+        {% endblock %}
+
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
+    </head>
+    <body>
+        {% block header %} {% include "parts/_navbar-none.html.twig" with { 'title': dashboard_title()} %} {% endblock %}
+        <div class="bg-dark text-white">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-3">
+                        {% block sidebar %}
+                            {% if app.user.type == 'MODERATEUR' %}
+                            {% include "dashboard/_sidebar_moderateur.html.twig" %} 
+                            {% elseif app.user.type == 'ENTREPRISE' %}
+                            {% include "dashboard/_sidebar_entreprise.html.twig" %} 
+                            {% else %}
+                            {% include "dashboard/_sidebar_candidat.html.twig" %} 
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                    <div class="col-lg-9 p-1">
+                        <div class="div-plein-ecran bg-light text-dark p-3">
+                            {% block body %}{% endblock %}
+                            {% block inner_footer %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% block footer %} {% include "parts/_footer.html.twig" %} {% endblock %}
+        {% block modal %}{% endblock %}
+    </body>
+</html>
