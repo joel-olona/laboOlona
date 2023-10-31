@@ -1,0 +1,28 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2>Applications du Candidat</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Titre de l'Offre</th>
+                <th>Date de Soumission</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for application in applications %}
+                <tr>
+                    <td>{{ application.id }}</td>
+                    <td>{{ application.jobListing.titre }}</td>
+                    <td>{{ application.createdAt|date('Y-m-d') }}</td>
+                    <td>{{ application.status }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="btn btn-secondary">Retour aux Candidats</a>
+</div>
+{% endblock %}

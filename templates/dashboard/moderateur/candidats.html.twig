@@ -1,4 +1,49 @@
 {% extends 'dashboard/base.html.twig' %}
 
 {% block body %}
+<div class="container mt-5">
+    <h2>Liste des Candidats</h2>
+    <table class="table table-responsive" id="candidatsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Nombre de Compétences</th>
+                <th>Nombre d'Expériences</th>
+                <th>Nombre d'Applications</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for candidat in candidats %}
+                <tr>
+                    <td>{{ candidat.id }}</td>
+                    <td>{{ candidat.candidat.nom }}</td>
+                    <td>{{ candidat.candidat.email }}</td>
+                    <td><a href="{{ path('view_candidat_competences', {'id': candidat.id}) }}">{{ candidat.competences|length }}</a></td>
+                    <td><a href="{{ path('view_candidat_experiences', {'id': candidat.id}) }}">{{ candidat.experiences|length }}</a></td>
+                    <td><a href="{{ path('view_candidat_applications', {'id': candidat.id}) }}">{{ candidat.applications|length }}</a></td>
+                    <td>
+                        <a href="{{ path('view_candidat', {'id': candidat.id}) }}" class="btn btn-info">Voir</a>
+                        <a href="{{ path('edit_candidat', {'id': candidat.id}) }}" class="btn btn-warning">Éditer</a>
+                        <form method="post" action="{{ path('delete_candidat', {'id': candidat.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce candidat ?');">
+                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#candidatsTable').DataTable();
+        });
+    </script>
 {% endblock %}
