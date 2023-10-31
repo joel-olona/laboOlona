@@ -2,18 +2,23 @@
 
 namespace App\Entity;
 
-use App\Entity\Candidate\Applications;
-use App\Entity\Candidate\Competences;
-use App\Entity\Candidate\Experiences;
-use App\Entity\Moderateur\Metting;
-use App\Repository\CandidateProfileRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Serializable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Moderateur\Metting;
+use App\Entity\Candidate\Competences;
+use App\Entity\Candidate\Experiences;
+use App\Entity\Candidate\Applications;
+use Doctrine\Common\Collections\Collection;
+use App\Repository\CandidateProfileRepository;
+use DateTime;
+use Symfony\Component\HttpFoundation\File\File;
+use Doctrine\Common\Collections\ArrayCollection;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: CandidateProfileRepository::class)]
-class CandidateProfile
+#[Vich\Uploadable]
+class CandidateProfile implements Serializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -22,6 +27,11 @@ class CandidateProfile
 
     #[ORM\OneToOne(inversedBy: 'candidateProfile', cascade: ['persist', 'remove'])]
     private ?User $candidat = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $resume = null;
@@ -41,6 +51,24 @@ class CandidateProfile
     #[ORM\ManyToMany(targetEntity: Secteur::class, mappedBy: 'candidat')]
     private Collection $secteurs;
 
+    #[Vich\UploadableField(mapping: 'cv_expert', fileNameProperty: 'fileName')]
+    private ?File $file = null;
+    
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $fileName = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $localisation = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $birthday = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $titre = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $cv = null;
+
     public function __construct()
     {
         $this->competences = new ArrayCollection();
@@ -48,6 +76,7 @@ class CandidateProfile
         $this->applications = new ArrayCollection();
         $this->mettings = new ArrayCollection();
         $this->secteurs = new ArrayCollection();
+        $this->createdAt = new DateTime();
     }
 
     public function getId(): ?int
@@ -63,6 +92,30 @@ class CandidateProfile
     public function setCandidat(?User $candidat): static
     {
         $this->candidat = $candidat;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
@@ -219,6 +272,94 @@ class CandidateProfile
         if ($this->secteurs->removeElement($secteur)) {
             $secteur->removeCandidat($this);
         }
+
+        return $this;
+    }
+
+    public function setFile(?File $file = null): void
+    {
+        $this->file = $file;
+
+        if (null !== $file) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->updatedAt = new \DateTime();
+        }
+
+    }
+
+    public function getFile(): ?File
+    {
+        return $this->file;
+    }
+
+    public function getFileName(): ?string
+    {
+        return $this->fileName;
+    }
+
+    public function setFileName(?string $fileName): static
+    {
+        $this->fileName = $fileName;
+
+        return $this;
+    }
+    
+    public function serialize()
+    {
+        $this->fileName = base64_encode($this->fileName);
+    }
+
+    public function unserialize($serialized)
+    {
+        $this->fileName = base64_decode($this->fileName);
+
+    }
+
+    public function getLocalisation(): ?string
+    {
+        return $this->localisation;
+    }
+
+    public function setLocalisation(?string $localisation): static
+    {
+        $this->localisation = $localisation;
+
+        return $this;
+    }
+
+    public function getBirthday(): ?\DateTimeInterface
+    {
+        return $this->birthday;
+    }
+
+    public function setBirthday(?\DateTimeInterface $birthday): static
+    {
+        $this->birthday = $birthday;
+
+        return $this;
+    }
+
+    public function getTitre(): ?string
+    {
+        return $this->titre;
+    }
+
+    public function setTitre(?string $titre): static
+    {
+        $this->titre = $titre;
+
+        return $this;
+    }
+
+    public function getCv(): ?string
+    {
+        return $this->cv;
+    }
+
+    public function setCv(?string $cv): static
+    {
+        $this->cv = $cv;
 
         return $this;
     }
