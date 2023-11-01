@@ -1,0 +1,22 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2>Détails de l'Annonce de {{ entreprise.entreprise.nom }}</h2>
+    <dl>
+        <dt>ID</dt>
+        <dd>{{ annonce.id }}</dd>
+        <dt>Entreprise</dt>
+        <dd>{{ annonce.entreprise.entreprise.nom }}</dd>
+        <dt>Titre</dt>
+        <dd>{{ annonce.titre }}</dd>
+        <dt>Description</dt>
+        <dd>{{ annonce.description }}</dd>
+        <dt>Status</dt>
+        <dd>{{ annonce.status }}</dd>
+        <!-- ... Ajoutez d'autres champs si nécessaire ... -->
+    </dl>
+    <a href="{{ path('app_dashboard_moderateur_entreprises_annonces', {'id': entreprise.id}) }}" class="btn btn-secondary">Retour</a>
+
+</div>
+{% endblock %}
