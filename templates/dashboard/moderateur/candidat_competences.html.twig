@@ -1,0 +1,26 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2>Compétences du Candidat</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Niveau</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for competence in competences %}
+                <tr>
+                    <td>{{ competence.id }}</td>
+                    <td>{{ competence.nom }}</td>
+                    <td>{{ competence.niveau }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="btn btn-secondary">Retour aux Candidats</a>
+</div>
+{% endblock %}

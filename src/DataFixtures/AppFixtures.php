@@ -2,6 +2,10 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\CandidateProfile;
+use App\Entity\Candidate\Competences;
+use App\Entity\Candidate\Experiences;
+use App\Entity\Candidate\Applications;
 use Faker\Factory;
 use App\Entity\User;
 use App\Entity\Entreprise\JobListing;
@@ -10,14 +14,18 @@ use App\Entity\ModerateurProfile;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use App\Repository\EntrepriseProfileRepository;
+use App\Repository\CandidateProfileRepository;
 use DateTime;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+
+
 
 class AppFixtures extends Fixture
 {
     public function __construct(
         private EntrepriseProfileRepository $entrepriseProfileRepository,
+        private CandidateProfileRepository $candidateProfileRepository,
         private UserPasswordHasherInterface $encoder,
         private SluggerInterface $sluggerInterface,
     ){
@@ -25,6 +33,8 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
+        
+        
         // create 20 products! Bam!
         $faker = Factory::create('fr_FR');
 
@@ -134,6 +144,8 @@ class AppFixtures extends Fixture
 
         for ($i = 0; $i < 20; $i++) {
             $jobListing = new JobListing();
+            $titre = $faker->randomElement($job);
+            $slug = $this->sluggerInterface->slug($titre)->lower();
             $jobListing->setTitre($faker->randomElement($job));
             $jobListing->setDescription($faker->randomElement($jobdesc));
             $jobListing->setDateCreation($faker->dateTime());
@@ -143,6 +155,57 @@ class AppFixtures extends Fixture
             $jobListing->setSalaire(200.00);
             $jobListing->setEntreprise($faker->randomElement($entreprises));
             $manager->persist($jobListing);
+            $jobListings[] = $jobListing;
+        }
+
+        // Création des profils de candidats, compétences, expériences, et applications
+        $candidats = [];
+        for ($i = 0; $i < 10; $i++) {
+            $candidat = new CandidateProfile();
+            $candidat->setResume($faker->paragraph);
+
+            // Ajout des compétences
+            for ($j = 0; $j < 5; $j++) {
+                $competence = new Competences();
+                $competence->setNom($faker->word);
+                $competence->setSlug($this->sluggerInterface->slug($faker->word)->lower());
+                $manager->persist($competence);
+                $candidat->addCompetence($competence);
+            }
+
+            // Ajout des expériences professionnelles
+            for ($j = 0; $j < 5; $j++) {
+                $experience = new Experiences();
+                $experience->setNom($faker->jobTitle);
+                $experience->setDescription($faker->paragraph);
+                $manager->persist($experience);
+                $candidat->addExperience($experience);
+            }
+
+            $manager->persist($candidat);
+            $candidats[] = $candidat;
+        }
+
+            
+
+        // Création des applications (candidatures)
+        // foreach ($candidats as $candidat) {
+        //     $application = new Applications();
+        //     $application->setCandidat($candidats);
+        //     $application->setAnnonce($faker->randomElement($jobListings));
+        //     // autres configurations...
+        //     $manager->persist($application);
+        // }
+
+        foreach ($candidats as $candidat) {
+            $application = new Applications();
+            $application->setCandidat($candidat);
+            $application->setAnnonce($faker->randomElement($jobListings));
+            $application->setLettreMotivation($faker->paragraphs(3, true));
+            $application->setDateCandidature(new DateTime());
+            $application->setPretentionSalariale(200.00);
+            // autres configurations...
+            $manager->persist($application);
         }
 
         $manager->flush();
