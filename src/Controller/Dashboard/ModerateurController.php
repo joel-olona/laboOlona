@@ -451,16 +451,16 @@ public function detailsAnnonce(JobListing $annonce): JsonResponse
         ]);
     }
 
-    // #[Route('/metting/{id}', name: 'app_dashboard_moderateur_metting_delete', methods: ['POST'])]
-    // public function delete(Request $request, Metting $metting, EntityManagerInterface $entityManager): Response
-    // {
-    //     if ($this->isCsrfTokenValid('delete'.$metting->getId(), $request->request->get('_token'))) {
-    //         $entityManager->remove($metting);
-    //         $entityManager->flush();
-    //     }
+    #[Route('/metting/{id}', name: 'app_dashboard_moderateur_metting_delete', methods: ['POST'])]
+    public function delete(Request $request, Metting $metting, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$metting->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($metting);
+            $entityManager->flush();
+        }
 
-    //     return $this->redirectToRoute('app_dashboard_moderateur_mettings');
-    // }
+        return $this->redirectToRoute('app_dashboard_moderateur_mettings');
+    }
 
     #[Route('/notifications', name: 'app_dashboard_moderateur_notifications')]
     public function notifications(Request $request, NotificationRepository $notificationRepository): Response
