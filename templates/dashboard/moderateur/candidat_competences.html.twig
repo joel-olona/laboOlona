@@ -1,26 +1,36 @@
 {% extends 'dashboard/base.html.twig' %}
 
 {% block body %}
-<div class="container mt-5">
-    <h2>Compétences du Candidat</h2>
-    <table class="table">
+<div class="container mt-5">    
+    <h2>Compétences du Candidat {{ candidat.candidat.nom }}</h2>
+    <table class="table" id="competencesTable">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Nom</th>
-                <th>Niveau</th>
+                <th>Description</th>
             </tr>
         </thead>
         <tbody>
-            {% for competence in competences %}
+            {% for competence in candidat.competences %}
                 <tr>
                     <td>{{ competence.id }}</td>
                     <td>{{ competence.nom }}</td>
-                    <td>{{ competence.niveau }}</td>
+                    <td>{{ competence.description }}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
-    <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="btn btn-secondary">Retour aux Candidats</a>
+    <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="btn btn-primary">Retour aux candidats</a>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#competencesTable').DataTable();
+        });
+    </script>
 {% endblock %}

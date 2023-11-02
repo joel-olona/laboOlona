@@ -1,0 +1,13 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block title %}Créer un rendez-vous{% endblock %}
+
+{% block body %}
+    <h1>Créer un nouveau rendez-vous</h1>
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('app_dashboard_moderateur_mettings') }}">Retour à la liste des rendez-vous</a>
+{% endblock %}

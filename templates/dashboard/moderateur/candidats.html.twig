@@ -3,47 +3,145 @@
 {% block body %}
 <div class="container mt-5">
     <h2>Liste des Candidats</h2>
-    <table class="table table-responsive" id="candidatsTable">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nom</th>
-                <th>Email</th>
-                <th>Nombre de Compétences</th>
-                <th>Nombre d'Expériences</th>
-                <th>Nombre d'Applications</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for candidat in candidats %}
+    <div class="table-responsive">
+        <table class="table table-bordered" id="candidatsTable">
+            <thead class="table-light">
                 <tr>
-                    <td>{{ candidat.id }}</td>
-                    <td>{{ candidat.candidat.nom }}</td>
-                    <td>{{ candidat.candidat.email }}</td>
-                    <td><a href="{{ path('view_candidat_competences', {'id': candidat.id}) }}">{{ candidat.competences|length }}</a></td>
-                    <td><a href="{{ path('view_candidat_experiences', {'id': candidat.id}) }}">{{ candidat.experiences|length }}</a></td>
-                    <td><a href="{{ path('view_candidat_applications', {'id': candidat.id}) }}">{{ candidat.applications|length }}</a></td>
-                    <td>
-                        <a href="{{ path('view_candidat', {'id': candidat.id}) }}" class="btn btn-info">Voir</a>
-                        <a href="{{ path('edit_candidat', {'id': candidat.id}) }}" class="btn btn-warning">Éditer</a>
-                        <form method="post" action="{{ path('delete_candidat', {'id': candidat.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce candidat ?');">
-                            <button type="submit" class="btn btn-danger">Supprimer</button>
-                        </form>
-                    </td>
+                    <th>ID</th>
+                    <th><i class="fas fa-user"></i> Nom <i class="fas fa-sort" data-column="1"></i></th>
+                    <th><i class="fas fa-envelope"></i> Email <i class="fas fa-sort" data-column="2"></i></th>
+                    <th><i class="fas fa-file-signature"></i> Candidatures <i class="fas fa-sort"></i></th>
+                    <th><i class="fas fa-hourglass-half"></i> Cand. en attente <i class="fas fa-sort"></i></th>
+                    <th><i class="fas fa-check-circle"></i> Cand. acceptée <i class="fas fa-sort"></i></th>
+                    <th><i class="fas fa-times-circle"></i> Cand. réfusée <i class="fas fa-sort"></i></th>
+                    <th><i class="fas fa-tools"></i> Compétences <i class="fas fa-sort"></i></th>
+                    <th><i class="fas fa-briefcase"></i> Expériences<i class="fas fa-sort"></i></th>
+                    <th><i class="fas fa-eye"></i> Actions</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                <tr>
+                    <th></th>
+                    <th><input type="text" class="filter-input form-control form-control-sm" data-column="1" placeholder="Rechercher"></th>
+                    <th><input type="text" class="filter-input form-control form-control-sm" data-column="2" placeholder="Rechercher"></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for candidat in candidats %}
+                    <tr>
+                        <td>{{ candidat.id }}</td>
+                        <td>{{ candidat.candidat.nom }}</td>
+                        <td>{{ candidat.candidat.email }}</td>
+                        <td><a class="badge bg-primary" href="{{ path('app_dashboard_moderateur_candidat_applications', {'id': candidat.id}) }}">{{ candidat.applications|length }}</a></td>
+                        <td><a class="badge bg-warning text-dark" href="{{ path('app_dashboard_moderateur_candidat_applications_en_attente', {'id': candidat.id}) }}">{{ candidat.applications|filter(app => app.status == 'PENDING')|length }}</a></td>
+                        <td><a class="badge bg-success" href="{{ path('app_dashboard_moderateur_candidat_applications_acceptees', {'id': candidat.id}) }}">{{ candidat.applications|filter(app => app.status == 'ACCEPTED')|length }}</a></td>
+                        <td><a class="badge bg-danger" href="{{ path('app_dashboard_moderateur_candidat_applications_refusees', {'id': candidat.id}) }}">{{ candidat.applications|filter(app => app.status == 'REFUSED')|length }}</a></td>
+                        <td><a class="badge bg-info" href="{{ path('app_dashboard_moderateur_candidat_competences', {'id': candidat.id}) }}">{{ candidat.competences|length }}</a></td>
+                        <td><a class="badge bg-secondary" href="{{ path('app_dashboard_moderateur_candidat_experiences', {'id': candidat.id}) }}">{{ candidat.experiences|length }}</a></td>
+                        <td><a href="{{ path('app_dashboard_moderateur_candidat_view', {'id': candidat.id}) }}" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Voir</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        #candidatsTable th {
+            font-size: 0.9em;
+            padding: 8px;
+            white-space: nowrap;
+        }
+        #candidatsTable td {
+            font-size: 0.9em;
+            padding: 8px;
+        }
+        .filter-input {
+            margin-top: 5px;
+            font-size: 0.8em;
+        }
+        .fa-sort {
+            font-size: 0.8em;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 20px;
+            margin-bottom: 20px; /* Ajoutez une marge en bas des éléments de contrôle */
+        }
+    </style>
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://kit.fontawesome.com/YOUR_REAL_FONT_AWESOME_KIT_CODE.js"></script>
     <script>
-        $(document).ready(function () {
-            $('#candidatsTable').DataTable();
-        });
+       $(document).ready(function () {
+    var table = $('#candidatsTable').DataTable({
+        "order": [],
+        "columnDefs": [
+            { "orderable": false, "targets": "_all" },
+            { "type": "num", "targets": [0, 3, 4, 5, 6, 7, 8] }
+        ],
+        "language": {
+            "sProcessing":     "Traitement en cours...",
+            "sSearch":         "Rechercher&nbsp;:",
+            "sLengthMenu":     "Afficher _MENU_ &eacute;l&eacute;ments",
+            "sInfo":           "Affichage de l'&eacute;l&eacute;ment _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments",
+            "sInfoEmpty":      "Affichage de l'&eacute;l&eacute;ment 0 &agrave; 0 sur 0 &eacute;l&eacute;ment",
+            "sInfoFiltered":   "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
+            "sInfoPostFix":    "",
+            "sLoadingRecords": "Chargement en cours...",
+            "sZeroRecords":    "Aucun &eacute;l&eacute;ment &agrave; afficher",
+            "sEmptyTable":     "Aucune donn&eacute;e disponible dans le tableau",
+            "oPaginate": {
+                "sFirst":      "Premier",
+                "sPrevious":   "Pr&eacute;c&eacute;dent",
+                "sNext":       "Suivant",
+                "sLast":       "Dernier"
+            },
+            "oAria": {
+                "sSortAscending":  ": activer pour trier la colonne par ordre croissant",
+                "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+            },
+            "select": {
+                    "rows": {
+                        "_": "%d lignes s&eacute;lectionn&eacute;es",
+                        "0": "Aucune ligne s&eacute;lectionn&eacute;e",
+                        "1": "1 ligne s&eacute;lectionn&eacute;e"
+                    } 
+            }
+        }
+    });
+
+    $(".filter-input").on("keyup", function() {
+        var input = $(this).val().toLowerCase();
+        var column = $(this).data('column');
+        table.column(column).search(input).draw();
+    });
+
+    $(".fa-sort").on("click", function() {
+        var column = $(this).data('column');
+        var currentOrder = table.column(column).order();
+        var newOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+        table.order([column, newOrder]).draw();
+    });
+});
+
+
     </script>
 {% endblock %}

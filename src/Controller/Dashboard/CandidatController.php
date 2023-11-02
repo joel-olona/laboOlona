@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+
 #[Route('/dashboard/candidat')]
 class CandidatController extends AbstractController
 {
@@ -24,4 +25,5 @@ class CandidatController extends AbstractController
             'controller_name' => 'CandidatController',
         ]);
     }
+    
 }

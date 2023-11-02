@@ -2,7 +2,7 @@
 
 {% block body %}
 <div class="container mt-5">
-    <h2>Applications du Candidat</h2>
+    <h2>Applications Refusées du Candidat</h2>
     <table class="table table-responsive" id="applicationsTable">
         <thead>
             <tr>
@@ -27,7 +27,6 @@
                     <td><a href="{{ application.cvLink }}" target="_blank">Voir CV</a></td>
                     <td>{{ application.dateCandidature|date('Y-m-d H:i') }}</td>
                     <td>
-                    <td>
                         <form method="post" action="{{ path('change_status_application', {'id': application.id}) }}">
                             <select name="status" class="form-control" onchange="this.form.submit()">
                                 <option value="ACCEPTED" {{ application.status == 'ACCEPTED' ? 'selected' : '' }}>Accepté</option>
@@ -37,17 +36,11 @@
                         </form>
                     </td>
                     <td>{{ application.pretentionSalariale }}</td>
-                    {# <td>
-                        <a href="{{ path('view_application', {'id': application.id}) }}" class="btn btn-info">Voir</a>
-                        <a href="{{ path('edit_application', {'id': application.id}) }}" class="btn btn-warning">Éditer</a>
-                        <form method="post" action="{{ path('delete_application', {'id': application.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette application ?');">
-                            <button type="submit" class="btn btn-danger">Supprimer</button>
-                        </form>
-                    </td> #}
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+    <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="btn btn-primary">Retour aux candidats</a>
 </div>
 {% endblock %}
 
@@ -57,13 +50,6 @@
     <script>
         $(document).ready(function () {
             $('#applicationsTable').DataTable();
-        });
-        document.addEventListener('DOMContentLoaded', (event) => {
-            document.querySelectorAll('.status-select').forEach(select => {
-                select.addEventListener('change', function() {
-                    this.closest('form').submit();
-                });
-            });
         });
     </script>
 {% endblock %}

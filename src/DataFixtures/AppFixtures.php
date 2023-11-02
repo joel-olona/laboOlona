@@ -2,30 +2,27 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\CandidateProfile;
+use App\Entity\Candidate\Applications;
 use App\Entity\Candidate\Competences;
 use App\Entity\Candidate\Experiences;
-use App\Entity\Candidate\Applications;
+use App\Entity\CandidateProfile;
 use Faker\Factory;
 use App\Entity\User;
 use App\Entity\Entreprise\JobListing;
 use App\Entity\EntrepriseProfile;
 use App\Entity\ModerateurProfile;
+use App\Entity\Secteur;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use App\Repository\EntrepriseProfileRepository;
-use App\Repository\CandidateProfileRepository;
 use DateTime;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-
-
 
 class AppFixtures extends Fixture
 {
     public function __construct(
         private EntrepriseProfileRepository $entrepriseProfileRepository,
-        private CandidateProfileRepository $candidateProfileRepository,
         private UserPasswordHasherInterface $encoder,
         private SluggerInterface $sluggerInterface,
     ){
@@ -33,8 +30,6 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        
-        
         // create 20 products! Bam!
         $faker = Factory::create('fr_FR');
 
@@ -64,6 +59,7 @@ class AppFixtures extends Fixture
             L'UI/UX devra être user-friendly, sans pour autant être jolie, nous recherchons l'efficacité avant tout. Egalement, il sera nécessaire de pouvoir faire plusieurs espaces utilisateurs, car nous avons plusieurs profils Fruitz différent à créer.
             
             Le principe est de cloner une instance BlueStacks qui servira de modèle pour les suivantes. On t'apportera plus de précision lors d'un call :)
+
             
             A très vite !",
             "Pour une plateforme de restitution d'un projet européen, notre association a fait le choix de l'outil YesWiki. Nous avons construit la majorité du site (arborescences, principales pages, structure des données, etc.) et cherchons désormais :
@@ -96,6 +92,7 @@ class AppFixtures extends Fixture
             Pour info, la refonte est tout récente et le site en lui-même (design, usage, fonctionnalités) doivent rester intactes..",
         ];
         $status = ['OPEN', 'CLOSED', 'FILLED'];
+        $statusCandidature = ['PENDING', 'ACCEPTED', 'REFUSED'];
         $typeContrat = [
             "CDI",
             "CDD",
@@ -109,7 +106,7 @@ class AppFixtures extends Fixture
             ->setPrenom('Olona')
             ->setDateInscription(new DateTime())
             ->setType(User::ACCOUNT_MODERATEUR)
-            ->setEmail('moderateur@gmail.com')
+            ->setemail('moderateur@gmail.com')
             ->setPassword($this->encoder->hashPassword($user, $plainPassword));
 
         $moderateur = new ModerateurProfile();
@@ -120,11 +117,11 @@ class AppFixtures extends Fixture
 
         $entreprises = [];
 
-        for ($i = 0; $i < 2; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $user = new User();
             $plainPassword = '000000';
-            $user->setNom('Client')
-                ->setPrenom('Olona')
+            $user->setNom($faker->lastName)
+                ->setPrenom($faker->firstName)
                 ->setDateInscription(new DateTime())
                 ->setType(User::ACCOUNT_ENTREPRISE)
                 ->setEmail($faker->email)
@@ -142,10 +139,10 @@ class AppFixtures extends Fixture
             $entreprises[] = $entreprise;
         }
 
+        $jobListings = [];
+
         for ($i = 0; $i < 20; $i++) {
             $jobListing = new JobListing();
-            $titre = $faker->randomElement($job);
-            $slug = $this->sluggerInterface->slug($titre)->lower();
             $jobListing->setTitre($faker->randomElement($job));
             $jobListing->setDescription($faker->randomElement($jobdesc));
             $jobListing->setDateCreation($faker->dateTime());
@@ -155,58 +152,244 @@ class AppFixtures extends Fixture
             $jobListing->setSalaire(200.00);
             $jobListing->setEntreprise($faker->randomElement($entreprises));
             $manager->persist($jobListing);
+
             $jobListings[] = $jobListing;
         }
 
-        // Création des profils de candidats, compétences, expériences, et applications
+        $experiencesArray = [
+            // IT - Développement
+            "Développeur Web Full-Stack",
+            "Ingénieur Logiciel Backend Java",
+            "Architecte Cloud AWS",
+            "Data Scientist en Machine Learning",
+        
+            // Marketing Digital
+            "Chef de Projet SEO",
+            "Spécialiste en Publicité Facebook Ads",
+            "Content Manager pour Blog Tech",
+            "Expert en Email Marketing",
+        
+            // Commercial
+            "Responsable Commercial B2B",
+            "Attaché Commercial Région Sud",
+            "Négociateur en Vente de Solutions IT",
+            "Gestionnaire de Comptes Clés",
+        
+            // Recrutement
+            "Consultant en Recrutement Tech",
+            "Talent Acquisition Manager",
+            "Chasseur de Têtes pour Profils Rares",
+            "Coordinateur de Recrutement RH",
+        
+            // RH - Administration
+            "Gestionnaire RH et Paie",
+            "Coordinateur de Formation Continue",
+            "Responsable des Avantages Sociaux",
+            "Spécialiste en Relations du Travail"
+        ];
+
+        $s = [
+            0 => [
+                'name' => 'IT - Devéloppement',
+                'slug' => 'it-developpement',
+                'competences' => [
+                    'Programmation',
+                    'Maîtrise des systèmes de gestion de bases de données',
+                    'Développement Front-end ',
+                    'Conception et architecture logicielle',
+                    'Intégration continue et déploiement continu (CI/CD)',
+                    'Développement mobile (e.g., Android, iOS)',
+                ],
+            ],
+            1 => [
+                'name' => 'Marketing Digital',
+                'slug' => 'marketing-digital',
+                'competences' => [
+                    'SEO (Optimisation pour les moteurs de recherche)',
+                    'SEM (Marketing sur les moteurs de recherche)',
+                    'Marketing sur les réseaux sociaux',
+                    'Analyse de données et KPIs',
+                    'Content marketing',
+                    'E-mail marketing',
+                ],
+            ],
+            2 => [
+                'name' => 'Commercial',
+                'slug' => 'commercial',
+                'competences' => [
+                    'Techniques de vente',
+                    'Négociation commerciale',
+                    'Gestion de la relation client (CRM)',
+                    'Prospection commerciale',
+                    'Connaissance des produits/services de l\'entreprise',
+                    'Stratégie de vente et marketing',
+                    'Analyse des besoins du client',
+                ],
+            ],
+            3 => [
+                'name' => 'Recrutement',
+                'slug' => 'recrutement',
+                'competences' => [
+                    'Sourcing de candidats',
+                    'Entretiens d\'embauche',
+                    'Évaluation et sélection des candidats',
+                    'Connaissance des outils de recrutement (e.g., LinkedIn, plateformes d\'offres d\'emploi)',
+                    'Conception et rédaction d\'offres d\'emploi',
+                    'Législation du travail et réglementation de l\'embauche',
+                    'Gestion des relations avec les agences de recrutement',
+                ],
+            ],
+            4 => [
+                'name' => 'RH - Administration',
+                'slug' => 'rh-administration',
+                'competences' => [
+                    'Gestion administrative du personnel',
+                    'Gestion des paies',
+                    'Connaissance de la législation du travail',
+                    'Formation et développement des employés',
+                    'Gestion des conflits et médiation',
+                    'Évaluation des performances',
+                    'Gestion des avantages et rémunérations',
+                ],
+            ],
+            5 => [
+                'name' => 'Finance',
+                'slug' => 'finance',
+                'competences' => [
+                    'Analyse financière',
+                    'Comptabilité',
+                    'Gestion de trésorerie',
+                    'Planification financière et budgétisation',
+                    'Connaissance des réglementations financières',
+                    'Évaluation d\'investissement',
+                    'Gestion des risques financiers',
+                ],
+            ],
+            6 => [
+                'name' => 'Construction',
+                'slug' => 'construction',
+                'competences' => [
+                    'Gestion de projet de construction',
+                    'Connaissance des matériaux de construction',
+                    'Lecture et interprétation des plans et schémas',
+                    'Sécurité sur les chantiers',
+                    'Connaissance des réglementations de construction',
+                    'Estimation des coûts de construction',
+                    'Gestion d\'équipe sur chantier',
+                ],
+            ],
+            7 => [
+                'name' => 'Immobilier',
+                'slug' => 'immobilier',
+                'competences' => [
+                    'Estimation de la valeur des biens',
+                    'Connaissance du marché immobilier local',
+                    'Techniques de négociation immobilière',
+                    'Réglementation et droit immobilier',
+                    'Gestion de portefeuille de biens',
+                    'Marketing et promotion immobilière',
+                    'Gestion locative et relation avec les locataires',
+                ],
+            ],
+            8 => [
+                'name' => 'Transport et logistique',
+                'slug' => 'transport-et-logistique',
+                'competences' => [
+                    'Planification et optimisation des itinéraires',
+                    'Gestion de flotte et entretien des véhicules',
+                    'Connaissance des réglementations de transport',
+                    'Gestion des stocks et entreposage',
+                    'Suivi et optimisation de la chaîne d\'approvisionnement',
+                    'Logistique inverse (retours et échanges)',
+                    'Sécurité et conformité dans le transport',
+                ],
+            ],
+            9 => [
+                'name' => 'Éducation',
+                'slug' => 'education',
+                'competences' => [
+                    'Pédagogie',
+                    'Conception de programmes d\'études',
+                    'Technologies éducatives',
+                    'Gestion de classe',
+                    'Évaluation des étudiants',
+                    'Formation continue et développement professionnel',
+                ],
+            ],
+        ];
+
+        $sectors = [];
+        $technicalskills = [];
+        foreach ($s as $key => $value) {
+            $sector = new Secteur();
+            $sector
+                ->setNom($value['name'])
+                ->setSlug($value['slug']);
+
+                foreach ($value['competences'] as $competence) {
+                    $skill = new Competences();
+                    $skill
+                        ->setNom($competence)
+                        ->setSlug($this->sluggerInterface->slug($competence));
+
+                    $manager->persist($skill);
+                    $technicalskills[] = $skill;
+                }
+
+            $manager->persist($sector);
+            $sectors[] = $sector;
+        }
+
+        $experiences = [];
+        foreach ($experiencesArray as $key => $value) {
+            $experience = new Experiences();
+            $experience
+                ->setNom($value)
+                ->setDescription($faker->paragraph(4));
+
+            $manager->persist($experience);
+            $experiences[] = $experience;
+        }
+
         $candidats = [];
-        for ($i = 0; $i < 10; $i++) {
+
+        for ($i = 0; $i < 20; $i++) {
+            $user = new User();
+            $plainPassword = '000000';
+            $user->setNom($faker->lastName)
+                ->setPrenom($faker->firstName)
+                ->setDateInscription(new DateTime())
+                ->setType(User::ACCOUNT_CANDIDAT)
+                ->setEmail($faker->email)
+                ->setPassword($this->encoder->hashPassword($user, $plainPassword));
+
             $candidat = new CandidateProfile();
-            $candidat->setResume($faker->paragraph);
+            $candidat->setCandidat($user)
+                ->addExperience($faker->randomElement($experiences))
+                ->addExperience($faker->randomElement($experiences))
+                ->addCompetence($faker->randomElement($technicalskills))
+                ->addCompetence($faker->randomElement($technicalskills))
+                ->setResume($faker->paragraph(4));
 
-            // Ajout des compétences
-            for ($j = 0; $j < 5; $j++) {
-                $competence = new Competences();
-                $competence->setNom($faker->word);
-                $competence->setSlug($this->sluggerInterface->slug($faker->word)->lower());
-                $manager->persist($competence);
-                $candidat->addCompetence($competence);
-            }
+                $manager->persist($user);
+                $manager->persist($candidat);
 
-            // Ajout des expériences professionnelles
-            for ($j = 0; $j < 5; $j++) {
-                $experience = new Experiences();
-                $experience->setNom($faker->jobTitle);
-                $experience->setDescription($faker->paragraph);
-                $manager->persist($experience);
-                $candidat->addExperience($experience);
-            }
-
-            $manager->persist($candidat);
             $candidats[] = $candidat;
         }
 
-            
-
-        // Création des applications (candidatures)
-        // foreach ($candidats as $candidat) {
-        //     $application = new Applications();
-        //     $application->setCandidat($candidats);
-        //     $application->setAnnonce($faker->randomElement($jobListings));
-        //     // autres configurations...
-        //     $manager->persist($application);
-        // }
-
-        foreach ($candidats as $candidat) {
+        for ($i = 0; $i < 20; $i++) {
             $application = new Applications();
-            $application->setCandidat($candidat);
-            $application->setAnnonce($faker->randomElement($jobListings));
-            $application->setLettreMotivation($faker->paragraphs(3, true));
-            $application->setDateCandidature(new DateTime());
-            $application->setPretentionSalariale(200.00);
-            // autres configurations...
+            $application
+                ->setAnnonce($faker->randomElement($jobListings))
+                ->setCandidat($faker->randomElement($candidats))
+                ->setLettreMotivation($faker->paragraph(3))
+                ->setDateCandidature($faker->dateTime())
+                ->setPretentionSalariale(120.00)
+                ->setStatus($faker->randomElement($statusCandidature));
+
             $manager->persist($application);
         }
+
 
         $manager->flush();
     }

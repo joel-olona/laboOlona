@@ -4,6 +4,7 @@ namespace App\Controller\Dashboard;
 
 use App\Entity\Entreprise\JobListing;
 use App\Entity\EntrepriseProfile;
+use App\Entity\Moderateur\Metting;
 use App\Form\JobListingType;
 use App\Manager\ProfileManager;
 use App\Service\User\UserService;
@@ -31,6 +32,10 @@ use App\Entity\Candidate\Experiences;
 use App\Repository\Candidate\ApplicationsRepository;
 use App\Repository\Candidate\CompetencesRepository;
 use App\Repository\Candidate\ExperiencesRepository;
+use App\Form\MettingType;
+use Symfony\Bridge\Doctrine\ArgumentResolver\EntityValueResolver;
+
+
 
 #[Route('/dashboard/moderateur')]
 class ModerateurController extends AbstractController
@@ -262,9 +267,17 @@ public function detailsAnnonce(JobListing $annonce): JsonResponse
         public function candidats(CandidateProfileRepository $candidateProfileRepository): Response
         {
             $candidats = $candidateProfileRepository->findAll();
-            dd($candidats);
+            
             return $this->render('dashboard/moderateur/candidats.html.twig', [
                 'candidats' => $candidats,
+            ]);
+        }
+
+        #[Route('/candidats/{id}', name: 'app_dashboard_moderateur_candidat_view')]
+        public function viewCandidat(CandidateProfile $candidat): Response
+        {
+            return $this->render('dashboard/moderateur/candidat_view.html.twig', [
+                'candidat' => $candidat,
             ]);
         }
 
@@ -278,66 +291,175 @@ public function detailsAnnonce(JobListing $annonce): JsonResponse
             ]);
         }
 
+       #[Route('/status/application/{id}', name: 'change_status_application', methods: ['POST'])]
+        public function changeApplicationStatus(Request $request, EntityManagerInterface $entityManager, Applications $application): Response
+        {
+            $status = $request->request->get('status');
+            if ($status && in_array($status, ['ACCEPTED', 'REFUSED', 'PENDING'])) {
+                $application->setStatus($status);
+                $entityManager->flush();
+                $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
+            } else {
+                $this->addFlash('error', 'Statut invalide.');
+            }
+
+            return $this->redirectToRoute('app_dashboard_moderateur_candidat_applications', ['id' => $application->getCandidat()->getId()]);
+        }
+
+        #[Route('/candidats/{id}/applications/en-attente', name: 'app_dashboard_moderateur_candidat_applications_en_attente')]
+        public function candidatApplicationsEnAttente(int $id, ApplicationsRepository $applicationsRepository): Response
+        {
+            $applications = $applicationsRepository->findBy(['candidat' => $id, 'status' => 'PENDING']);
+
+            return $this->render('dashboard/moderateur/candidat_applications_en_attente.html.twig', [
+                'applications' => $applications,
+            ]);
+        }
+
+        #[Route('/candidats/{id}/applications/acceptees', name: 'app_dashboard_moderateur_candidat_applications_acceptees')]
+        public function candidatApplicationsAcceptees(int $id, ApplicationsRepository $applicationsRepository): Response
+        {
+            $applications = $applicationsRepository->findBy(['candidat' => $id, 'status' => 'ACCEPTED']);
+
+            return $this->render('dashboard/moderateur/candidat_applications_acceptees.html.twig', [
+                'applications' => $applications,
+            ]);
+        }
+
+        #[Route('/candidats/{id}/applications/refusees', name: 'app_dashboard_moderateur_candidat_applications_refusees')]
+            public function candidatApplicationsRefusees(int $id, ApplicationsRepository $applicationsRepository): Response
+            {
+                $applications = $applicationsRepository->findBy(['candidat' => $id, 'status' => 'REFUSED']);
+
+                return $this->render('dashboard/moderateur/candidat_applications_refusees.html.twig', [
+                    'applications' => $applications,
+                ]);
+            }
+
+        // #[Route('/candidats/{id}/competences', name: 'app_dashboard_moderateur_candidat_competences')]
+        // public function candidatCompetences(CandidateProfile $candidat, CompetencesRepository $competencesRepository): Response
+        // {
+        //     $competences = $competencesRepository->findBy(['profil' => $candidat]);
+
+        //     return $this->render('dashboard/moderateur/candidat_competences.html.twig', [
+        //         'candidat' => $candidat,
+        //         'competences' => $competences,
+        //     ]);
+        // }
+
         #[Route('/candidats/{id}/competences', name: 'app_dashboard_moderateur_candidat_competences')]
-        public function candidatCompetences(int $id, CandidateProfileRepository $candidateProfileRepository, CompetencesRepository $competencesRepository): Response
+            public function candidatCompetences(int $id, CandidateProfileRepository $candidateProfileRepository): Response
+            {
+                $candidat = $candidateProfileRepository->find($id);
+                if (!$candidat) {
+                    throw $this->createNotFoundException('Candidat introuvable');
+                }
+
+                return $this->render('dashboard/moderateur/candidat_competences.html.twig', [
+                    'candidat' => $candidat,
+                ]);
+            }
+
+        // #[Route('/candidats/{id}/experiences', name: 'app_dashboard_moderateur_candidat_experiences')]
+        // public function candidatExperiences(int $id, ExperiencesRepository $experiencesRepository): Response
+        // {
+        //     $candidat = $experiencesRepository->find($id);
+        //     if (!$candidat) {
+        //         throw $this->createNotFoundException('Candidat introuvable');
+        //     }
+
+        //     return $this->render('dashboard/moderateur/candidat_experiences.html.twig', [
+        //         'candidat' => $candidat,
+        //     ]);
+        // }
+
+        #[Route('/candidats/{id}/experiences', name: 'app_dashboard_moderateur_candidat_experiences')]
+        public function candidatExperiences(int $id, CandidateProfileRepository $candidateProfileRepository): Response
         {
             $candidat = $candidateProfileRepository->find($id);
             if (!$candidat) {
                 throw $this->createNotFoundException('Candidat introuvable');
             }
 
-            $competences = $competencesRepository->findByProfil($candidat);
-
-            return $this->render('dashboard/moderateur/candidat_competences.html.twig', [
-                'competences' => $competences,
-            ]);
-        }
-
-        #[Route('/candidats/{id}/experiences', name: 'app_dashboard_moderateur_candidat_experiences')]
-        public function candidatExperiences(int $id, ExperiencesRepository $experiencesRepository): Response
-        {
-            $experiences = $experiencesRepository->findBy(['profil' => $id]);
+            $experiences = $candidat->getExperiences();
 
             return $this->render('dashboard/moderateur/candidat_experiences.html.twig', [
+                'candidat' => $candidat,
                 'experiences' => $experiences,
             ]);
         }
 
-            #[Route('/candidats/{id}/competences', name: 'view_candidat_competences')]
-            public function viewCandidatCompetences(CandidateProfile $candidat, CompetencesRepository $competencesRepository): Response {
-                $competences = $competencesRepository->findBy(['profil' => $candidat]);
-                return $this->render('dashboard/moderateur/view_candidat_competences.html.twig', [
-                    'candidat' => $candidat,
-                    'competences' => $competences,
-                ]);
-            }
-
-        #[Route('/candidats/{id}/experiences', name: 'view_candidat_experiences')]
-            public function viewCandidatExperiences(CandidateProfile $candidat): Response {
-                $experiences = $candidat->getExperiences();
-                return $this->render('dashboard/moderateur/view_candidat_experiences.html.twig', [
-                    'candidat' => $candidat,
-                    'experiences' => $experiences,
-                ]);
-            }
-
-            #[Route('/candidats/{id}/applications', name: 'view_candidat_applications')]
-            public function viewCandidatApplications(CandidateProfile $candidat): Response {
-                $applications = $candidat->getApplications();
-                return $this->render('dashboard/moderateur/view_candidat_applications.html.twig', [
-                    'candidat' => $candidat,
-                    'applications' => $applications,
-                ]);
-            }
 
 
+
+    // #[Route('/mettings', name: 'app_dashboard_moderateur_mettings')]
+    // public function mettings(Request $request, MettingRepository $mettingRepository): Response
+    // {
+    //     return $this->render('dashboard/moderateur/mettings.html.twig', [
+    //         'sectors' => $mettingRepository->findAll(),
+    //     ]);
+    // }
 
     #[Route('/mettings', name: 'app_dashboard_moderateur_mettings')]
-    public function mettings(Request $request, MettingRepository $mettingRepository): Response
+    public function mettings(MettingRepository $mettingRepository): Response
     {
-        return $this->render('dashboard/moderateur/mettings.html.twig', [
-            'sectors' => $mettingRepository->findAll(),
+        $mettings = $mettingRepository->findAll();
+        return $this->render('dashboard/moderateur/mettings.html.twig', compact('mettings'));
+    }
+
+    #[Route('/metting/{id}', name: 'app_dashboard_moderateur_metting_show', methods: ['GET'])]
+    public function show(Metting $metting): Response
+    {
+        return $this->render('dashboard/moderateur/mettings_show.html.twig', compact('metting'));
+    }
+
+    #[Route('/metting/new', name: 'app_dashboard_moderateur_metting_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $metting = new Metting();
+        $form = $this->createForm(MettingType::class, $metting);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($metting);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_dashboard_moderateur_mettings');
+        }
+
+        return $this->renderForm('dashboard/moderateur/mettings_new.html.twig', [
+            'metting' => $metting,
+            'form' => $form,
         ]);
+    }
+
+    #[Route('/metting/{id}/edit', name: 'app_dashboard_moderateur_metting_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Metting $metting, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(MettingType::class, $metting);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_dashboard_moderateur_mettings');
+        }
+
+        return $this->renderForm('dashboard/moderateur/mettings_edit.html.twig', [
+            'metting' => $metting,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/metting/{id}', name: 'app_dashboard_moderateur_metting_delete', methods: ['POST'])]
+    public function delete(Request $request, Metting $metting, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$metting->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($metting);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_dashboard_moderateur_mettings');
     }
 
     #[Route('/notifications', name: 'app_dashboard_moderateur_notifications')]
