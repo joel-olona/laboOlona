@@ -2,24 +2,25 @@
 
 namespace App\Form\Profile\Candidat;
 
-use App\Entity\Candidate\Competences;
+use App\Entity\Langue;
+use App\Entity\Candidate\Langages;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
-class CompetencesType extends AbstractType
+class LangagesType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('nom', TextType::class, [
-                'label' => 'app_identity_expert_step_two.skill.name',
+            ->add('langue', EntityType::class, [
+                'class' => Langue::class,
+                'label' => 'app_identity_expert_step_two.language.label',
             ])
-            ->add('note', ChoiceType::class, [
+            ->add('niveau', ChoiceType::class, [
                 'label' => 'app_identity_expert_step_two.skill.level',
                 'choices'  => [
                     'app_identity_expert_step_two.skill.one' => 1,
@@ -29,15 +30,8 @@ class CompetencesType extends AbstractType
                     'app_identity_expert_step_two.skill.five' => 5,
                 ],
             ])
-            ->add('description', TextareaType::class, [
-                'label' => 'app_identity_expert_step_two.experience.description',
-                'required' => false,
-                'attr' => [
-                    'rows' => 6
-                ]
-            ])
             ->add('submit', SubmitType::class, [
-                'label' => 'app_identity_expert_step_two.skill.submit',
+                'label' => 'app_identity_expert_step_two.experience.submit',
                 'attr' => [
                     'class' => 'btn btn-dark rounded-pill'
                 ]
@@ -48,7 +42,7 @@ class CompetencesType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Competences::class,
+            'data_class' => Langages::class,
         ]);
     }
 }

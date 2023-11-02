@@ -58,7 +58,13 @@ class StepTwoType extends AbstractType
             ])
             ->add('experiences', CollectionType::class, [
                 'entry_type' => ExperiencesType::class,
-                'entry_options' => ['label' => false],
+                'entry_options' => ['label' => true],
+                'allow_add' => true,
+                'by_reference' => false,
+            ])
+            ->add('langages', CollectionType::class, [
+                'entry_type' => LangagesType::class,
+                'entry_options' => ['label' => true],
                 'allow_add' => true,
                 'by_reference' => false,
             ])
@@ -66,9 +72,9 @@ class StepTwoType extends AbstractType
                 'class' => Secteur::class,
                 'label' => 'app_identity_company.sector_multiple',
                 'choice_label' => 'nom',
-                'autocomplete' => true,
+                'expanded' => true,
                 'multiple' => true,
-                'required' => false,
+                'required' => true,
             ])
         ;
     }

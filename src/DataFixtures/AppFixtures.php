@@ -2,20 +2,22 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Candidate\Applications;
-use App\Entity\Candidate\Competences;
-use App\Entity\Candidate\Experiences;
-use App\Entity\CandidateProfile;
+use DateTime;
 use Faker\Factory;
 use App\Entity\User;
-use App\Entity\Entreprise\JobListing;
+use App\Entity\Langue;
+use App\Entity\Secteur;
+use App\Entity\CandidateProfile;
 use App\Entity\EntrepriseProfile;
 use App\Entity\ModerateurProfile;
-use App\Entity\Secteur;
+use App\Entity\Candidate\Competences;
+use App\Entity\Candidate\Experiences;
+use App\Entity\Entreprise\JobListing;
+use App\Entity\Candidate\Applications;
+use App\Entity\Candidate\Langages;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use App\Repository\EntrepriseProfileRepository;
-use DateTime;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -318,6 +320,75 @@ class AppFixtures extends Fixture
             ],
         ];
 
+        $a = [
+            0 => [
+                'name' => 'Entreprise',
+                'slug' => 'ressource'
+            ],
+            1 => [
+                'name' => 'Expert',
+                'slug' => 'expert'
+            ]
+        ];
+
+        $l = [
+            0 => [
+                'name' => 'English',
+                'slug' => 'english',
+                'code' => 'gb',
+            ],
+            1 => [
+                'name' => 'Русский',
+                'slug' => 'russian',
+                'code' => 'rs',
+            ],
+            2 => [
+                'name' => 'Français',
+                'slug' => 'francais',
+                'code' => 'fr',
+            ],
+            3 => [
+                'name' => 'Español',
+                'slug' => 'espagnole',
+                'code' => 'es',
+            ],
+            4 => [
+                'name' => 'Deutsch',
+                'slug' => 'deutsch',
+                'code' => 'de',
+            ],
+            5 => [
+                'name' => 'عرب',
+                'slug' => 'arabe',
+                'code' => 'ar',
+            ]
+        ];
+
+        $langs = [];
+        foreach ($l as $key => $value) {
+            $language = new Langue();
+            $language
+                ->setNom($value['name'])
+                ->setSlug($value['slug'])
+                ->setCode($value['code']);
+            $manager->persist($language);
+            $langs[] = $language;
+        }
+
+        $languages = [];
+        for($i=0; $i<10; $i++){
+            $la = new Langages();
+            $ll = $faker->randomElement($langs);
+            $la
+            ->setNiveau($faker->numberBetween(1, 5))
+            ->setLangue($ll)
+            ->setTitre($ll->getNom())
+            ->setCode($ll->getCode())
+            ;
+            $manager-> persist($la);
+            $languages[] = $la;
+        }
+
         $sectors = [];
         $technicalskills = [];
         foreach ($s as $key => $value) {
@@ -345,6 +416,10 @@ class AppFixtures extends Fixture
             $experience = new Experiences();
             $experience
                 ->setNom($value)
+                ->setEntreprise($faker->company())
+                ->setEnPoste($faker->boolean())
+                ->setDateDebut($faker->dateTime())
+                ->setDateFin($faker->dateTime())
                 ->setDescription($faker->paragraph(4));
 
             $manager->persist($experience);
@@ -369,6 +444,10 @@ class AppFixtures extends Fixture
                 ->addExperience($faker->randomElement($experiences))
                 ->addCompetence($faker->randomElement($technicalskills))
                 ->addCompetence($faker->randomElement($technicalskills))
+                ->addLangage($faker->randomElement($languages))
+                ->addLangage($faker->randomElement($languages))
+                ->addSecteur($faker->randomElement($sectors))
+                ->addSecteur($faker->randomElement($sectors))
                 ->setResume($faker->paragraph(4));
 
                 $manager->persist($user);
