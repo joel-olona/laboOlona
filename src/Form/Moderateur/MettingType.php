@@ -23,21 +23,13 @@ class MettingType extends AbstractType
         $builder
             ->add('entreprise', EntityType::class, [
                 'class' => EntrepriseProfile::class,
-                'choice_label' => 'id', // J'ai changé 'nom' par 'id' car 'EntrepriseProfile' n'a pas de champ 'nom'
                 'label' => 'Entreprise',
                 'required' => false // L'entreprise peut être nulle
             ])
             ->add('candidat', EntityType::class, [
                 'class' => CandidateProfile::class,
-                'choice_label' => 'id', // J'ai utilisé 'id' comme label de choix
                 'label' => 'Candidat',
                 'required' => false // Le candidat peut être nul
-            ])
-            ->add('moderateur', EntityType::class, [
-                'class' => ModerateurProfile::class,
-                'choice_label' => 'id', // J'ai utilisé 'id' comme label de choix
-                'label' => 'Moderateur',
-                'required' => false // Le moderateur peut être nul
             ])
             ->add('dateRendezVous', DateTimeType::class, [
                 'widget' => 'single_text',
@@ -58,6 +50,9 @@ class MettingType extends AbstractType
             ])
             ->add('commentaire', TextareaType::class, [
                 'label' => 'Commentaire',
+                'attr' => [
+                    'rows' => 6,
+                ],
                 'required' => false
             ]);
     }

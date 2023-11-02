@@ -50,6 +50,11 @@ class CandidateProfile
         $this->secteurs = new ArrayCollection();
     }
 
+    public function __toString()
+    {
+        return $this->getCandidat()->getNom();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
