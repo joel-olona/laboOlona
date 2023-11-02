@@ -24,6 +24,18 @@ class Experiences
     #[ORM\ManyToOne(inversedBy: 'experiences')]
     private ?CandidateProfile $profil = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $entreprise = null;
+
+    #[ORM\Column]
+    private ?bool $enPoste = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $dateDebut = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $dateFin = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -61,6 +73,54 @@ class Experiences
     public function setProfil(?CandidateProfile $profil): static
     {
         $this->profil = $profil;
+
+        return $this;
+    }
+
+    public function getEntreprise(): ?string
+    {
+        return $this->entreprise;
+    }
+
+    public function setEntreprise(string $entreprise): static
+    {
+        $this->entreprise = $entreprise;
+
+        return $this;
+    }
+
+    public function isEnPoste(): ?bool
+    {
+        return $this->enPoste;
+    }
+
+    public function setEnPoste(bool $enPoste): static
+    {
+        $this->enPoste = $enPoste;
+
+        return $this;
+    }
+
+    public function getDateDebut(): ?\DateTimeInterface
+    {
+        return $this->dateDebut;
+    }
+
+    public function setDateDebut(?\DateTimeInterface $dateDebut): static
+    {
+        $this->dateDebut = $dateDebut;
+
+        return $this;
+    }
+
+    public function getDateFin(): ?\DateTimeInterface
+    {
+        return $this->dateFin;
+    }
+
+    public function setDateFin(?\DateTimeInterface $dateFin): static
+    {
+        $this->dateFin = $dateFin;
 
         return $this;
     }
