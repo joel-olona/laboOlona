@@ -407,7 +407,7 @@ public function detailsAnnonce(JobListing $annonce): JsonResponse
         return $this->render('dashboard/moderateur/mettings.html.twig', compact('mettings'));
     }
 
-    #[Route('/metting/{id}', name: 'app_dashboard_moderateur_metting_show', methods: ['GET'])]
+    #[Route('/metting/show/{id}', name: 'app_dashboard_moderateur_metting_show', methods: ['GET'])]
     public function show(Metting $metting): Response
     {
         return $this->render('dashboard/moderateur/mettings_show.html.twig', compact('metting'));
@@ -427,9 +427,9 @@ public function detailsAnnonce(JobListing $annonce): JsonResponse
             return $this->redirectToRoute('app_dashboard_moderateur_mettings');
         }
 
-        return $this->renderForm('dashboard/moderateur/mettings_new.html.twig', [
+        return $this->render('dashboard/moderateur/mettings_new.html.twig', [
             'metting' => $metting,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -451,16 +451,16 @@ public function detailsAnnonce(JobListing $annonce): JsonResponse
         ]);
     }
 
-    #[Route('/metting/{id}', name: 'app_dashboard_moderateur_metting_delete', methods: ['POST'])]
-    public function delete(Request $request, Metting $metting, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$metting->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($metting);
-            $entityManager->flush();
-        }
+    // #[Route('/metting/{id}', name: 'app_dashboard_moderateur_metting_delete', methods: ['POST'])]
+    // public function delete(Request $request, Metting $metting, EntityManagerInterface $entityManager): Response
+    // {
+    //     if ($this->isCsrfTokenValid('delete'.$metting->getId(), $request->request->get('_token'))) {
+    //         $entityManager->remove($metting);
+    //         $entityManager->flush();
+    //     }
 
-        return $this->redirectToRoute('app_dashboard_moderateur_mettings');
-    }
+    //     return $this->redirectToRoute('app_dashboard_moderateur_mettings');
+    // }
 
     #[Route('/notifications', name: 'app_dashboard_moderateur_notifications')]
     public function notifications(Request $request, NotificationRepository $notificationRepository): Response
