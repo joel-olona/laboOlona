@@ -32,7 +32,10 @@
                     <td>{{ sector.description }}</td>
                     <td>
                     <a href="{{ path('ajax_edit_sector', {'id': sector.id} )}}"><i class="bi bi-pencil"></i></a>
-                    <a href="{{ path('ajax_remove_sector', {'id': sector.id} )}}"><i class="bi bi-trash"></i></a>
+                    {# <a href="{{ path('ajax_remove_sector', {'id': sector.id} )}}"><i class="bi bi-trash"></i></a> #}
+                    {# <a href="#" class="btn-delete-sector" data-id="{{ sector.id }}"><i class="bi bi-trash"></i></a> #}
+                    <a href="#" class="btn-delete-sector" data-id="{{ sector.id }}"><i class="bi bi-trash"></i></a>
+
                     </td>
                 </tr>
             {% endfor %}
@@ -63,6 +66,62 @@
             });
         }
     });
+    
+    {# document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('.btn-delete-sector');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const sectorId = button.getAttribute('data-id');
+            if(confirm('Êtes-vous sûr de vouloir supprimer ce secteur ?')) {
+                fetch(`/secteurs/delete/${sectorId}`, {
+                method: 'DELETE',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        button.closest('tr').remove();
+                    } else {
+                        alert('La suppression a échoué');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la suppression :', error);
+                    alert('La suppression a échoué');
+                });
+            }
+        });
+    });
+}); #}
+
+            document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('a[data-id]');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const sectorId = button.getAttribute('data-id');
+                    if (confirm('Êtes-vous sûr de vouloir supprimer ce secteur ?')) {
+                        fetch(`/dashboard/moderateur/ajax/remove/${sectorId}/sector`, {
+                            method: 'DELETE',
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                button.closest('tr').remove();
+                            } else {
+                                alert('La suppression a échoué');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erreur lors de la suppression :', error);
+                            alert('La suppression a échoué');
+                        });
+                    }
+                });
+            });
+        });
+
+
 </script>
 {% endblock %}
 

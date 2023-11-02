@@ -2,13 +2,18 @@
 
 namespace App\Controller;
 
-use App\Entity\EntrepriseProfile;
+use App\Entity\CandidateProfile;
+use App\Entity\User;
 use App\Entity\Enum\TypeUser;
-use App\Form\Profile\AccountType;
-use App\Form\Profile\EntrepriseType;
 use App\Manager\ProfileManager;
-use App\Service\Mailer\MailerService;
+use App\Entity\EntrepriseProfile;
+use App\Form\Profile\AccountType;
+use App\Form\Profile\Candidat\StepOneType;
+use App\Form\Profile\Candidat\StepTwoType;
+use App\Form\Profile\Candidat\StepThreeType;
 use App\Service\User\UserService;
+use App\Form\Profile\EntrepriseType;
+use App\Service\Mailer\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,13 +39,13 @@ class ProfileController extends AbstractController
     {
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
-        if (null === $user || $user->getType() === TypeUser::Candidat) {
+        if (null === $user || $user->getType() === User::ACCOUNT_CANDIDAT) {
             return $this->redirectToRoute('app_profile_candidate_step_one');
         }
-        if (null === $user || $user->getType() === TypeUser::Entreprise) {
+        if (null === $user || $user->getType() === User::ACCOUNT_ENTREPRISE) {
             return $this->redirectToRoute('app_profile_entreprise');
         }
-        if (null === $user || $user->getType() === TypeUser::Moderateur) {
+        if (null === $user || $user->getType() === User::ACCOUNT_MODERATEUR) {
             return $this->redirectToRoute('app_profile_create');
         }
         
@@ -67,7 +72,7 @@ class ProfileController extends AbstractController
                 ]
             );
 
-            if($user->getType() !== TypeUser::Entreprise ) return $this->redirectToRoute('app_profile_entreprise', []);
+            if($user->getType() !== User::ACCOUNT_CANDIDAT ) return $this->redirectToRoute('app_profile_entreprise', []);
             
             return $this->redirectToRoute('app_profile_candidate_step_one', []);
         }
@@ -82,7 +87,7 @@ class ProfileController extends AbstractController
     {
         /** @var $user User */
         $user = $this->userService->getCurrentUser();
-        $company = $this->userType();
+        $company = $user->getEntrepriseProfile();
 
         if (!$company instanceof EntrepriseProfile) {
             $company = $this->profileManager->createCompany($user);
@@ -91,9 +96,7 @@ class ProfileController extends AbstractController
         $form = $this->createForm(EntrepriseType::class, $company, []);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $company = $form->getData();
-            $this->em->persist($company);
-            $this->em->flush();
+            $this->profileManager->saveForm($form);
 
             return $this->redirectToRoute('app_profile_confirmation', []);
         }
@@ -109,23 +112,89 @@ class ProfileController extends AbstractController
     {
         /** @var $user User */
         $user = $this->userService->getCurrentUser();
-        $company = $this->userType();
+        $candidat = $user->getCandidateProfile();
 
-        if (!$company instanceof EntrepriseProfile) {
-            $company = $this->profileManager->createCompany($user);
+        if (!$candidat instanceof CandidateProfile) {
+            $candidat = $this->profileManager->createCandidat($user);
         }
 
-        $form = $this->createForm(CompanyType::class, $company, []);
+        $form = $this->createForm(StepOneType::class, $candidat, []);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $company = $form->getData();
-            $this->em->persist($company);
+            $candidat = $form->getData();
+            $this->em->persist($candidat);
             $this->em->flush();
+
+            return $this->redirectToRoute('app_profile_candidate_step_two', []);
+        }
+
+        return $this->render('profile/candidat/step-one.html.twig', [
+            'user' => $this->getUser(),
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/profile/candidate/step-two', name: 'app_profile_candidate_step_two')]
+    public function candidateStepTwo(Request $request): Response
+    {
+        /** @var $user User */
+        $user = $this->userService->getCurrentUser();
+        $candidat = $user->getCandidateProfile();
+        $initialCounts = [
+            'competences' => count($candidat->getCompetences()),
+            'experiences' => count($candidat->getExperiences()),
+            'langages' => count($candidat->getLangages())
+        ];
+
+        $form = $this->createForm(StepTwoType::class, $candidat, []);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $profile = $form->getData();
+            $this->profileManager->saveForm($form);
+            $reloadSamePage = false;
+            foreach ($initialCounts as $field => $initialCount) {
+                if (count($form->get($field)->getData()) !== $initialCount) {
+                    $reloadSamePage = true;
+                    break;
+                }
+            }
+
+            if ($reloadSamePage) {
+                // Si le nombre d'éléments dans un des CollectionType a changé, rechargez la même page
+                return $this->redirectToRoute('app_profile_candidate_step_two', []);
+            } else {
+                // Sinon, redirigez vers app_profile_candidate_step_three
+                return $this->redirectToRoute('app_profile_candidate_step_three', []);
+            }
 
             return $this->redirectToRoute('app_profile_confirmation', []);
         }
 
-        return $this->render('identity/company.html.twig', [
+        return $this->render('profile/candidat/step-two.html.twig', [
+            'user' => $this->getUser(),
+            'form' => $form->createView(),
+            'competences' => $candidat->getCompetences(),
+            'experiences' => $candidat->getExperiences(),
+            'langages' => $candidat->getLangages(),
+        ]);
+    }
+
+    #[Route('/identity/expert/step-three', name: 'app_profile_candidate_step_three')]
+    public function stepThree(Request $request): Response
+    {
+        /** @var $user User */
+        $user = $this->userService->getCurrentUser();
+        $candidat = $user->getCandidateProfile();
+
+        $form = $this->createForm(StepThreeType::class, $candidat, []);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->profileManager->saveForm($form);
+
+            return $this->redirectToRoute('app_profile_confirmation', []);
+        }
+
+        return $this->render('profile/candidat/step-three.html.twig', [
             'user' => $this->getUser(),
             'form' => $form->createView(),
         ]);
