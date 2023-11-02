@@ -26,9 +26,18 @@
                     <td class="id-column">{{ annonce.id }}</td>
                     <td>{{ annonce.titre }}</td>
                     <td>{{ annonce.description|length > 50 ? annonce.description|slice(0, 50) ~ '...' : annonce.description }}</td>
-                    <td>{{ annonce.status }}</td>
+                    <td>
+                        <form method="post" action="{{ path('change_status_annonce_entreprise', {'entreprise_id': entreprise.id, 'annonce_id': annonce.id}) }}">
+                            <select name="status" class="form-control" onchange="this.form.submit()">
+                                <option value="OPEN" {{ annonce.status == 'OPEN' ? 'selected' : '' }}>Ouvert</option>
+                                <option value="CLOSED" {{ annonce.status == 'CLOSED' ? 'selected' : '' }}>Fermé</option>
+                                <option value="FILLED" {{ annonce.status == 'FILLED' ? 'selected' : '' }}>Pourvu</option>
+                            </select>
+                        </form>
+                    </td>
                     <td class="actions-col">
-                        <a href="{{ path('view_annonce', {'id': annonce.id}) }}" class="btn btn-info">Voir</a>
+                        {# <a href="{{ path('view_annonce', {'id': annonce.id}) }}" class="btn btn-info">Voir</a> #}
+                        <a href="{{ path('app_dashboard_moderateur_entreprises_annonces_view', {'entreprise_id': entreprise.id, 'annonce_id': annonce.id}) }}" class="btn btn-info">Voir</a>
                         <form method="post" action="{{ path('delete_annonce', {'id': annonce.id}) }}">
                             <button type="submit" class="btn btn-danger">Supprimer</button>
                         </form>

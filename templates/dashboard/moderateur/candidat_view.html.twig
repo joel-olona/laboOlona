@@ -1,0 +1,120 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2>Détails du Candidat</h2>
+
+    <!-- Onglets -->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" id="details-tab" data-bs-toggle="tab" href="#details">Résumé</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="competences-tab" data-bs-toggle="tab" href="#competences">Compétences</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="experiences-tab" data-bs-toggle="tab" href="#experiences">Expériences</a>
+        </li>
+    </ul>
+
+    <!-- Contenu des onglets -->
+    <div class="tab-content mt-3">
+        <div class="tab-pane fade show active" id="details">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ candidat.candidat.nom }} {{ candidat.candidat.prenom }}</h5>
+                    <p class="card-text">
+                        <strong>Email:</strong> {{ candidat.candidat.email }}<br>
+                        <strong>Biographie:</strong> {{ candidat.resume }}<br>
+                        <strong>Nombre de Compétences:</strong> {{ candidat.competences|length }}<br>
+                        <strong>Nombre d'Expériences:</strong> {{ candidat.experiences|length }}<br>
+                        <strong>Nombre d'Applications:</strong> {{ candidat.applications|length }}
+                    </p> 
+                    <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="btn btn-primary">Retour aux candidats</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="competences">
+            <table class="table" id="competencesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for competence in candidat.competences %}
+                        <tr>
+                            <td>{{ competence.id }}</td>
+                            <td>{{ competence.nom }}</td>
+                            <td>{{ competence.description }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="btn btn-primary">Retour aux candidats</a>
+        </div>
+
+        <div class="tab-pane fade" id="experiences">
+            <table class="table" id="experiencesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for experience in candidat.experiences %}
+                        <tr>
+                            <td>{{ experience.id }}</td>
+                            <td>{{ experience.nom }}</td>
+                            <td>{{ experience.description }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="btn btn-primary">Retour aux candidats</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#competencesTable').DataTable();
+            $('#experiencesTable').DataTable();
+        });
+    </script>
+{% endblock %}
+
+
+
+{# {% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2>Détails du Candidat</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ candidat.candidat.nom }} {{ candidat.candidat.prenom }}</h5>
+            <p class="card-text">
+                <strong>Email:</strong> {{ candidat.candidat.email }}<br>
+                <strong>Résumé:</strong> {{ candidat.resume }}<br>
+                <strong>Nombre de Compétences:</strong> <a href="{{ path('app_dashboard_moderateur_candidat_competences', {'id': candidat.id}) }}">{{ candidat.competences|length }}</a><br>
+                <strong>Nombre d'Expériences:</strong> <a href="{{ path('app_dashboard_moderateur_candidat_experiences', {'id': candidat.id}) }}">{{ candidat.experiences|length }}</a><br>
+                <strong>Nombre d'Applications:</strong> <a href="{{ path('app_dashboard_moderateur_candidat_applications', {'id': candidat.id}) }}">{{ candidat.applications|length }}</a>
+           
+            </p> 
+            <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="btn btn-primary">Retour aux candidats</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+ #}
