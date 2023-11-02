@@ -29,6 +29,9 @@ class Competences
     #[ORM\ManyToMany(targetEntity: CandidateProfile::class, inversedBy: 'competences')]
     private Collection $profil;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $note = null;
+
     public function __construct()
     {
         $this->profil = new ArrayCollection();
@@ -47,7 +50,7 @@ class Competences
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
+        $this->slug = $this->createSlug($nom); // Mettre à jour le slug lors du changement du nom
         return $this;
     }
 
@@ -95,6 +98,34 @@ class Competences
     public function removeProfil(CandidateProfile $profil): static
     {
         $this->profil->removeElement($profil);
+
+        return $this;
+    }
+
+    private function createSlug(string $text): string
+    {
+        // Conversion du texte en slug (exemple simple)
+        $slug = mb_strtolower(trim($text));
+        $slug = preg_replace('/[^a-z0-9-]+/', '-', $slug);
+        $slug = preg_replace('/-+/', '-', $slug);
+        return $slug;
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function setSlugValue(): void
+    {
+        $this->slug = $this->createSlug($this->nom); // Mettre à jour le slug avant la persistance
+    }
+
+    public function getNote(): ?int
+    {
+        return $this->note;
+    }
+
+    public function setNote(?int $note): static
+    {
+        $this->note = $note;
 
         return $this;
     }

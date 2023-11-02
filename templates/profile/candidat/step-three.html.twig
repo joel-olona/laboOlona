@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<section id="hero" class="" style="background-color: black;">
+    <div class="container h-100">
+        <h1 class="h1 text-center pt-4 text-white font-bold">
+            {{ 'app_identity_expert_step_three.title'|trans }}
+        </h1>
+        <div class="row text-white">
+            <div class="col-md-6 offset-md-3">
+
+                <hr class="my-2 mb-4">
+                {{ form_start(form, {'attr': {'class': 'form-inline'}}) }}
+
+                <div class="row mb-4">
+                    {{ form_label(form.social.linkedin) }}
+                    <div class="col-sm-8">
+                        {{ form_widget(form.social.linkedin, {'attr': {'class': 'rounded-pill'}}) }}
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    {{ form_label(form.social.skype) }}
+                    <div class="col-sm-8">
+                        {{ form_widget(form.social.skype, {'attr': {'class': 'rounded-pill'}}) }}
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    {{ form_label(form.social.slack) }}
+                    <div class="col-sm-8">
+                        {{ form_widget(form.social.slack, {'attr': {'class': 'rounded-pill'}}) }}
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    {{ form_label(form.social.facebook) }}
+                    <div class="col-sm-8">
+                        {{ form_widget(form.social.facebook, {'attr': {'class': 'rounded-pill'}}) }}
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    {{ form_label(form.social.instagram) }}
+                    <div class="col-sm-8">
+                        {{ form_widget(form.social.instagram, {'attr': {'class': 'rounded-pill'}}) }}
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    {{ form_label(form.social.github) }}
+                    <div class="col-sm-8">
+                        {{ form_widget(form.social.github, {'attr': {'class': 'rounded-pill'}}) }}
+                    </div>
+                </div>
+
+                <div style="display:none;">
+                    {{ form_widget(form) }}
+                </div>
+                
+                <p class="text-center small">
+                    {{ 'app_identity_expert_step_three.message'|trans({
+                        '%privacy_url%': path('app_home_privacy')
+                    })|raw  }}
+                </p>
+            </div>
+                <hr class="my-4">
+                <div class="d-flex justify-content-center">
+                    <a href="{{ path('app_profile_candidate_step_two')}}" id="cancel" class="btn btn-outline-dark rounded-pill mx-2">
+                        {{ 'app_identity_expert_step_three.cancel'|trans }}
+                    </a>
+                    <button type="submit" id="submit" class="btn btn-primary rounded-pill mx-2">
+                        {{ 'app_identity_expert_step_three.button'|trans }}
+                    </button>
+                </div>
+                <hr class="my-4">
+                {{ form_end(form) }}
+                <div class="col-md-8 offset-md-4 text-white">
+                    {% include "dashboard/_inner_footer_light.html.twig" %}
+                </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-6"></div>
+            <div class="col-md-6"></div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
