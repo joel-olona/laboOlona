@@ -46,5 +46,13 @@ class CandidatController extends AbstractController
             'controller_name' => 'CandidatController',
         ]);
     }
+
+    #[Route('/compte', name: 'app_dashboard_candidat_compte')]
+    public function compte(): Response
+    {
+        return $this->render('dashboard/candidat/index.html.twig', [
+            'controller_name' => 'CandidatController',
+        ]);
+    }
     
 }

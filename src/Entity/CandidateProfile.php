@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Entity\Candidate\Langages;
+use App\Entity\Candidate\Social;
 use Serializable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -36,19 +38,19 @@ class CandidateProfile implements Serializable
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $resume = null;
 
-    #[ORM\ManyToMany(targetEntity: Competences::class, mappedBy: 'profil')]
+    #[ORM\ManyToMany(targetEntity: Competences::class, mappedBy: 'profil', cascade: ['persist', 'remove'])]
     private Collection $competences;
 
-    #[ORM\OneToMany(mappedBy: 'profil', targetEntity: Experiences::class)]
+    #[ORM\OneToMany(mappedBy: 'profil', targetEntity: Experiences::class, cascade: ['persist', 'remove'])]
     private Collection $experiences;
 
-    #[ORM\OneToMany(mappedBy: 'candidat', targetEntity: Applications::class)]
+    #[ORM\OneToMany(mappedBy: 'candidat', targetEntity: Applications::class, cascade: ['persist', 'remove'])]
     private Collection $applications;
 
-    #[ORM\OneToMany(mappedBy: 'candidat', targetEntity: Metting::class)]
+    #[ORM\OneToMany(mappedBy: 'candidat', targetEntity: Metting::class, cascade: ['persist', 'remove'])]
     private Collection $mettings;
 
-    #[ORM\ManyToMany(targetEntity: Secteur::class, mappedBy: 'candidat')]
+    #[ORM\ManyToMany(targetEntity: Secteur::class, mappedBy: 'candidat', cascade: ['persist', 'remove'])]
     private Collection $secteurs;
 
     #[Vich\UploadableField(mapping: 'cv_expert', fileNameProperty: 'fileName')]
@@ -69,6 +71,12 @@ class CandidateProfile implements Serializable
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $cv = null;
 
+    #[ORM\OneToMany(mappedBy: 'profile', targetEntity: Langages::class, cascade: ['persist', 'remove'])]
+    private Collection $langages;
+
+    #[ORM\OneToOne(mappedBy: 'candidat', cascade: ['persist', 'remove'])]
+    private ?Social $social = null;
+
     public function __construct()
     {
         $this->competences = new ArrayCollection();
@@ -77,6 +85,7 @@ class CandidateProfile implements Serializable
         $this->mettings = new ArrayCollection();
         $this->secteurs = new ArrayCollection();
         $this->createdAt = new DateTime();
+        $this->langages = new ArrayCollection();
     }
 
     public function __toString()
@@ -365,6 +374,58 @@ class CandidateProfile implements Serializable
     public function setCv(?string $cv): static
     {
         $this->cv = $cv;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Langages>
+     */
+    public function getLangages(): Collection
+    {
+        return $this->langages;
+    }
+
+    public function addLangage(Langages $langage): static
+    {
+        if (!$this->langages->contains($langage)) {
+            $this->langages->add($langage);
+            $langage->setProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLangage(Langages $langage): static
+    {
+        if ($this->langages->removeElement($langage)) {
+            // set the owning side to null (unless already changed)
+            if ($langage->getProfile() === $this) {
+                $langage->setProfile(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getSocial(): ?Social
+    {
+        return $this->social;
+    }
+
+    public function setSocial(?Social $social): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($social === null && $this->social !== null) {
+            $this->social->setCandidat(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($social !== null && $social->getCandidat() !== $this) {
+            $social->setCandidat($this);
+        }
+
+        $this->social = $social;
 
         return $this;
     }
