@@ -72,7 +72,7 @@ class StepTwoType extends AbstractType
                 'class' => Secteur::class,
                 'label' => 'app_identity_company.sector_multiple',
                 'choice_label' => 'nom',
-                'expanded' => true,
+                'autocomplete' => true,
                 'multiple' => true,
                 'required' => true,
             ])

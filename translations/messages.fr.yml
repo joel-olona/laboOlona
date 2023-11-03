@@ -194,7 +194,7 @@ app_identity_company:
     name: "Nom de l'entreprise *"
     size: "Taille de l'entreprise"
     country: Pays *
-    sector_multiple: "Secteur d'expertise (Utilisez Ctrl pour faire un choix multiple)"
+    sector_multiple: "Secteur d'expertise "
     desc: Decrivez votre entreprise en quelques ligne
     budget: Budget pour le poste/projet
     email: "Adresse mail *"
