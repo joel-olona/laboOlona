@@ -35,6 +35,11 @@ class Secteur
     #[ORM\OneToMany(mappedBy: 'secteur', targetEntity: JobListing::class)]
     private Collection $jobListings;
 
+    public function __toString()
+    {
+        return $this->nom;
+    }
+
     public function __construct()
     {
         $this->entreprise = new ArrayCollection();
