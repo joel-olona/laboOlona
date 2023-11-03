@@ -53,6 +53,9 @@ class EntrepriseProfile
     #[ORM\ManyToMany(targetEntity: Secteur::class, mappedBy: 'entreprise')]
     private Collection $secteurs;
 
+    #[ORM\Column(length: 255)]
+    private ?string $nom = null;
+
     public function __construct()
     {
         $this->jobListings = new ArrayCollection();
@@ -213,6 +216,18 @@ class EntrepriseProfile
         if ($this->secteurs->removeElement($secteur)) {
             $secteur->removeEntreprise($this);
         }
+
+        return $this;
+    }
+
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(string $nom): static
+    {
+        $this->nom = $nom;
 
         return $this;
     }

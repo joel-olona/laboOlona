@@ -26,15 +26,19 @@
             {% for annonce in annonces %}
                 <tr>
                     <td class="id-column">{{ annonce.id }}</td>
-                    <td>{{ annonce.entreprise.entreprise.nom }}</td>
+                    <td>{{ annonce.entreprise.nom }}</td>
                     <td>{{ annonce.titre }}</td>
                     <td>{{ annonce.description|length > 50 ? annonce.description|slice(0, 50) ~ '...' : annonce.description }}</td>
                     <td>
                         <form method="post" action="{{ path('change_status_annonce', {'id': annonce.id}) }}">
                             <select name="status" class="form-control" onchange="this.form.submit()">
-                                <option value="OPEN" {{ annonce.status == 'OPEN' ? 'selected' : '' }}>Ouvert</option>
-                                <option value="CLOSED" {{ annonce.status == 'CLOSED' ? 'selected' : '' }}>Fermé</option>
-                                <option value="FILLED" {{ annonce.status == 'FILLED' ? 'selected' : '' }}>Pourvu</option>
+                                <option value="PUBLISHED" {{ annonce.status == 'PUBLISHED' ? 'selected' : '' }}>Publiée</option>
+                                <option value="PENDING" {{ annonce.status == 'PENDING' ? 'selected' : '' }}>En attente</option>
+                                <option value="REJECTED" {{ annonce.status == 'REJECTED' ? 'selected' : '' }}>Rejetée</option>
+                                <option value="EXPIRED" {{ annonce.status == 'EXPIRED' ? 'selected' : '' }}>Expirée</option>
+                                <option value="FEATURED" {{ annonce.status == 'FEATURED' ? 'selected' : '' }}>Mis en avant</option>
+                                <option value="ARCHIVED" {{ annonce.status == 'ARCHIVED' ? 'selected' : '' }}>Archivée</option>
+                                <option value="DELETED" {{ annonce.status == 'DELETED' ? 'selected' : '' }}>Effacée</option>
                             </select>
                         </form>
                     </td>

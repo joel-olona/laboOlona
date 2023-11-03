@@ -2,12 +2,12 @@
 
 {% block body %}
 <div class="container mt-5">
-    <h2>Détails de l'Annonce de {{ entreprise.entreprise.nom }}</h2>
+    <h2>Détails de l'Annonce de {{ entreprise.nom }}</h2>
     <dl>
         <dt>ID</dt>
         <dd>{{ annonce.id }}</dd>
         <dt>Entreprise</dt>
-        <dd>{{ annonce.entreprise.entreprise.nom }}</dd>
+        <dd>{{ annonce.entreprise.nom }}</dd>
         <dt>Titre</dt>
         <dd>{{ annonce.titre }}</dd>
         <dt>Description</dt>

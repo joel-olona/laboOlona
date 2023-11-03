@@ -48,9 +48,9 @@ class ModerateurController extends AbstractController
         private ProfileManager $profileManager,
         private RequestStack $requestStack,
         private UrlGeneratorInterface $urlGenerator,
-    ){
+    ) {
     }
-    
+
     #[Route('/', name: 'app_dashboard_moderateur')]
     public function index(): Response
     {
@@ -69,7 +69,7 @@ class ModerateurController extends AbstractController
             'sectors' => $secteurRepository->findAll(),
         ]);
     }
-    
+
     #[Route('/ajax/remove/{id}/sector', name: 'ajax_remove_sector', methods: ['DELETE'])]
     public function ajaxRemoveSector(int $id, SecteurRepository $secteurRepository, EntityManagerInterface $entityManager): JsonResponse
     {
@@ -77,10 +77,10 @@ class ModerateurController extends AbstractController
         if (!$secteur) {
             return $this->json(['success' => false, 'message' => 'Secteur non trouvé'], 404);
         }
-    
+
         $entityManager->remove($secteur);
         $entityManager->flush();
-    
+
         return $this->json(['success' => true, 'message' => 'Secteur supprimé']);
     }
     // #[Route('/secteurs/delete/{id}', name: 'app_dashboard_moderateur_delete_sector', methods: ['DELETE'])]
@@ -115,145 +115,143 @@ class ModerateurController extends AbstractController
     }
 
     #[Route('/annonces', name: 'app_dashboard_moderateur_annonces')]
-public function annonces(JobListingRepository $jobListingRepository): Response
-{
-    return $this->render('dashboard/moderateur/annonces.html.twig', [
-        'annonces' => $jobListingRepository->findAll(),
-    ]);
-}
-
-#[Route('/annonce/{id}', name: 'view_annonce', methods: ['GET'])]
-public function viewAnnonce(JobListing $annonce): Response
-{
-    return $this->render('dashboard/moderateur/view.html.twig', [
-        'annonce' => $annonce,
-    ]);
-}
-
-#[Route('/status/annonce/{id}', name: 'change_status_annonce', methods: ['POST'])]
-public function changeAnnonceStatus(Request $request, EntityManagerInterface $entityManager, JobListing $annonce): Response
-{
-    $status = $request->request->get('status');
-    if ($status && in_array($status, ['OPEN', 'CLOSED', 'FILLED'])) {
-        $annonce->setStatus($status);
-        $entityManager->flush();
-        $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
-    } else {
-        $this->addFlash('error', 'Statut invalide.');
+    public function annonces(JobListingRepository $jobListingRepository): Response
+    {
+        return $this->render('dashboard/moderateur/annonces.html.twig', [
+            'annonces' => $jobListingRepository->findAll(),
+        ]);
     }
 
-    return $this->redirectToRoute('app_dashboard_moderateur_annonces');
-}
+    #[Route('/annonce/{id}', name: 'view_annonce', methods: ['GET'])]
+    public function viewAnnonce(JobListing $annonce): Response
+    {
+        return $this->render('dashboard/moderateur/view.html.twig', [
+            'annonce' => $annonce,
+        ]);
+    }
 
-
-
-#[Route('/delete/annonce/{id}', name: 'delete_annonce', methods: ['POST'])]
-public function deleteAnnonce(JobListing $annonce, EntityManagerInterface $entityManager): Response
-{
-    $entityManager->remove($annonce);
-    $entityManager->flush();
-    $this->addFlash('success', 'Annonce supprimée avec succès.');
-
-    return $this->redirectToRoute('app_dashboard_moderateur_annonces');
-}
-
-#[Route('/details/annonce/{id}', name: 'details_annonce', methods: ['GET'])]
-public function detailsAnnonce(JobListing $annonce): JsonResponse
-{
-    $annonceDetails = [
-        'titre' => $annonce->getTitre(),
-        'description' => $annonce->getDescription(),
-        'dateCreation' => $annonce->getDateCreation()?->format('Y-m-d H:i:s'),
-        'dateExpiration' => $annonce->getDateExpiration()?->format('Y-m-d H:i:s'),
-        'status' => $annonce->getStatus(),
-        'salaire' => $annonce->getSalaire(),
-        'lieu' => $annonce->getLieu(),
-        'typeContrat' => $annonce->getTypeContrat(),
-        // // Si 'entreprise' et 'entreprise.nom' sont des entités ou des objets, vous devez vous assurer qu'ils sont correctement initialisés et qu'ils ont une méthode toString() ou similaire.
-        // 'entreprise' => (string)$annonce->getEntreprise()?->getEntreprise()?->getNom(),
-    ];
-
-    return $this->json($annonceDetails);
-}
-
-
-        #[Route('/entreprises', name: 'app_dashboard_moderateur_entreprises')]
-        public function entreprises(EntrepriseProfileRepository $entrepriseProfileRepository): Response
-        {
-            $entreprises = $entrepriseProfileRepository->findAll();
-            return $this->render('dashboard/moderateur/entreprises.html.twig', [
-                'entreprises' => $entreprises,
-            ]);
+    #[Route('/status/annonce/{id}', name: 'change_status_annonce', methods: ['POST'])]
+    public function changeAnnonceStatus(Request $request, EntityManagerInterface $entityManager, JobListing $annonce): Response
+    {
+        $status = $request->request->get('status');
+        if ($status && in_array($status, ['OPEN', 'CLOSED', 'FILLED'])) {
+            $annonce->setStatus($status);
+            $entityManager->flush();
+            $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
+        } else {
+            $this->addFlash('error', 'Statut invalide.');
         }
 
-        #[Route('/entreprise/{id}', name: 'voir_entreprise')]
-        public function voirEntreprise(EntrepriseProfile $entreprise): Response
-        {
-            return $this->render('dashboard/moderateur/entreprise_view.html.twig', [
-                'entreprise' => $entreprise,
-            ]);
+        return $this->redirectToRoute('app_dashboard_moderateur_annonces');
+    }
+
+    #[Route('/delete/annonce/{id}', name: 'delete_annonce', methods: ['POST'])]
+    public function deleteAnnonce(JobListing $annonce, EntityManagerInterface $entityManager): Response
+    {
+        $entityManager->remove($annonce);
+        $entityManager->flush();
+        $this->addFlash('success', 'Annonce supprimée avec succès.');
+
+        return $this->redirectToRoute('app_dashboard_moderateur_annonces');
+    }
+
+    #[Route('/details/annonce/{id}', name: 'details_annonce', methods: ['GET'])]
+    public function detailsAnnonce(JobListing $annonce): JsonResponse
+    {
+        $annonceDetails = [
+            'titre' => $annonce->getTitre(),
+            'description' => $annonce->getDescription(),
+            'dateCreation' => $annonce->getDateCreation()?->format('Y-m-d H:i:s'),
+            'dateExpiration' => $annonce->getDateExpiration()?->format('Y-m-d H:i:s'),
+            'status' => $annonce->getStatus(),
+            'salaire' => $annonce->getSalaire(),
+            'lieu' => $annonce->getLieu(),
+            'typeContrat' => $annonce->getTypeContrat(),
+            // // Si 'entreprise' et 'entreprise.nom' sont des entités ou des objets, vous devez vous assurer qu'ils sont correctement initialisés et qu'ils ont une méthode toString() ou similaire.
+            // 'entreprise' => (string)$annonce->getEntreprise()?->getEntreprise()?->getNom(),
+        ];
+
+        return $this->json($annonceDetails);
+    }
+
+
+    #[Route('/entreprises', name: 'app_dashboard_moderateur_entreprises')]
+    public function entreprises(EntrepriseProfileRepository $entrepriseProfileRepository): Response
+    {
+        $entreprises = $entrepriseProfileRepository->findAll();
+        return $this->render('dashboard/moderateur/entreprises.html.twig', [
+            'entreprises' => $entreprises,
+        ]);
+    }
+
+    #[Route('/entreprise/{id}', name: 'voir_entreprise')]
+    public function voirEntreprise(EntrepriseProfile $entreprise): Response
+    {
+        return $this->render('dashboard/moderateur/entreprise_view.html.twig', [
+            'entreprise' => $entreprise,
+        ]);
+    }
+
+    #[Route('/supprimer/entreprise/{id}', name: 'supprimer_entreprise', methods: ['POST'])]
+    public function supprimerEntreprise(Request $request, EntityManagerInterface $entityManager, EntrepriseProfile $entreprise): Response
+    {
+        if ($this->isCsrfTokenValid('delete' . $entreprise->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($entreprise);
+            $entityManager->flush();
         }
 
-        #[Route('/supprimer/entreprise/{id}', name: 'supprimer_entreprise', methods: ['POST'])]
-        public function supprimerEntreprise(Request $request, EntityManagerInterface $entityManager, EntrepriseProfile $entreprise): Response
-        {
-            if ($this->isCsrfTokenValid('delete'.$entreprise->getId(), $request->request->get('_token'))) {
-                $entityManager->remove($entreprise);
-                $entityManager->flush();
-            }
+        return $this->redirectToRoute('app_dashboard_moderateur_entreprises');
+    }
 
-            return $this->redirectToRoute('app_dashboard_moderateur_entreprises');
+    #[Route('/entreprises/{id}/annonces', name: 'app_dashboard_moderateur_entreprises_annonces')]
+    public function entreprisesAnnonces(EntrepriseProfile $entreprise, JobListingRepository $jobListingRepository): Response
+    {
+        $annonces = $jobListingRepository->findBy(['entreprise' => $entreprise]);
+
+        return $this->render('dashboard/moderateur/entreprises_annonces.html.twig', [
+            'entreprise' => $entreprise,
+            'annonces' => $annonces,
+        ]);
+    }
+
+    #[Route('/entreprise/{entreprise_id}/annonce/{annonce_id}/status', name: 'change_status_annonce_entreprise', methods: ['POST'])]
+    public function changeEntrepriseAnnonceStatus(Request $request, EntityManagerInterface $entityManager, int $entreprise_id, int $annonce_id, JobListingRepository $jobListingRepository): Response
+    {
+        $status = $request->request->get('status');
+        $entreprise = $entityManager->getRepository(EntrepriseProfile::class)->find($entreprise_id);
+        $annonce = $jobListingRepository->findOneBy(['id' => $annonce_id, 'entreprise' => $entreprise]);
+
+        if (!$annonce) {
+            $this->addFlash('error', 'Annonce introuvable.');
+            return $this->redirectToRoute('app_dashboard_moderateur_entreprises_annonces', ['id' => $entreprise_id]);
         }
 
-        #[Route('/entreprises/{id}/annonces', name: 'app_dashboard_moderateur_entreprises_annonces')]
-            public function entreprisesAnnonces(EntrepriseProfile $entreprise, JobListingRepository $jobListingRepository): Response
-            {
-                $annonces = $jobListingRepository->findBy(['entreprise' => $entreprise]);
+        if ($status && in_array($status, ['OPEN', 'CLOSED', 'FILLED'])) {
+            $annonce->setStatus($status);
+            $entityManager->flush();
+            $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
+        } else {
+            $this->addFlash('error', 'Statut invalide.');
+        }
 
-                return $this->render('dashboard/moderateur/entreprises_annonces.html.twig', [
-                    'entreprise' => $entreprise,
-                    'annonces' => $annonces,
-                ]);
-            }
+        return $this->redirectToRoute('app_dashboard_moderateur_entreprises_annonces', ['id' => $entreprise_id]);
+    }
 
-            #[Route('/entreprise/{entreprise_id}/annonce/{annonce_id}/status', name: 'change_status_annonce_entreprise', methods: ['POST'])]
-            public function changeEntrepriseAnnonceStatus(Request $request, EntityManagerInterface $entityManager, int $entreprise_id, int $annonce_id, JobListingRepository $jobListingRepository): Response
-            {
-                $status = $request->request->get('status');
-                $entreprise = $entityManager->getRepository(EntrepriseProfile::class)->find($entreprise_id);
-                $annonce = $jobListingRepository->findOneBy(['id' => $annonce_id, 'entreprise' => $entreprise]);
-        
-                if (!$annonce) {
-                    $this->addFlash('error', 'Annonce introuvable.');
-                    return $this->redirectToRoute('app_dashboard_moderateur_entreprises_annonces', ['id' => $entreprise_id]);
-                }
-        
-                if ($status && in_array($status, ['OPEN', 'CLOSED', 'FILLED'])) {
-                    $annonce->setStatus($status);
-                    $entityManager->flush();
-                    $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
-                } else {
-                    $this->addFlash('error', 'Statut invalide.');
-                }
-        
-                return $this->redirectToRoute('app_dashboard_moderateur_entreprises_annonces', ['id' => $entreprise_id]);
-            }
+    #[Route('/entreprises/{entreprise_id}/annonces/{annonce_id}/view', name: 'app_dashboard_moderateur_entreprises_annonces_view')]
+    public function entreprisesAnnoncesView(int $entreprise_id, int $annonce_id, EntrepriseProfileRepository $entrepriseProfileRepository, JobListingRepository $jobListingRepository): Response
+    {
+        $entreprise = $entrepriseProfileRepository->find($entreprise_id);
+        $annonce = $jobListingRepository->findOneBy(['id' => $annonce_id, 'entreprise' => $entreprise]);
 
-            #[Route('/entreprises/{entreprise_id}/annonces/{annonce_id}/view', name: 'app_dashboard_moderateur_entreprises_annonces_view')]
-            public function entreprisesAnnoncesView(int $entreprise_id, int $annonce_id, EntrepriseProfileRepository $entrepriseProfileRepository, JobListingRepository $jobListingRepository): Response
-            {
-                $entreprise = $entrepriseProfileRepository->find($entreprise_id);
-                $annonce = $jobListingRepository->findOneBy(['id' => $annonce_id, 'entreprise' => $entreprise]);
-            
-                if (!$entreprise || !$annonce) {
-                    throw $this->createNotFoundException('L\'entreprise ou l\'annonce n\'a pas été trouvée');
-                }
-            
-                return $this->render('dashboard/moderateur/entreprises_annonces_view.html.twig', [
-                    'entreprise' => $entreprise,
-                    'annonce' => $annonce,
-                ]);
-            }
+        if (!$entreprise || !$annonce) {
+            throw $this->createNotFoundException('L\'entreprise ou l\'annonce n\'a pas été trouvée');
+        }
+
+        return $this->render('dashboard/moderateur/entreprises_annonces_view.html.twig', [
+            'entreprise' => $entreprise,
+            'annonce' => $annonce,
+        ]);
+    }
 
     // #[Route('/candidats', name: 'app_dashboard_moderateur_candidats')]
     // public function candidats(Request $request, CandidateProfileRepository $candidateProfileRepository): Response
@@ -264,141 +262,130 @@ public function detailsAnnonce(JobListing $annonce): JsonResponse
     // }
 
     #[Route('/candidats', name: 'app_dashboard_moderateur_candidats')]
-        public function candidats(CandidateProfileRepository $candidateProfileRepository): Response
-        {
-            $candidats = $candidateProfileRepository->findAll();
-            
-            return $this->render('dashboard/moderateur/candidats.html.twig', [
-                'candidats' => $candidats,
-            ]);
+    public function candidats(CandidateProfileRepository $candidateProfileRepository): Response
+    {
+        $candidats = $candidateProfileRepository->findAll();
+
+        return $this->render('dashboard/moderateur/candidats.html.twig', [
+            'candidats' => $candidats,
+        ]);
+    }
+
+    #[Route('/candidats/{id}', name: 'app_dashboard_moderateur_candidat_view')]
+    public function viewCandidat(CandidateProfile $candidat): Response
+    {
+        return $this->render('dashboard/moderateur/candidat_view.html.twig', [
+            'candidat' => $candidat,
+        ]);
+    }
+
+    #[Route('/candidats/{id}/applications', name: 'app_dashboard_moderateur_candidat_applications')]
+    public function candidatApplications(int $id, ApplicationsRepository $applicationsRepository): Response
+    {
+        $applications = $applicationsRepository->findBy(['candidat' => $id]);
+
+        return $this->render('dashboard/moderateur/candidat_applications.html.twig', [
+            'applications' => $applications,
+        ]);
+    }
+
+    #[Route('/status/application/{id}', name: 'change_status_application', methods: ['POST'])]
+    public function changeApplicationStatus(Request $request, EntityManagerInterface $entityManager, Applications $application): Response
+    {
+        $status = $request->request->get('status');
+        if ($status && in_array($status, ['ACCEPTED', 'REFUSED', 'PENDING'])) {
+            $application->setStatus($status);
+            $entityManager->flush();
+            $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
+        } else {
+            $this->addFlash('error', 'Statut invalide.');
         }
 
-        #[Route('/candidats/{id}', name: 'app_dashboard_moderateur_candidat_view')]
-        public function viewCandidat(CandidateProfile $candidat): Response
-        {
-            return $this->render('dashboard/moderateur/candidat_view.html.twig', [
-                'candidat' => $candidat,
-            ]);
-        }
+        return $this->redirectToRoute('app_dashboard_moderateur_candidat_applications', ['id' => $application->getCandidat()->getId()]);
+    }
 
-        #[Route('/candidats/{id}/applications', name: 'app_dashboard_moderateur_candidat_applications')]
-        public function candidatApplications(int $id, ApplicationsRepository $applicationsRepository): Response
-        {
-            $applications = $applicationsRepository->findBy(['candidat' => $id]);
+    #[Route('/candidats/{id}/applications/en-attente', name: 'app_dashboard_moderateur_candidat_applications_en_attente')]
+    public function candidatApplicationsEnAttente(int $id, ApplicationsRepository $applicationsRepository): Response
+    {
+        $applications = $applicationsRepository->findBy(['candidat' => $id, 'status' => 'PENDING']);
 
-            return $this->render('dashboard/moderateur/candidat_applications.html.twig', [
-                'applications' => $applications,
-            ]);
-        }
+        return $this->render('dashboard/moderateur/candidat_applications_en_attente.html.twig', [
+            'applications' => $applications,
+        ]);
+    }
 
-       #[Route('/status/application/{id}', name: 'change_status_application', methods: ['POST'])]
-        public function changeApplicationStatus(Request $request, EntityManagerInterface $entityManager, Applications $application): Response
-        {
-            $status = $request->request->get('status');
-            if ($status && in_array($status, ['ACCEPTED', 'REFUSED', 'PENDING'])) {
-                $application->setStatus($status);
-                $entityManager->flush();
-                $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
-            } else {
-                $this->addFlash('error', 'Statut invalide.');
-            }
+    #[Route('/candidats/{id}/applications/acceptees', name: 'app_dashboard_moderateur_candidat_applications_acceptees')]
+    public function candidatApplicationsAcceptees(int $id, ApplicationsRepository $applicationsRepository): Response
+    {
+        $applications = $applicationsRepository->findBy(['candidat' => $id, 'status' => 'ACCEPTED']);
 
-            return $this->redirectToRoute('app_dashboard_moderateur_candidat_applications', ['id' => $application->getCandidat()->getId()]);
-        }
+        return $this->render('dashboard/moderateur/candidat_applications_acceptees.html.twig', [
+            'applications' => $applications,
+        ]);
+    }
 
-        #[Route('/candidats/{id}/applications/en-attente', name: 'app_dashboard_moderateur_candidat_applications_en_attente')]
-        public function candidatApplicationsEnAttente(int $id, ApplicationsRepository $applicationsRepository): Response
-        {
-            $applications = $applicationsRepository->findBy(['candidat' => $id, 'status' => 'PENDING']);
+    #[Route('/candidats/{id}/applications/refusees', name: 'app_dashboard_moderateur_candidat_applications_refusees')]
+    public function candidatApplicationsRefusees(int $id, ApplicationsRepository $applicationsRepository): Response
+    {
+        $applications = $applicationsRepository->findBy(['candidat' => $id, 'status' => 'REFUSED']);
 
-            return $this->render('dashboard/moderateur/candidat_applications_en_attente.html.twig', [
-                'applications' => $applications,
-            ]);
-        }
+        return $this->render('dashboard/moderateur/candidat_applications_refusees.html.twig', [
+            'applications' => $applications,
+        ]);
+    }
 
-        #[Route('/candidats/{id}/applications/acceptees', name: 'app_dashboard_moderateur_candidat_applications_acceptees')]
-        public function candidatApplicationsAcceptees(int $id, ApplicationsRepository $applicationsRepository): Response
-        {
-            $applications = $applicationsRepository->findBy(['candidat' => $id, 'status' => 'ACCEPTED']);
-
-            return $this->render('dashboard/moderateur/candidat_applications_acceptees.html.twig', [
-                'applications' => $applications,
-            ]);
-        }
-
-        #[Route('/candidats/{id}/applications/refusees', name: 'app_dashboard_moderateur_candidat_applications_refusees')]
-            public function candidatApplicationsRefusees(int $id, ApplicationsRepository $applicationsRepository): Response
-            {
-                $applications = $applicationsRepository->findBy(['candidat' => $id, 'status' => 'REFUSED']);
-
-                return $this->render('dashboard/moderateur/candidat_applications_refusees.html.twig', [
-                    'applications' => $applications,
-                ]);
-            }
-
-        // #[Route('/candidats/{id}/competences', name: 'app_dashboard_moderateur_candidat_competences')]
-        // public function candidatCompetences(CandidateProfile $candidat, CompetencesRepository $competencesRepository): Response
-        // {
-        //     $competences = $competencesRepository->findBy(['profil' => $candidat]);
-
-        //     return $this->render('dashboard/moderateur/candidat_competences.html.twig', [
-        //         'candidat' => $candidat,
-        //         'competences' => $competences,
-        //     ]);
-        // }
-
-        #[Route('/candidats/{id}/competences', name: 'app_dashboard_moderateur_candidat_competences')]
-            public function candidatCompetences(int $id, CandidateProfileRepository $candidateProfileRepository): Response
-            {
-                $candidat = $candidateProfileRepository->find($id);
-                if (!$candidat) {
-                    throw $this->createNotFoundException('Candidat introuvable');
-                }
-
-                return $this->render('dashboard/moderateur/candidat_competences.html.twig', [
-                    'candidat' => $candidat,
-                ]);
-            }
-
-        // #[Route('/candidats/{id}/experiences', name: 'app_dashboard_moderateur_candidat_experiences')]
-        // public function candidatExperiences(int $id, ExperiencesRepository $experiencesRepository): Response
-        // {
-        //     $candidat = $experiencesRepository->find($id);
-        //     if (!$candidat) {
-        //         throw $this->createNotFoundException('Candidat introuvable');
-        //     }
-
-        //     return $this->render('dashboard/moderateur/candidat_experiences.html.twig', [
-        //         'candidat' => $candidat,
-        //     ]);
-        // }
-
-        #[Route('/candidats/{id}/experiences', name: 'app_dashboard_moderateur_candidat_experiences')]
-        public function candidatExperiences(int $id, CandidateProfileRepository $candidateProfileRepository): Response
-        {
-            $candidat = $candidateProfileRepository->find($id);
-            if (!$candidat) {
-                throw $this->createNotFoundException('Candidat introuvable');
-            }
-
-            $experiences = $candidat->getExperiences();
-
-            return $this->render('dashboard/moderateur/candidat_experiences.html.twig', [
-                'candidat' => $candidat,
-                'experiences' => $experiences,
-            ]);
-        }
-
-
-
-
-    // #[Route('/mettings', name: 'app_dashboard_moderateur_mettings')]
-    // public function mettings(Request $request, MettingRepository $mettingRepository): Response
+    // #[Route('/candidats/{id}/competences', name: 'app_dashboard_moderateur_candidat_competences')]
+    // public function candidatCompetences(CandidateProfile $candidat, CompetencesRepository $competencesRepository): Response
     // {
-    //     return $this->render('dashboard/moderateur/mettings.html.twig', [
-    //         'sectors' => $mettingRepository->findAll(),
+    //     $competences = $competencesRepository->findBy(['profil' => $candidat]);
+
+    //     return $this->render('dashboard/moderateur/candidat_competences.html.twig', [
+    //         'candidat' => $candidat,
+    //         'competences' => $competences,
     //     ]);
     // }
+
+    #[Route('/candidats/{id}/competences', name: 'app_dashboard_moderateur_candidat_competences')]
+    public function candidatCompetences(int $id, CandidateProfileRepository $candidateProfileRepository): Response
+    {
+        $candidat = $candidateProfileRepository->find($id);
+        if (!$candidat) {
+            throw $this->createNotFoundException('Candidat introuvable');
+        }
+
+        return $this->render('dashboard/moderateur/candidat_competences.html.twig', [
+            'candidat' => $candidat,
+        ]);
+    }
+
+    // #[Route('/candidats/{id}/experiences', name: 'app_dashboard_moderateur_candidat_experiences')]
+    // public function candidatExperiences(int $id, ExperiencesRepository $experiencesRepository): Response
+    // {
+    //     $candidat = $experiencesRepository->find($id);
+    //     if (!$candidat) {
+    //         throw $this->createNotFoundException('Candidat introuvable');
+    //     }
+
+    //     return $this->render('dashboard/moderateur/candidat_experiences.html.twig', [
+    //         'candidat' => $candidat,
+    //     ]);
+    // }
+
+    #[Route('/candidats/{id}/experiences', name: 'app_dashboard_moderateur_candidat_experiences')]
+    public function candidatExperiences(int $id, CandidateProfileRepository $candidateProfileRepository): Response
+    {
+        $candidat = $candidateProfileRepository->find($id);
+        if (!$candidat) {
+            throw $this->createNotFoundException('Candidat introuvable');
+        }
+
+        $experiences = $candidat->getExperiences();
+
+        return $this->render('dashboard/moderateur/candidat_experiences.html.twig', [
+            'candidat' => $candidat,
+            'experiences' => $experiences,
+        ]);
+    }
 
     #[Route('/mettings', name: 'app_dashboard_moderateur_mettings')]
     public function mettings(MettingRepository $mettingRepository): Response
@@ -454,7 +441,7 @@ public function detailsAnnonce(JobListing $annonce): JsonResponse
     #[Route('/metting/{id}', name: 'app_dashboard_moderateur_metting_delete', methods: ['POST'])]
     public function delete(Request $request, Metting $metting, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$metting->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $metting->getId(), $request->request->get('_token'))) {
             $entityManager->remove($metting);
             $entityManager->flush();
         }
