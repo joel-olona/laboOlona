@@ -3,6 +3,9 @@
 namespace App\Controller\Dashboard;
 
 use DateTime;
+use App\Entity\User;
+use App\Repository\UserRepository;
+use App\Repository\Entreprise\JobListingRepository;
 use App\Manager\ProfileManager;
 use App\Entity\CandidateProfile;
 use App\Entity\Entreprise\JobListing;
@@ -30,7 +33,7 @@ class CandidatController extends AbstractController
         private CandidatManager $candidatManager,
         private RequestStack $requestStack,
         private UrlGeneratorInterface $urlGenerator,
-    ){
+    ) {
     }
 
     private function checkCandidat()
@@ -68,33 +71,29 @@ class CandidatController extends AbstractController
             'formatSunday' => $formatSunday,
             'form' => $form->createView(),
         ]);
-
-        return $this->render('dashboard/candidat/index.html.twig', [
-            'controller_name' => 'CandidatController',
-        ]);
     }
 
     private function searchPostings(string $query, EntityManagerInterface $entityManager): array
     {
-        if(empty($query)){
+        if (empty($query)) {
             return [];
         }
 
         $qb = $entityManager->createQueryBuilder();
-        
+
         $keywords = array_filter(explode(' ', $query));
         $parameters = [];
-    
+
         $conditions = [];
         foreach ($keywords as $key => $keyword) {
-            $conditions[] = '(p.titre LIKE :query' . $key . 
-                            ' OR p.description LIKE :query' . $key . 
-                            ' OR sec.nom LIKE :query' . $key . 
-                            ' OR lang.nom LIKE :query' . $key . 
-                            ' OR ts.nom LIKE :query' . $key . ')';
+            $conditions[] = '(p.titre LIKE :query' . $key .
+                ' OR p.description LIKE :query' . $key .
+                ' OR sec.nom LIKE :query' . $key .
+                ' OR lang.nom LIKE :query' . $key .
+                ' OR ts.nom LIKE :query' . $key . ')';
             $parameters['query' . $key] = '%' . $keyword . '%';
         }
-    
+
         $qb->select('p')
             ->from('App\Entity\Entreprise\JobListing', 'p')
             ->leftJoin('p.secteur', 'sec')
@@ -103,8 +102,20 @@ class CandidatController extends AbstractController
             ->where(implode(' OR ', $conditions))
             ->andWhere('p.status = :status')
             ->setParameters(array_merge($parameters, ['status' => JobListing::STATUS_PUBLISHED]));
-    
+
         return $qb->getQuery()->getResult();
+    }
+
+
+    #[Route("/profil", name: "profil")]
+
+    public function profil(): Response
+    {
+        $candidat = $this->userService->getCurrentUser()->getCandidateProfile();
+
+        return $this->render('dashboard/candidat/profil.html.twig', [
+            // 'candidat' => $candidat,
+        ]);
     }
 
     #[Route('/annonces', name: 'app_dashboard_candidat_annonce')]
@@ -115,7 +126,7 @@ class CandidatController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $candidat = $user->getCandidateProfile();
         $searchTerm = "";
-        
+
         $form = $this->createForm(AnnonceSearchType::class);
         $form->handleRequest($request);
         $postings = $this->candidatManager->annoncesCandidat($candidat);
@@ -186,5 +197,11 @@ class CandidatController extends AbstractController
             'controller_name' => 'GuidesController',
         ]);
     }
-    
+
+    // Voici les nouvelles structurations des routes
+
+
+
+
+
 }
