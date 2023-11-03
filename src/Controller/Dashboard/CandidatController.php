@@ -24,7 +24,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/dashboard/candidat')]
 class CandidatController extends AbstractController
- {
+{
     public function __construct(
         private UserService $userService,
         private EntityManagerInterface $em,
@@ -33,7 +33,7 @@ class CandidatController extends AbstractController
         private CandidatManager $candidatManager,
         private RequestStack $requestStack,
         private UrlGeneratorInterface $urlGenerator,
-    ){
+    ) {
     }
 
     private function checkCandidat()
@@ -46,61 +46,54 @@ class CandidatController extends AbstractController
 
     #[Route('/', name: 'app_dashboard_candidat')]
     public function index(Request $request): Response
-{
-    $this->checkCandidat();
-    /** @var User $user */
-    $user = $this->userService->getCurrentUser();
-    $candidat = $user->getCandidateProfile();
-    $query = $candidat->getSearchQuery();
-    if (!empty($query)) {
-        $offres = $this->searchPostings($query, $this->em);
+    {
+        $this->checkCandidat();
+        /** @var User $user */
+        $user = $this->userService->getCurrentUser();
+        $candidat = $user->getCandidateProfile();
+        $now = new DateTime();
+
+        $monday = clone $now;
+        $monday->modify('this monday');
+        $sunday = clone $monday;
+        $sunday->modify('+6 days');
+
+        $formatMonday = $monday->format('d');
+        $formatSunday = $sunday->format('d F Y');
+
+        $form = $this->createForm(AnnonceSearchType::class);
+        $form->handleRequest($request);
+
+        return $this->render('dashboard/candidat/index.html.twig', [
+            'identity' => $candidat,
+            'annonces' => $this->candidatManager->annoncesCandidatDefaut($candidat),
+            'formatMonday' => $formatMonday,
+            'formatSunday' => $formatSunday,
+            'form' => $form->createView(),
+        ]);
     }
-    $now = new DateTime();
-
-    $monday = clone $now;
-    $monday->modify('this monday');
-    $sunday = clone $monday;
-    $sunday->modify('+6 days');
-
-    $formatMonday = $monday->format('d');
-    $formatSunday = $sunday->format('d F Y');
-
-    $form = $this->createForm(AnnonceSearchType::class);
-    $form->handleRequest($request);
-
-    
-
-    return $this->render('dashboard/candidat/index.html.twig', [
-        'identity' => $candidat,
-        // 'postings' => $this->postingManager->findExpertAnnouncements($expert),
-        'formatMonday' => $formatMonday,
-        'formatSunday' => $formatSunday,
-        'form' => $form->createView(),
-        // 'offres' => $offres,
-    ]);
-}
 
     private function searchPostings(string $query, EntityManagerInterface $entityManager): array
     {
-        if(empty($query)){
+        if (empty($query)) {
             return [];
         }
 
         $qb = $entityManager->createQueryBuilder();
-        
+
         $keywords = array_filter(explode(' ', $query));
         $parameters = [];
-    
+
         $conditions = [];
         foreach ($keywords as $key => $keyword) {
-            $conditions[] = '(p.titre LIKE :query' . $key . 
-                            ' OR p.description LIKE :query' . $key . 
-                            ' OR sec.nom LIKE :query' . $key . 
-                            ' OR lang.nom LIKE :query' . $key . 
-                            ' OR ts.nom LIKE :query' . $key . ')';
+            $conditions[] = '(p.titre LIKE :query' . $key .
+                ' OR p.description LIKE :query' . $key .
+                ' OR sec.nom LIKE :query' . $key .
+                ' OR lang.nom LIKE :query' . $key .
+                ' OR ts.nom LIKE :query' . $key . ')';
             $parameters['query' . $key] = '%' . $keyword . '%';
         }
-    
+
         $qb->select('p')
             ->from('App\Entity\Entreprise\JobListing', 'p')
             ->leftJoin('p.secteur', 'sec')
@@ -109,13 +102,13 @@ class CandidatController extends AbstractController
             ->where(implode(' OR ', $conditions))
             ->andWhere('p.status = :status')
             ->setParameters(array_merge($parameters, ['status' => JobListing::STATUS_PUBLISHED]));
-    
+
         return $qb->getQuery()->getResult();
     }
 
-     
+
     #[Route("/profil", name: "profil")]
-     
+
     public function profil(): Response
     {
         $candidat = $this->userService->getCurrentUser()->getCandidateProfile();
@@ -133,7 +126,7 @@ class CandidatController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $candidat = $user->getCandidateProfile();
         $searchTerm = "";
-        
+
         $form = $this->createForm(AnnonceSearchType::class);
         $form->handleRequest($request);
         $postings = $this->candidatManager->annoncesCandidat($candidat);
@@ -207,8 +200,8 @@ class CandidatController extends AbstractController
 
     // Voici les nouvelles structurations des routes
 
-   
 
-    
-    
+
+
+
 }
