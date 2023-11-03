@@ -35,6 +35,11 @@
                     </div>
                     <div class="col-lg-9 p-1">
                         <div class="div-plein-ecran bg-light text-dark p-3">
+                            {% for message in app.flashes('success') %}
+                                <div class="alert alert-success">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
                             {% block body %}{% endblock %}
                             {% block inner_footer %}{% endblock %}
                         </div>
