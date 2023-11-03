@@ -21,6 +21,14 @@ class CandidatManager
     ){}
 
     
+    public function annoncesCandidat(CandidateProfile $candidat): array
+    {
+        return array_slice(array_merge(
+            $this->getPostingsByCandidatSectors($candidat),
+            $this->getPostingsByCandidatSkills($candidat),
+            $this->getPostingsByCandidatLocalisation($candidat)
+        ), 0, 6);
+    }
     
     public function findExpertAnnouncements(CandidateProfile $candidat): array
     {

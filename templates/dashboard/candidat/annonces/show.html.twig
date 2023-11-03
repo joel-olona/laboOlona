@@ -1,0 +1,10 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-3 px-auto">
+    <section class="text-dark">
+    <h1>{{ annonce.titre }}</h1>
+    {{ dump(annonce) }}
+    </section>
+</div>
+{% endblock %}
