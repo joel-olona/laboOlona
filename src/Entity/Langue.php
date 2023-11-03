@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Entity\Candidate\Langages;
+use App\Entity\Entreprise\JobListing;
 use App\Repository\LangueRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -28,9 +29,13 @@ class Langue
     #[ORM\OneToMany(mappedBy: 'langue', targetEntity: Langages::class)]
     private Collection $langages;
 
+    #[ORM\ManyToMany(targetEntity: JobListing::class, mappedBy: 'langues')]
+    private Collection $jobListings;
+
     public function __construct()
     {
         $this->langages = new ArrayCollection();
+        $this->jobListings = new ArrayCollection();
     }
 
     public function __toString()
@@ -104,6 +109,33 @@ class Langue
             if ($langage->getLangue() === $this) {
                 $langage->setLangue(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, JobListing>
+     */
+    public function getJobListings(): Collection
+    {
+        return $this->jobListings;
+    }
+
+    public function addJobListing(JobListing $jobListing): static
+    {
+        if (!$this->jobListings->contains($jobListing)) {
+            $this->jobListings->add($jobListing);
+            $jobListing->addLangue($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJobListing(JobListing $jobListing): static
+    {
+        if ($this->jobListings->removeElement($jobListing)) {
+            $jobListing->removeLangue($this);
         }
 
         return $this;

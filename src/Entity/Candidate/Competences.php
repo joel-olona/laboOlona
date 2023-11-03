@@ -3,6 +3,7 @@
 namespace App\Entity\Candidate;
 
 use App\Entity\CandidateProfile;
+use App\Entity\Entreprise\JobListing;
 use App\Repository\Candidate\CompetencesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -32,9 +33,13 @@ class Competences
     #[ORM\Column(nullable: true)]
     private ?int $note = null;
 
+    #[ORM\ManyToMany(targetEntity: JobListing::class, mappedBy: 'competences')]
+    private Collection $jobListings;
+
     public function __construct()
     {
         $this->profil = new ArrayCollection();
+        $this->jobListings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -126,6 +131,33 @@ class Competences
     public function setNote(?int $note): static
     {
         $this->note = $note;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, JobListing>
+     */
+    public function getJobListings(): Collection
+    {
+        return $this->jobListings;
+    }
+
+    public function addJobListing(JobListing $jobListing): static
+    {
+        if (!$this->jobListings->contains($jobListing)) {
+            $this->jobListings->add($jobListing);
+            $jobListing->addCompetence($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJobListing(JobListing $jobListing): static
+    {
+        if ($this->jobListings->removeElement($jobListing)) {
+            $jobListing->removeCompetence($this);
+        }
 
         return $this;
     }
