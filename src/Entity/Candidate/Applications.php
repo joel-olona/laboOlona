@@ -20,6 +20,9 @@ class Applications
     #[ORM\ManyToOne(inversedBy: 'applications')]
     private ?CandidateProfile $candidat = null;
 
+    #[ORM\ManyToOne(targetEntity: JobListing::class)]
+    private ?JobListing $jobListing = null;
+
     #[ORM\ManyToOne(inversedBy: 'applications')]
     private ?JobListing $annonce = null;
 

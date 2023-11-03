@@ -310,7 +310,8 @@ app_dashboard_company:
     publish: "Publier une annonce"
     my_posting: "Mes annonces"
     find: "Trouver un profil"
-    messaging: "Messagerie"
+    metting: Rendez-vous
+    manage: Candidatures
     notification: "Notification"
     my_account: "Mon compte"
     logout: "Sortir"

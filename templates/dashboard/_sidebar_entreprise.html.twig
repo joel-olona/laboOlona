@@ -23,33 +23,40 @@
 
       </li>
       <li>
-        <a href="{{ path('app_dashboard_entreprise_candidats')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_entreprise_candidats' ? 'active' : 'text-white' }}">
+        <a href="{{ path('app_dashboard_entreprise_recherche_candidats')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_entreprise_recherche_candidats' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-search"></i>
             {{ 'app_dashboard_company.find'|trans }}  
         </a>
       </li>
-      {# <li>
-        <a href="{{ path('app_dashboard_company_message')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_company_message' ? 'active' : 'text-white' }}">
-            <i class="mx-2 h5 bi bi-chat-right-text"></i>
-            {{ 'app_dashboard_company.messaging'|trans }} 
+      <li>
+        <a href="{{ path('app_dashboard_entreprise_candidatures')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_entreprise_candidatures' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-search"></i>
+            {{ 'app_dashboard_company.manage'|trans }}  
         </a>
       </li>
       <li>
-        <a href="{{ path('app_dashboard_company_notification')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_company_notification' ? 'active' : 'text-white' }}">
+        <a href="{{ path('app_dashboard_entreprise_rendez_vous')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_entreprise_rendez_vous' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-calendar3"></i>
+            {{ 'app_dashboard_company.metting'|trans }} 
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_entreprise_notifications')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_entreprise_notifications' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-bell"></i>
             {{ 'app_dashboard_company.notification'|trans }}  
         </a>
-      </li> #}
+      </li>
     </ul>
 
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
       <li class="nav-item">
-        <a href="{{ path('app_dashboard_entreprise_compte')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_entreprise_compte' ? 'active' : 'text-white' }}">
+        <a href="{{ path('app_dashboard_entreprise_profil')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_entreprise_profil' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-person-circle"></i>
             {{ 'app_dashboard_company.my_account'|trans }}    
         </a>
