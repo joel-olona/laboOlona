@@ -12,6 +12,12 @@
     <hr>
       <li>
         <a href="{{ path('app_dashboard_candidat_annonce') }}" class="nav-link {{ current_route == 'app_dashboard_candidat_annonce' ? 'active' : 'text-white' }}">
+          <i class="mx-2 h5 bi bi-search"></i>
+          {{ 'app_dashboard_expert.find'|trans }}
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_candidat_annonces') }}" class="nav-link {{ current_route == 'app_dashboard_candidat_annonces' ? 'active' : 'text-white' }}">
           <i class="mx-2 h5 bi bi-megaphone"></i>
           {{ 'app_dashboard_expert_posting_all.my_posting'|trans }}
         </a>
