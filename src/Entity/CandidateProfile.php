@@ -50,7 +50,7 @@ class CandidateProfile implements Serializable
     #[ORM\OneToMany(mappedBy: 'candidat', targetEntity: Metting::class, cascade: ['persist', 'remove'])]
     private Collection $mettings;
 
-    #[ORM\ManyToMany(targetEntity: Secteur::class, mappedBy: 'candidat', cascade: ['persist', 'remove'])]
+    #[ORM\ManyToMany(targetEntity: Secteur::class,  inversedBy: 'canditat')]
     private Collection $secteurs;
 
     #[Vich\UploadableField(mapping: 'cv_expert', fileNameProperty: 'fileName')]
