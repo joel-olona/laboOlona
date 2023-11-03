@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Entreprise\JobListing;
 use App\Repository\SecteurRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -31,10 +32,14 @@ class Secteur
     #[ORM\ManyToMany(targetEntity: CandidateProfile::class, mappedBy: 'secteurs')]
     private Collection $candidat;
 
+    #[ORM\OneToMany(mappedBy: 'secteur', targetEntity: JobListing::class)]
+    private Collection $jobListings;
+
     public function __construct()
     {
         $this->entreprise = new ArrayCollection();
         $this->candidat = new ArrayCollection();
+        $this->jobListings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -122,6 +127,36 @@ class Secteur
     public function removeCandidat(CandidateProfile $candidat): static
     {
         $this->candidat->removeElement($candidat);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, JobListing>
+     */
+    public function getJobListings(): Collection
+    {
+        return $this->jobListings;
+    }
+
+    public function addJobListing(JobListing $jobListing): static
+    {
+        if (!$this->jobListings->contains($jobListing)) {
+            $this->jobListings->add($jobListing);
+            $jobListing->setSecteur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJobListing(JobListing $jobListing): static
+    {
+        if ($this->jobListings->removeElement($jobListing)) {
+            // set the owning side to null (unless already changed)
+            if ($jobListing->getSecteur() === $this) {
+                $jobListing->setSecteur(null);
+            }
+        }
 
         return $this;
     }

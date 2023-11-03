@@ -7,14 +7,16 @@ use Faker\Factory;
 use App\Entity\User;
 use App\Entity\Langue;
 use App\Entity\Secteur;
+use Symfony\Component\Uid\Uuid;
 use App\Entity\CandidateProfile;
 use App\Entity\EntrepriseProfile;
 use App\Entity\ModerateurProfile;
+use App\Entity\Candidate\Langages;
 use App\Entity\Candidate\Competences;
 use App\Entity\Candidate\Experiences;
 use App\Entity\Entreprise\JobListing;
 use App\Entity\Candidate\Applications;
-use App\Entity\Candidate\Langages;
+use App\Entity\Vues\AnnonceVues;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use App\Repository\EntrepriseProfileRepository;
@@ -93,70 +95,7 @@ class AppFixtures extends Fixture
 
             Pour info, la refonte est tout récente et le site en lui-même (design, usage, fonctionnalités) doivent rester intactes..",
         ];
-        $status = ['OPEN', 'CLOSED', 'FILLED'];
-        $statusCandidature = ['PENDING', 'ACCEPTED', 'REFUSED'];
-        $typeContrat = [
-            "CDI",
-            "CDD",
-            "STAGE",
-            "ALTERNANCE",
-        ];
 
-        $user = new User();
-        $plainPassword = '000000';
-        $user->setNom('Client')
-            ->setPrenom('Olona')
-            ->setDateInscription(new DateTime())
-            ->setType(User::ACCOUNT_MODERATEUR)
-            ->setemail('moderateur@gmail.com')
-            ->setPassword($this->encoder->hashPassword($user, $plainPassword));
-
-        $moderateur = new ModerateurProfile();
-        $moderateur->setModerateur($user);
-        $manager->persist($user);
-        $manager->persist($moderateur);
-
-
-        $entreprises = [];
-
-        for ($i = 0; $i < 10; $i++) {
-            $user = new User();
-            $plainPassword = '000000';
-            $user->setNom($faker->lastName)
-                ->setPrenom($faker->firstName)
-                ->setDateInscription(new DateTime())
-                ->setType(User::ACCOUNT_ENTREPRISE)
-                ->setEmail($faker->email)
-                ->setPassword($this->encoder->hashPassword($user, $plainPassword));
-
-            $entreprise = new EntrepriseProfile();
-            $entreprise->setEntreprise($user)
-                ->setTaille('SM')
-                ->setDescription($faker->paragraph(4))
-                ->setLocalisation($faker->countryCode())
-                ->setSiteWeb('http://olona-talents.com');
-                $manager->persist($user);
-                $manager->persist($entreprise);
-
-            $entreprises[] = $entreprise;
-        }
-
-        $jobListings = [];
-
-        for ($i = 0; $i < 20; $i++) {
-            $jobListing = new JobListing();
-            $jobListing->setTitre($faker->randomElement($job));
-            $jobListing->setDescription($faker->randomElement($jobdesc));
-            $jobListing->setDateCreation($faker->dateTime());
-            $jobListing->setDateExpiration($faker->dateTime());
-            $jobListing->setStatus($faker->randomElement($status));
-            $jobListing->setTypeContrat($faker->randomElement($typeContrat));
-            $jobListing->setSalaire(200.00);
-            $jobListing->setEntreprise($faker->randomElement($entreprises));
-            $manager->persist($jobListing);
-
-            $jobListings[] = $jobListing;
-        }
 
         $experiencesArray = [
             // IT - Développement
@@ -363,6 +302,102 @@ class AppFixtures extends Fixture
                 'code' => 'ar',
             ]
         ];
+
+        $statusJob = [
+            'PUBLISHED',
+            'PUBLISHED',
+            'PUBLISHED',
+            'PUBLISHED',
+            'PUBLISHED',
+            'PUBLISHED',
+            'PUBLISHED',
+            'PENDING',
+            'EXPIRED',
+            'ARCHIVED',
+            'FEATURED',
+            'RESERVED',
+        ];
+
+        $status = ['OPEN', 'CLOSED', 'FILLED'];
+        $statusCandidature = ['PENDING', 'ACCEPTED', 'REFUSED'];
+        $typeContrat = [
+            "CDI",
+            "CDD",
+            "STAGE",
+            "ALTERNANCE",
+        ];
+
+        $user = new User();
+        $plainPassword = '000000';
+        $user->setNom('Client')
+            ->setPrenom('Olona')
+            ->setDateInscription(new DateTime())
+            ->setType(User::ACCOUNT_MODERATEUR)
+            ->setemail('moderateur@gmail.com')
+            ->setPassword($this->encoder->hashPassword($user, $plainPassword));
+
+        $moderateur = new ModerateurProfile();
+        $moderateur->setModerateur($user);
+        $manager->persist($user);
+        $manager->persist($moderateur);
+
+
+        $entreprises = [];
+
+        for ($i = 0; $i < 10; $i++) {
+            $user = new User();
+            $plainPassword = '000000';
+            $user->setNom($faker->lastName)
+                ->setPrenom($faker->firstName)
+                ->setDateInscription(new DateTime())
+                ->setType(User::ACCOUNT_ENTREPRISE)
+                ->setEmail($faker->email)
+                ->setPassword($this->encoder->hashPassword($user, $plainPassword));
+
+            $entreprise = new EntrepriseProfile();
+            $entreprise->setEntreprise($user)
+                ->setTaille('SM')
+                ->setDescription($faker->paragraph(4))
+                ->setLocalisation($faker->countryCode())
+                ->setSiteWeb('http://olona-talents.com');
+                $manager->persist($user);
+                $manager->persist($entreprise);
+
+            $entreprises[] = $entreprise;
+        }
+
+        $postingViews = [];
+
+        for ($i = 0; $i < 20; $i++) {
+            $ip = rand(1, 254) . '.' . rand(0, 255) . '.' . rand(0, 255) . '.' . rand(0, 255);
+            $view = new AnnonceVues();
+            $view->setIdAdress($ip);
+            $manager->persist($view);
+
+            $postingViews[] = $view;
+        }
+
+        $jobListings = [];
+
+        for ($i = 0; $i < 50; $i++) {
+            $jobListing = new JobListing();
+            $jobListing->setTitre($faker->randomElement($job));
+            $jobListing->setDescription($faker->randomElement($jobdesc));
+            $jobListing->setDateCreation($faker->dateTime());
+            $jobListing->setDateExpiration($faker->dateTime());
+            $jobListing->setJobId(new Uuid(Uuid::v1()));
+            $jobListing->setStatus($faker->randomElement($statusJob));
+            $jobListing->setTypeContrat($faker->randomElement($typeContrat));
+            $jobListing->addAnnonceVue($faker->randomElement($postingViews));
+            $jobListing->addAnnonceVue($faker->randomElement($postingViews));
+            $jobListing->addAnnonceVue($faker->randomElement($postingViews));
+            $jobListing->addAnnonceVue($faker->randomElement($postingViews));
+            $jobListing->setSalaire(200.00);
+            $jobListing->setEntreprise($faker->randomElement($entreprises));
+            $manager->persist($jobListing);
+
+            $jobListings[] = $jobListing;
+        }
 
         $langs = [];
         foreach ($l as $key => $value) {
