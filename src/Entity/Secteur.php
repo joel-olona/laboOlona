@@ -28,7 +28,7 @@ class Secteur
     #[ORM\ManyToMany(targetEntity: EntrepriseProfile::class, inversedBy: 'secteurs')]
     private Collection $entreprise;
 
-    #[ORM\ManyToMany(targetEntity: CandidateProfile::class, inversedBy: 'secteurs')]
+    #[ORM\ManyToMany(targetEntity: CandidateProfile::class, mappedBy: 'secteurs')]
     private Collection $candidat;
 
     public function __construct()

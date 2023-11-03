@@ -170,9 +170,9 @@ class AppExtension extends AbstractExtension
         if ($interval->m > 0) {
             $result .= $interval->m . ' mois ';
         }
-        if ($interval->d > 0) {
-            $result .= $interval->d . ' jours';
-        }
+        // if ($interval->d > 0) {
+        //     $result .= $interval->d . ' jours';
+        // }
 
         return trim($result);
     }
