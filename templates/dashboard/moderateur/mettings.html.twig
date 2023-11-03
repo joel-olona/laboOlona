@@ -21,7 +21,7 @@
         {% for metting in mettings %}
             <tr>
                 <td>{{ metting.id }}</td>
-                <td>{{ metting.entreprise.entreprise.nom }}</td>
+                <td>{{ metting.entreprise.nom }}</td>
                 <td>{{ metting.candidat.candidat.nom }}</td>
                 <td>{{ metting.dateRendezVous|date('Y-m-d H:i') }}</td>
                 <td>{{ metting.lieu }}</td>

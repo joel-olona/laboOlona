@@ -1,0 +1,29 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block title %}Candidatures{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Candidatures</h1>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card text-white bg-primary mb-3">
+                    <div class="card-body">
+                        <h2 class="card-title">{{ annonces|length }}</h2>
+                        <p class="card-text">Offres d'emploi postées</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card text-white bg-success mb-3">
+                    <div class="card-body">
+                        <h2 class="card-title">{{ applications|length }}</h2>
+                        <p class="card-text">Candidatures reçues</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

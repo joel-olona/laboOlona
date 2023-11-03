@@ -98,7 +98,7 @@
             {% for posting in postings %}
                 <tr>
                     <td>{{ posting.titre }}</td>
-                    <td>{{ posting.entreprise.entreprise.nom }}</td>
+                    <td>{{ posting.entreprise.nom }}</td>
                     <td>{{ posting.typeContrat }}</td>
                     <td>{{ posting.salaire }}</td>
                     <td>{{ posting.dateExpiration|date('d M Y à H:i') }}</td>
