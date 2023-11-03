@@ -63,7 +63,7 @@ class CandidatController extends AbstractController
 
         return $this->render('dashboard/candidat/index.html.twig', [
             'identity' => $candidat,
-            // 'postings' => $this->postingManager->findExpertAnnouncements($expert),
+            'annonces' => $this->candidatManager->annoncesCandidatDefaut($candidat),
             'formatMonday' => $formatMonday,
             'formatSunday' => $formatSunday,
             'form' => $form->createView(),
