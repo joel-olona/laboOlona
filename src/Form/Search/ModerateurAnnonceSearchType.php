@@ -2,32 +2,37 @@
 
 namespace App\Form\Search;
 
-use App\Entity\Moderateur\TypeContrat;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\Entreprise\JobListing;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
-class AnnonceSearchType extends AbstractType
+class ModerateurAnnonceSearchType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('query', TextType::class, [
+            ->add('titre', TextType::class, [
                 'required' => false,
-                'label' => 'Rechercher',
+                'label' => false,
                 'attr' => [
-                    'placeholder' => 'Entrez votre recherche...',
+                    'placeholder' => 'Titre de l\'annonce ...',
                 ]
             ])
-            ->add('typeContrat', EntityType::class, [
-                'class' => TypeContrat::class,
-                'choice_label' => 'nom',
-                'label' => false,
+            ->add('entreprise', TextType::class, [
                 'required' => false,
-                'placeholder' => 'Contrat',
+                'label' => false,
+                'attr' => [
+                    'placeholder' => 'Entreprise ...',
+                ]
+            ])
+            ->add('status', ChoiceType::class, [
+                'choices' => JobListing::getStatuses(),
+                'required' => false,
+                'label' => false,
+                'placeholder' => 'Status ...',
             ])
         ;
     }
