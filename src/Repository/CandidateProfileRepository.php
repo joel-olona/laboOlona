@@ -21,20 +21,37 @@ class CandidateProfileRepository extends ServiceEntityRepository
         parent::__construct($registry, CandidateProfile::class);
     }
 
-//    /**
-//     * @return CandidateProfile[] Returns an array of CandidateProfile objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('c.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * @return Expert[] Returns an array of Expert objects
+     */
+    public function findTopExperts(string $value = "", int $max = 10, int $offset = 0): array
+    {
+        return $this->createQueryBuilder('c')
+             ->andWhere('c.fileName <> :defaultAvatar') 
+             ->setParameter('defaultAvatar', 'avatar-default.jpg')
+             ->orderBy('c.id', 'ASC')
+             ->setMaxResults($max)
+             ->setFirstResult($offset)
+             ->getQuery()
+             ->getResult()
+        ;
+    }
+
+    public function findTopRanked() : array
+    {
+         return $this->createQueryBuilder('c')
+             ->select('c, COUNT(v.id) as HIDDEN num_views')
+             ->leftJoin('c.vues', 'v')  
+             ->andWhere('c.fileName <> :defaultAvatar') 
+             ->setParameter('defaultAvatar', 'avatar-default.jpg')
+             ->groupBy('c')
+             ->orderBy('num_views', 'DESC') 
+             ->setMaxResults(12)
+             ->getQuery()
+             ->getResult()
+         ;
+
+     }
 
 //    public function findOneBySomeField($value): ?CandidateProfile
 //    {
