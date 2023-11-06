@@ -1,0 +1,18 @@
+<section id="candidates" class="" style="background-color: white;">
+    <div class="container">
+        <div class="row">
+            <h2 class="text-black text-center my-5 w-100 display-2 text-strong">{{ 'app_home.section.candidates.h2'|trans }}</h2>
+            
+            <div class="container-fluid">
+                {{ component('candidat_carousel_top') }}
+            </div>
+            <hr class="my-5">
+            <div class="row row-cols-1 row-cols-md-5 g-2 expert-item">
+                {# {{ component('scroll_expert_component', { experts: experts} ) }} #}
+            </div>
+        </div>
+        <p class="d-flex flex-column flex-sm-row justify-content-center cta-group">  
+            {# <span class="my-5"><a href="{{ path('app_dashboard_company_profile')}}" class="btn btn-sm btn-outline-dark text-uppercase px-4 py-2 mx-4 rounded-pill">{{ 'app_home_experts.see_all'|trans }}</a></span> #}
+        </p>
+    </div>
+</section>

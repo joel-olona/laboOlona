@@ -46,7 +46,11 @@ class CandidatController extends AbstractController
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
         $candidat = $user->getCandidateProfile();
-        if (!$candidat instanceof CandidateProfile) return $this->redirectToRoute('app_profile');
+        if (!$candidat instanceof CandidateProfile){ 
+            return $this->redirectToRoute('app_connect');
+        }
+
+        return null;
     }
 
     #[Route('/', name: 'app_dashboard_candidat')]
@@ -116,17 +120,26 @@ class CandidatController extends AbstractController
 
     public function profil(): Response
     {
-        $candidat = $this->userService->getCurrentUser()->getCandidateProfile();
+        $redirection = $this->checkCandidat();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+        /** @var User $user */
+        $user = $this->userService->getCurrentUser();
+        $candidat = $user->getCandidateProfile();
 
         return $this->render('dashboard/candidat/profil.html.twig', [
-            // 'candidat' => $candidat,
+            'candidat' => $candidat,
         ]);
     }
 
     #[Route('/annonces', name: 'app_dashboard_candidat_annonce')]
     public function annonces(Request $request, PaginatorInterface $paginatorInterface ): Response
     {
-        $this->checkCandidat();
+        $redirection = $this->checkCandidat();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
         $candidat = $user->getCandidateProfile();
@@ -157,7 +170,10 @@ class CandidatController extends AbstractController
     #[Route('/annonce/{jobId}', name: 'app_dashboard_candidat_annonce_show')]
     public function showAnnonce(JobListing $annonce): Response
     {
-        $this->checkCandidat();
+        $redirection = $this->checkCandidat();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
         $candidat = $user->getCandidateProfile();
@@ -170,6 +186,11 @@ class CandidatController extends AbstractController
     #[Route('/all/annonces', name: 'app_dashboard_candidat_annonces')]
     public function allAnnonces(): Response
     {
+        $redirection = $this->checkCandidat();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         return $this->render('dashboard/candidat/annonces/all.html.twig', [
             'controller_name' => 'GuidesController',
         ]);
@@ -178,7 +199,10 @@ class CandidatController extends AbstractController
     #[Route('/compte', name: 'app_dashboard_candidat_compte')]
     public function compte(Request $request): Response
     {
-        $this->checkCandidat();
+        $redirection = $this->checkCandidat();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
         $candidat = $user->getCandidateProfile();
@@ -215,6 +239,11 @@ class CandidatController extends AbstractController
     #[Route('/guides/lettre-de-motivation', name: 'app_dashboard_guides_motivation')]
     public function motivation(): Response
     {
+        $redirection = $this->checkCandidat();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+        
         return $this->render('dashboard/candidat/motivation.html.twig', [
             'controller_name' => 'GuidesController',
         ]);
@@ -223,6 +252,10 @@ class CandidatController extends AbstractController
     #[Route('/guides/cv', name: 'app_dashboard_guides_cv')]
     public function cv(): Response
     {
+        $redirection = $this->checkCandidat();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
         return $this->render('dashboard/candidat/cv.html.twig', [
             'controller_name' => 'GuidesController',
         ]);
@@ -231,15 +264,13 @@ class CandidatController extends AbstractController
     #[Route('/guides/reseautage', name: 'app_dashboard_guides_reseautage')]
     public function reseautage(): Response
     {
+        $redirection = $this->checkCandidat();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
         return $this->render('dashboard/candidat/reseautage.html.twig', [
             'controller_name' => 'GuidesController',
         ]);
     }
-
-    // Voici les nouvelles structurations des routes
-
-
-
-
 
 }
