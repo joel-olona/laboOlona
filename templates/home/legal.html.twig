@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<section id="legal" class="my-5" style="background-color: black;">
+    <div class="container my-5 d-flex flex-column justify-content-center">
+        <div class="row my-4">
+            <div class="col d-flex flex-column justify-content-center">
+                <h1 class="text-white text-center display-1">{{ 'app_home.legal.h1'|trans }}</h1>
+                <h2 class="text-white display-6 my-3">{{ 'app_home.legal.section1.h2'|trans }}</h2>
+                <div class="">
+                    <p class="text-white fs-6">{{ 'app_home.legal.section1.p1'|trans |raw }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section1.p2'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section1.p3'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section1.p4'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section1.p5'|trans |raw }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section1.p6'|trans |raw }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section1.p7'|trans |raw }}</p>
+                </div>
+
+                <h2 class="text-white display-6 my-3">{{ 'app_home.legal.section2.h2'|trans | raw }}</h2>
+                <div class="">
+                    <p class="text-white fs-6">{{ 'app_home.legal.section2.p'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                    <p class="text-white fs-6">
+                        {{ 'app_home.legal.section2.p1'|trans({
+                            '%terms_url%': path('app_home_terms'),
+                        })|raw }}<br>
+                        {{ 'app_home.legal.section2.p2'|trans({
+                            '%terms_url%': path('app_home_terms'),
+                        })|raw }}<br>
+                        {{ 'app_home.legal.section2.p3'|trans | raw }}<br>
+                        {{ 'app_home.legal.section2.p4'|trans | raw }}<br>
+                        {{ 'app_home.legal.section2.p5'|trans | raw }}<br>
+                        {{ 'app_home.legal.section2.p6'|trans | raw }}<br>
+                    </p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section2.p7'|trans }}</p>
+                </div>
+
+                <h2 class="text-white display-6 my-3">{{ 'app_home.legal.section3.h2'|trans }}</h2>
+                <div class="">
+                    <p class="text-white fs-6">{{ 'app_home.legal.section3.p'|trans }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section3.p1'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section3.p2'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                </div>
+
+                <h2 class="text-white display-6 my-3">{{ 'app_home.legal.section4.h2'|trans }}</h2>
+                <div class="">
+                    <p class="text-white fs-6">{{ 'app_home.legal.section4.p'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw  }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section4.p1'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                </div>
+
+                <h2 class="text-white display-6 my-3">{{ 'app_home.legal.section5.h2'|trans }}</h2>
+                <div class="">
+                    <p class="text-white fs-6">{{ 'app_home.legal.section5.p'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw  }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section5.p1'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section5.p2'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                </div>
+
+                <h2 class="text-white display-6 my-3">{{ 'app_home.legal.section6.h2'|trans }}</h2>
+                <div class="">
+                    <p class="text-white fs-6">{{ 'app_home.legal.section6.p'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw  }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section6.p1'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                </div>
+
+                <h2 class="text-white display-6 my-3">{{ 'app_home.legal.section7.h2'|trans }}</h2>
+                <div class="">
+                    <p class="text-white fs-6">{{ 'app_home.legal.section7.p'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw  }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section7.p1'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section7.p2'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                </div>
+
+                <h2 class="text-white display-6 my-3">{{ 'app_home.legal.section8.h2'|trans }}</h2>
+                <div class="">
+                    <p class="text-white fs-6">{{ 'app_home.legal.section8.p'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw  }}</p>
+                </div>
+
+                <h2 class="text-white display-7 my-3">{{ 'app_home.legal.section9.h2'|trans }}</h2>
+                <div class="">
+                    <p class="text-white fs-6">{{ 'app_home.legal.section9.p'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw  }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.legal.section9.p1'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

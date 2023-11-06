@@ -29,7 +29,7 @@ class HomeController extends AbstractController
     {
         return $this->render('home/index.html.twig', [
             'sectors' => $this->secteurRepository->findAll(),
-            'experts' => $this->candidateProfileRepository->findTopExperts(),
+            'candidats' => $this->candidateProfileRepository->findTopExperts(),
             'topRanked' => $this->candidateProfileRepository->findTopRanked(),
             'annonces' => $this->jobListingRepository->findAll(),
         ]);
