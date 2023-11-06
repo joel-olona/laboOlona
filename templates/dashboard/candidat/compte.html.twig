@@ -1,4 +1,42 @@
 {% extends 'dashboard/base.html.twig' %}
 
 {% block body %}
+<div class="container mt-3 px-auto">
+    <section class="text-dark">
+        <h4 class="mt-3">
+            <i class="bi bi-search mx-2"></i>
+            Informations personnelles
+        </h4>
+        {{ form_start(form_one) }}
+        {{ form_widget(form_one) }}
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-primary">Enregister</button>
+        </div>
+        {{ form_end(form_one) }}
+    </section>
+    <section class="text-dark">
+        <h4 class="mt-3">
+            <i class="bi bi-search mx-2"></i>
+            Informations professionnelle
+        </h4>
+        {{ form_start(form_two) }}
+        {{ form_widget(form_two) }}
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-primary">Enregister</button>
+        </div>
+        {{ form_end(form_two) }}
+    </section>
+    <section class="text-dark">
+        <h4 class="mt-3">
+            <i class="bi bi-search mx-2"></i>
+            Informations liées à votre CV
+        </h4>
+        {{ form_start(form_three) }}
+        {{ form_widget(form_three) }}
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary">Enregister</button>
+                </div>
+        {{ form_end(form_three) }}
+    </section>
+</div>
 {% endblock %}

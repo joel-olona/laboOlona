@@ -11,12 +11,20 @@
       </li>
       <hr>
       <li class="nav-item">
-        <a href="{{ path('app_dashboard_moderateur_sector')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_moderateur_sector' ? 'active' : 'text-white' }}" 
-            {{ current_route == 'app_dashboard_moderateur_sector' ? 'aria-current=page' : '' }}>
+        <a href="{{ path('app_dashboard_moderateur_secteur')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_moderateur_secteur' ? 'active' : 'text-white' }}" 
+            {{ current_route == 'app_dashboard_moderateur_secteur' ? 'aria-current=page' : '' }}>
             <i class="mx-2 h5 bi bi-bookmarks"></i>
             Secteur d'activité   
         </a>
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_moderateur_type_contrat')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_moderateur_type_contrat' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-list-columns"></i>
+            Type de contrat   
+        </a>
+
       </li>
       <li>
         <a href="{{ path('app_dashboard_moderateur_annonces')}}" 

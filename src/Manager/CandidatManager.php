@@ -46,7 +46,7 @@ class CandidatManager
         foreach ($sectors as $sector) {
             $sectorEntreprises = $sector->getJobListings();
             foreach ($sectorEntreprises as $posting) {
-                if($posting->getStatus() === JobListing::STATUS_PUBLISHED || $posting->getStatus() === JobListing::STATUS_FEATURED){
+                if($posting->getStatus() === JobListing::STATUS_PUBLISHED || $posting->getStatus() === JobListing::STATUS_FEATURED  ){
                     $annonces[] = $posting;
                 }
             }
@@ -66,7 +66,7 @@ class CandidatManager
         foreach ($entreprise as $company) {
             $companyPostings = $company->getJobListings();
             foreach ($companyPostings as $posting) {
-                if($posting->getStatus() === JobListing::STATUS_PUBLISHED || $posting->getStatus() === JobListing::STATUS_FEATURED){
+                if($posting->getStatus() === JobListing::STATUS_PUBLISHED || $posting->getStatus() === JobListing::STATUS_FEATURED  ){
                     $annonces[] = $posting;
                 }
             }
@@ -82,7 +82,7 @@ class CandidatManager
         foreach ($skills as $skill) {
             $skillPostings = $skill->getJobListings();
             foreach ($skillPostings as $posting) {
-                if($posting->getStatus() === JobListing::STATUS_PUBLISHED || $posting->getStatus() === JobListing::STATUS_FEATURED){
+                if($posting->getStatus() === JobListing::STATUS_PUBLISHED || $posting->getStatus() === JobListing::STATUS_FEATURED  ){
                     $annonces[] = $posting;
                 }
             }

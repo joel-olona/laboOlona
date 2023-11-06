@@ -2,38 +2,47 @@
 
 namespace App\Controller\Dashboard;
 
-use App\Entity\Entreprise\JobListing;
-use App\Entity\EntrepriseProfile;
-use App\Entity\Moderateur\Metting;
+use App\Entity\Secteur;
+use App\Form\MettingType;
 use App\Form\JobListingType;
 use App\Manager\ProfileManager;
+use App\Entity\CandidateProfile;
+use App\Entity\EntrepriseProfile;
 use App\Service\User\UserService;
+use App\Entity\Moderateur\Metting;
 use App\Manager\ModerateurManager;
 use App\Form\Moderateur\SecteurType;
+use App\Entity\Candidate\Competences;
+use App\Entity\Candidate\Experiences;
+use App\Entity\Entreprise\JobListing;
 use App\Repository\SecteurRepository;
 use App\Service\Mailer\MailerService;
-use App\Repository\Entreprise\JobListingRepository;
+use App\Entity\Candidate\Applications;
+use App\Entity\Moderateur\TypeContrat;
+use App\Form\Moderateur\TypeContratType;
+use App\Form\Search\ModerateurAnnonceSearchType;
+use App\Form\Search\ModerateurEntrepriseSearchType;
+use App\Form\Search\SecteurSearchType;
+use App\Form\Search\TypeContratSearchType;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\NotificationRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\CandidateProfileRepository;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\EntrepriseProfileRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\Moderateur\MettingRepository;
-use App\Repository\NotificationRepository;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Entity\CandidateProfile;
-use App\Entity\Candidate\Applications;
-use App\Entity\Candidate\Competences;
-use App\Entity\Candidate\Experiences;
-use App\Repository\Candidate\ApplicationsRepository;
+use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\Candidate\CompetencesRepository;
 use App\Repository\Candidate\ExperiencesRepository;
-use App\Form\MettingType;
+use App\Repository\Entreprise\JobListingRepository;
+use App\Repository\Candidate\ApplicationsRepository;
+use App\Repository\Moderateur\TypeContratRepository;
+use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bridge\Doctrine\ArgumentResolver\EntityValueResolver;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
 
@@ -59,66 +68,96 @@ class ModerateurController extends AbstractController
         ]);
     }
 
-    #[Route('/secteurs', name: 'app_dashboard_moderateur_sector')]
+    #[Route('/secteurs', name: 'app_dashboard_moderateur_secteur')]
     public function sectors(Request $request, SecteurRepository $secteurRepository): Response
     {
-        /* return $this->render('dashboard/moderateur/sectors.html.twig', [
-            'sectors' => $secteurRepository->findAll(),
-        ]); */
-        return $this->render('dashboard/moderateur/sectors.html.twig', [
-            'sectors' => $secteurRepository->findAll(),
-        ]);
-    }
-
-    #[Route('/ajax/remove/{id}/sector', name: 'ajax_remove_sector', methods: ['DELETE'])]
-    public function ajaxRemoveSector(int $id, SecteurRepository $secteurRepository, EntityManagerInterface $entityManager): JsonResponse
-    {
-        $secteur = $secteurRepository->find($id);
-        if (!$secteur) {
-            return $this->json(['success' => false, 'message' => 'Secteur non trouvé'], 404);
-        }
-
-        $entityManager->remove($secteur);
-        $entityManager->flush();
-
-        return $this->json(['success' => true, 'message' => 'Secteur supprimé']);
-    }
-    // #[Route('/secteurs/delete/{id}', name: 'app_dashboard_moderateur_delete_sector', methods: ['DELETE'])]
-    // public function deleteSector(int $id, SecteurRepository $secteurRepository, EntityManagerInterface $entityManager): JsonResponse
-    // {  
-    //     $secteur = $secteurRepository->find($id);
-    //     if (!$secteur) {
-    //         return $this->json(['success' => false, 'message' => 'Secteur non trouvé'], 404);
-    //     }
-
-    //     $entityManager->remove($secteur);
-    //     $entityManager->flush();
-
-    //     return $this->json(['success' => true, 'message' => 'Secteur supprimé']);
-    //     }
-
-    #[Route('/secteur/new', name: 'app_dashboard_moderateur_new_sector')]
-    public function sector(Request $request): Response
-    {
-        $secteur = $this->moderateurManager->initSector();
-        $form = $this->createForm(SecteurType::class, $secteur);
+        /** Formulaire de recherche secteur */
+        $form = $this->createForm(SecteurSearchType::class);
         $form->handleRequest($request);
+        $data = $secteurRepository->findAll();
         if ($form->isSubmitted() && $form->isValid()) {
-            $secteur = $this->moderateurManager->saveSectorForm($form);
-
-            return $this->redirectToRoute('app_dashboard_moderateur_sector', []);
+            $searchTerm = $form->get('secteur')->getData();
+            $data = $this->moderateurManager->searchSecteur($searchTerm);
         }
 
-        return $this->render('dashboard/moderateur/sector.html.twig', [
+        return $this->render('dashboard/moderateur/secteur/index.html.twig', [
+            'sectors' => $data,
             'form' => $form->createView(),
         ]);
     }
 
-    #[Route('/annonces', name: 'app_dashboard_moderateur_annonces')]
-    public function annonces(JobListingRepository $jobListingRepository): Response
+    #[Route('/secteur/new', name: 'app_dashboard_moderateur_new_secteur')]
+    public function newSecteur(Request $request): Response
     {
-        return $this->render('dashboard/moderateur/annonces.html.twig', [
-            'annonces' => $jobListingRepository->findAll(),
+        /** Initialiser une instance de Secteur */
+        $secteur = $this->moderateurManager->initSector();
+        $form = $this->createForm(SecteurType::class, $secteur);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** Sauvegarder TypeContrat */
+            $secteur = $this->moderateurManager->saveSectorForm($form);
+            $this->addFlash('success', 'Secteur sauvegardé');
+
+            return $this->redirectToRoute('app_dashboard_moderateur_secteur', []);
+        }
+
+        return $this->render('dashboard/moderateur/secteur/new_edit.html.twig', [
+            'form' => $form->createView(),
+            'button_label' => 'Créer',
+        ]);
+    }
+
+    #[Route('/secteur/{slug}/edit', name: 'app_dashboard_moderateur_edit_secteur')]
+    public function editSecteur(Request $request, Secteur $secteur): Response
+    {
+        /** @var Secteur $secteur qui vient de {slug} */
+        $form = $this->createForm(SecteurType::class, $secteur);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** Mettre à jour le Secteur */
+            $secteur = $this->moderateurManager->saveSectorForm($form);
+            $this->addFlash('success', 'Secteur mis à jour');
+
+            return $this->redirectToRoute('app_dashboard_moderateur_secteur', []);
+        }
+
+        return $this->render('dashboard/moderateur/secteur/new_edit.html.twig', [
+            'form' => $form->createView(),
+            'button_label' => 'Mettre à jour',
+        ]);
+    }
+
+    #[Route('/secteur/supprimer/{slug}', name: 'app_dashboard_moderateur_delete_secteur')]
+    public function deleteSecteur(Secteur $secteur): Response
+    {
+        /** Supprimer le Secteur */
+        $this->moderateurManager->deleteSector($secteur);
+        $this->addFlash('success', 'Secteur supprimé avec succès.');
+
+        return $this->redirectToRoute('app_dashboard_moderateur_secteur');
+    }
+
+    #[Route('/annonces', name: 'app_dashboard_moderateur_annonces')]
+    public function annonces(Request $request, PaginatorInterface $paginatorInterface): Response
+    {
+        /** Formulaire de recherche annonces */
+        $form = $this->createForm(ModerateurAnnonceSearchType::class);
+        $form->handleRequest($request);
+        $data = $this->moderateurManager->findAllListingJob();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $titre = $form->get('titre')->getData();
+            $entreprise = $form->get('entreprise')->getData();
+            $status = $form->get('status')->getData();
+            $data = $this->moderateurManager->searchAnnonce($titre, $entreprise, $status);
+        }
+
+        return $this->render('dashboard/moderateur/annonce/index.html.twig', [
+            'annonces' => $paginatorInterface->paginate(
+                $data,
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'form' => $form->createView(),
         ]);
     }
 
@@ -176,11 +215,20 @@ class ModerateurController extends AbstractController
 
 
     #[Route('/entreprises', name: 'app_dashboard_moderateur_entreprises')]
-    public function entreprises(EntrepriseProfileRepository $entrepriseProfileRepository): Response
+    public function entreprises(Request $request, PaginatorInterface $paginatorInterface): Response
     {
-        $entreprises = $entrepriseProfileRepository->findAll();
-        return $this->render('dashboard/moderateur/entreprises.html.twig', [
-            'entreprises' => $entreprises,
+        /** Formulaire de recherche entreprise */
+        $form = $this->createForm(ModerateurEntrepriseSearchType::class);
+        $form->handleRequest($request);
+        $data = $this->moderateurManager->findAllEntreprise();
+
+        return $this->render('dashboard/moderateur/entreprise/index.html.twig', [
+            'entreprises' => $paginatorInterface->paginate(
+                $data,
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'form' => $form->createView(),
         ]);
     }
 
@@ -253,13 +301,74 @@ class ModerateurController extends AbstractController
         ]);
     }
 
-    // #[Route('/candidats', name: 'app_dashboard_moderateur_candidats')]
-    // public function candidats(Request $request, CandidateProfileRepository $candidateProfileRepository): Response
-    // {
-    //     return $this->render('dashboard/moderateur/candidats.html.twig', [
-    //         'sectors' => $candidateProfileRepository->findAll(),
-    //     ]);
-    // }
+    #[Route('/type-contrat', name: 'app_dashboard_moderateur_type_contrat')]
+    public function typeContrat(Request $request, TypeContratRepository $typeContratRepository): Response
+    {
+        /** Formulaire de recherche type de contrat */
+        $form = $this->createForm(TypeContratSearchType::class);
+        $form->handleRequest($request);
+        $data = $typeContratRepository->findAll();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $searchTerm = $form->get('typeContrat')->getData();
+            $data = $this->moderateurManager->searchTypeContrat($searchTerm);
+        }
+        
+        return $this->render('dashboard/moderateur/type-contrat/index.html.twig', [
+            'types_contrat' => $data,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/type-contrat/new', name: 'app_dashboard_moderateur_new_type_contrat')]
+    public function newTypeContrat(Request $request): Response
+    {
+        /** Initialiser une instance de TypeContrat */
+        $typeContrat = $this->moderateurManager->initTypeContrat();
+        $form = $this->createForm(TypeContratType::class, $typeContrat);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** Sauvegarder TypeContrat */
+            $typeContrat = $this->moderateurManager->saveTypeContratForm($form);
+            $this->addFlash('success', 'Type contrat sauvegardé');
+
+            return $this->redirectToRoute('app_dashboard_moderateur_type_contrat', []);
+        }
+
+        return $this->render('dashboard/moderateur/type-contrat/new_edit.html.twig', [
+            'form' => $form->createView(),
+            'button_label' => 'Créer',
+        ]);
+    }
+
+    #[Route('/type-contrat/{slug}/edit', name: 'app_dashboard_moderateur_edit_type_contrat')]
+    public function editTypeContrat(Request $request, TypeContrat $typeContrat): Response
+    {
+        /** @var TypeContrat $typeContrat qui vient de {slug} */
+        $form = $this->createForm(TypeContratType::class, $typeContrat);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** Mettre à jour le TypeContrat */
+            $typeContrat = $this->moderateurManager->saveTypeContratForm($form);
+            $this->addFlash('success', 'Type contrat mis à jour');
+
+            return $this->redirectToRoute('app_dashboard_moderateur_type_contrat', []);
+        }
+
+        return $this->render('dashboard/moderateur/type-contrat/new_edit.html.twig', [
+            'form' => $form->createView(),
+            'button_label' => 'Mettre à jour',
+        ]);
+    }
+
+    #[Route('/type-contrat/supprimer/{slug}', name: 'app_dashboard_moderateur_delete_type_contrat')]
+    public function deleteTypeContrat(TypeContrat $typeContrat): Response
+    {
+        /** Supprimer le TypeContrat */
+        $this->moderateurManager->deleteTypeContrat($typeContrat);
+        $this->addFlash('success', 'Type contrat supprimé avec succès.');
+
+        return $this->redirectToRoute('app_dashboard_moderateur_type_contrat');
+    }
 
     #[Route('/candidats', name: 'app_dashboard_moderateur_candidats')]
     public function candidats(CandidateProfileRepository $candidateProfileRepository): Response
