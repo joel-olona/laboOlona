@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Entity\Candidate\Langages;
 use App\Entity\Candidate\Social;
+use App\Entity\Vues\CandidatVues;
 use Serializable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -77,6 +78,9 @@ class CandidateProfile implements Serializable
     #[ORM\OneToOne(mappedBy: 'candidat', cascade: ['persist', 'remove'])]
     private ?Social $social = null;
 
+    #[ORM\OneToMany(mappedBy: 'candidat', targetEntity: CandidatVues::class)]
+    private Collection $vues;
+
     public function __construct()
     {
         $this->competences = new ArrayCollection();
@@ -86,6 +90,7 @@ class CandidateProfile implements Serializable
         $this->secteurs = new ArrayCollection();
         $this->createdAt = new DateTime();
         $this->langages = new ArrayCollection();
+        $this->vues = new ArrayCollection();
     }
 
     public function __toString()
@@ -426,6 +431,36 @@ class CandidateProfile implements Serializable
         }
 
         $this->social = $social;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CandidatVues>
+     */
+    public function getVues(): Collection
+    {
+        return $this->vues;
+    }
+
+    public function addVue(CandidatVues $vue): static
+    {
+        if (!$this->vues->contains($vue)) {
+            $this->vues->add($vue);
+            $vue->setCandidat($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVue(CandidatVues $vue): static
+    {
+        if ($this->vues->removeElement($vue)) {
+            // set the owning side to null (unless already changed)
+            if ($vue->getCandidat() === $this) {
+                $vue->setCandidat(null);
+            }
+        }
 
         return $this;
     }

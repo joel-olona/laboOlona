@@ -1,4 +1,7 @@
 {% extends 'base.html.twig' %}
-
+{% block fluid %}<div class="container-fluid m-0">{% endblock %} 
 {% block body %}
+{% include "home/section/section-hero.html.twig" %}
+{% include "home/section/section-annonces.html.twig" %}
+{% include "home/section/section-candidats.html.twig" with {'experts': experts} %}
 {% endblock %}
