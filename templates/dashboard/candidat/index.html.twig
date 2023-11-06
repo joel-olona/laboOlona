@@ -1,4 +1,124 @@
-{% extends 'base.html.twig' %}
+{% extends 'dashboard/base.html.twig' %}
+
 
 {% block body %}
+    <div class="container mt-3 px-auto">
+        <section class="text-dark">
+            <h4 class="mt-3">
+                <i class="bi bi-search mx-2"></i>
+                {{ 'app_dashboard_expert.get_started'|trans }}
+            </h4>
+            {{ form_start(form, {'attr': {'class': 'form-group mb-5 px-5', 'action': path('app_dashboard_candidat_annonce')}}) }}
+                <div class="input-group">
+                    {{ form_widget(form.query, {'attr': {'class': 'form-control'}}) }}
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">Rechercher</button>
+                    </div>
+                </div>
+            {{ form_end(form) }}
+        </section>
+        <hr>
+        
+        <section class="notifications mt-3">
+            <h4>
+                <i class="bi bi-bell mx-2"></i>
+                {{ 'app_dashboard_expert.notification'|trans }}
+            </h4>
+            <div class="mx-4">
+                <p class="">
+                    <i class="bi bi-view-list h5 mx-2"></i>
+                    {{ 'app_dashboard_expert.profile_view'|trans({'%views%': 0})|raw }}
+                </p>
+            </div>
+            <p class="mx-4">
+                <i class="h5 bi mx-2 bi-clock-history"></i> 
+                {{ 'app_dashboard_expert.history'|trans({
+                    '%demandes%': 0
+                })|raw }} 
+            </p>
+            <p class="mx-4">
+                <i class="h5 bi mx-2 bi-calendar3"></i> 
+                {{ 'app_dashboard_expert.calandar'|trans({
+                    '%formatMonday%': formatMonday,
+                    '%formatSunday%': formatSunday,
+                })|raw  }} 
+            </p>
+            <!-- ... autres notifications ... -->
+        </section>
+        <hr>
+        
+        <section class="recommandations my-4">
+            <h4>
+                <i class="bi bi-star-fill mx-2"></i>
+                {{ 'app_dashboard_expert.recommanded'|trans }}
+            </h4>
+            <div class="mx-4">
+                <p class="fs-7  mx-2">{{ 'app_dashboard_expert.recommanded_posting'|trans }}</p>
+
+                <div class="flex row">
+
+                {{ dump(annonces) }}    
+
+                </div>
+            </div>
+
+            <div class="text-center">
+                <a href="#" class="btn btn-lg rounded-pill btn-dark">Voir tous</a>
+            </div>
+        </section>
+        <hr>
+        
+        <section class="astuce my-4">
+            <p class="h4 my-4">
+                <i class="h4 bi mx-2 bi-lightbulb-fill"></i>
+
+                {{ 'app_dashboard_expert.astuce'|trans }}
+            </p>
+            <p class="m-4">
+                <i class="h5 bi mx-2 bi-check2-square"></i>
+                {{ 'app_dashboard_expert.investigate'|trans }}
+                <br>
+                    <br>
+                <a href="#" class="btn btn-danger btn-sm rounded-pill">
+                    {{ 'app_dashboard_expert.olona_formation'|trans }}
+                </a>
+            <hr>
+            </p>
+            <p class="m-4">
+                <i class="h5 bi mx-2 bi-check2-square"></i>
+                {{ 'app_dashboard_expert.personnalize'|trans }}
+                <br>
+                <br>
+                <a href="{{ path('app_dashboard_guides_motivation') }}" class="px-3 btn btn-outline-secondary btn-sm rounded-pill">
+                    {{ 'app_dashboard_expert.read_more'|trans }}
+                </a>
+                <hr>
+            </p>
+            <p class="m-4">
+                <i class="h5 bi mx-2 bi-check2-square"></i>
+                {{ 'app_dashboard_expert.curriculum'|trans }}
+                <br>
+                <br>
+                <a href="{{ path('app_dashboard_guides_cv') }}" class="px-3 btn btn-outline-secondary btn-sm rounded-pill">
+                    {{ 'app_dashboard_expert.read_more'|trans }}
+                </a>
+            <hr>
+            </p>
+            <p class="m-4">
+                <i class="h5 bi mx-2 bi-check2-square"></i>
+                {{ 'app_dashboard_expert.groups'|trans }}
+                    <br>
+                    <br>
+                <a href="{{ path('app_dashboard_guides_reseautage') }}" class="px-3 btn btn-outline-secondary btn-sm rounded-pill">
+                    {{ 'app_dashboard_expert.read_more'|trans }}
+                </a>
+            </p>
+        
+        </section>
+        <!-- ... autres sections ... -->
+    </div>
+{% endblock %}
+
+{% block inner_footer %}
+    {% include "dashboard/_inner_footer.html.twig" %}
 {% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2>Type de contrat</h2>
+    <a href="{{ path('app_dashboard_moderateur_new_type_contrat')}}" class="btn btn-secondary my-3">Nouveau</a>
+    {{ form_start(form, {'attr': {'class': 'form-group mb-2 col-6'}}) }}
+    <div class="input-group">
+        {{ form_widget(form.typeContrat, {'attr': {'class': 'form-control'}}) }}
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-primary"><i class="h5 bi mx-2 bi-search"></i></button>
+        </div>
+    </div>
+    {{ form_end(form) }}
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th class="col-1">ID</th>
+                <th class="col-4">Titre</th>
+                <th class="col-4">Description</th>
+                <th class="col-3">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for type in types_contrat %}
+                <tr>
+                    <td class="id-column">{{ type.id }}</td>
+                    <td>{{ type.nom }}</td>
+                    <td>{{ type.description|length > 50 ? type.description|slice(0, 50) ~ '...' : type.description }}</td>
+                    <td class="actions-col">
+                        <a href="{{path('app_dashboard_moderateur_edit_type_contrat', { 'slug': type.slug}) }}" class="btn btn-sm btn-info">Modifier</a>
+                        <a href="{{path('app_dashboard_moderateur_delete_type_contrat', { 'slug': type.slug}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce type de contrat ?');">Supprimer</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+

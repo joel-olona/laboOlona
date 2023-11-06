@@ -1,0 +1,90 @@
+{% set current_route = app.request.attributes.get('_route') %}
+<div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark position-sticky top-0" style="width: 280px;">
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item">
+        <a href="{{ path('app_dashboard_moderateur')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_moderateur' ? 'active' : 'text-white' }}" 
+            {{ current_route == 'app_dashboard_moderateur' ? 'aria-current=page' : '' }}>
+            <i class="mx-2 h5 bi bi-house-door"></i>
+            Tableau de bord  
+        </a>
+      </li>
+      <hr>
+      <li class="nav-item">
+        <a href="{{ path('app_dashboard_moderateur_secteur')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_moderateur_secteur' ? 'active' : 'text-white' }}" 
+            {{ current_route == 'app_dashboard_moderateur_secteur' ? 'aria-current=page' : '' }}>
+            <i class="mx-2 h5 bi bi-bookmarks"></i>
+            Secteur d'activité   
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_moderateur_type_contrat')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_moderateur_type_contrat' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-list-columns"></i>
+            Type de contrat   
+        </a>
+
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_moderateur_annonces')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_moderateur_annonces' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-megaphone"></i>
+            Annonces   
+        </a>
+
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_moderateur_entreprises')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_moderateur_entreprises' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-building"></i>
+            Entreprises  
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_moderateur_candidats')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_moderateur_candidats' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-people"></i>
+            Candidats  
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_moderateur_mettings')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_moderateur_mettings' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-calendar3"></i>
+            Rendez-vous  
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_moderateur_notifications')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_moderateur_notifications' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-bell"></i>
+            Notifications  
+        </a>
+      </li>
+      {# <li>
+        <a href="{{ path('app_dashboard_company_message')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_company_message' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-chat-right-text"></i>
+            {{ 'app_dashboard_company.messaging'|trans }} 
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_company_notification')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_company_notification' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-bell"></i>
+            {{ 'app_dashboard_company.notification'|trans }}  
+        </a>
+      </li> #}
+    </ul>
+
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li>
+        <a href="{{ path('app_logout')}}" class="nav-link text-white">
+            <i class="mx-2 h5 bi bi-box-arrow-right"></i>
+            {{ 'app_dashboard_company.logout'|trans }}    
+        </a>
+      </li>
+    </ul>
+  </div>

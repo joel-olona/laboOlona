@@ -1,0 +1,108 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+
+<div class="container mt-3">
+    <div class="row text-dark">
+        <p>
+            <i class="h5 bi mx-2 bi-plus-lg"></i> 
+            {{ 'app_dashboard_expert.get_started'|trans }} 
+        </p>
+        {{ form_start(form, {'attr': {'class': 'form-group mb-5 px-5'}}) }}
+        <div class="input-group">
+            {{ form_widget(form.query, {'attr': {'class': 'form-control'}}) }}
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary"><i class="h5 bi mx-2 bi-search"></i></button>
+            </div>
+        </div>
+        {{ form_end(form) }}
+        <p class="mx-2">
+            Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
+        </p>
+
+        <div class="navigation">
+            {{ knp_pagination_render(postings, 'parts/_pagination.html.twig') }}
+        </div>
+        
+        <hr>
+
+
+            <table class="table">
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Entreprise</th>
+                    <th>Contrat</th>
+                    <th>salaire</th>
+                    <th>Expire le</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for posting in postings %}
+                <tr>
+                    <td>{{ posting.titre }}</td>
+                    <td>{{ posting.entreprise.nom }}</td>
+                    <td>{{ posting.typeContrat }}</td>
+                    <td>{{ posting.salaire }}</td>
+                    <td>{{ posting.dateExpiration|date('d M Y à H:i') }}</td>
+                    <td>{{ posting.status }}</td>
+                    <td>
+                        <a href="{{ path('app_dashboard_candidat_annonce_show', {'jobId': posting.jobId}) }}">voir</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7">Aucun rendez-vous trouvé</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.remove-badge').on('click', function(e) {
+            e.preventDefault();
+            let wordToRemove = $(this).data('word');
+    
+            $(this).parent().remove();
+    
+            let currentSearchValue = $('#posting_search_query').val();
+            let newSearchValue = currentSearchValue.replace(wordToRemove, '').trim();
+            $('#posting_search_query').val(newSearchValue);
+            $(this).closest('.badge').remove();
+        });
+
+        $('#resetFilters').on('click', function() {
+            $('#customFilterForm').trigger("reset");
+        });
+    });
+
+    $(document).ready(function() {
+    // Filtre par type de mission
+    $('.mission-filter').on('click', function() {
+        const missionType = $(this).data('mission-type');
+        // Appliquer le filtre ici
+    });
+
+    // Filtre par secteur d'activité
+    $('.activity-filter').on('click', function() {
+        const activitySector = $(this).data('activity');
+        // Appliquer le filtre ici
+    });
+    
+    // Bouton Réinitialiser
+    $('.reset-filter').on('click', function() {
+        // Réinitialisez tous les filtres ici
+    });
+});
+
+</script>
+
+{% endblock %}
+{% block inner_footer %}{% include "dashboard/_inner_footer.html.twig" %}{% endblock %}

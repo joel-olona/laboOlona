@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<section id="hero" class="" style="background-color: black;">
+    <div class="container">
+        <h1 class="h3 text-center py-4 text-white font-bold">
+            {{ 'app_identity_company.title'|trans }}
+        </h1>
+        <div class="row text-white">
+            <div class="col-md-6 offset-md-3">
+
+                <p class="text-center">
+                    {{ 'app_identity_company.description'|trans }}
+                </p>
+                <hr class="my-4">
+                {{ form_start(form) }}
+                {{ form_widget(form) }}
+                <div class="d-flex justify-content-center mb-5 mt-4">
+                    <button type="submit" id="get_started" class="btn btn-primary">
+                        {{ 'app_identity_company.button'|trans }}
+                    </button>
+                </div>
+                {{ form_end(form) }}
+
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-6"></div>
+            <div class="col-md-6"></div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
