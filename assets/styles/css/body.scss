@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
+
 body{
     font-family: 'Poppins';
     height: 100%;
@@ -125,4 +127,27 @@ label.form-check-label.required{
 }
 .text-right{
     text-align: right!important;
+}
+
+.filter-input {
+    width: 100%;
+    padding: 3px;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+}
+
+th {
+    position: relative;
+}
+
+#filter-id .filter-input .id-column {
+    width: 30px!important;
+}
+
+.entreprise-col, .titre-col, .description-col, .status-col {
+    width: 150px!important; /* Ajustez selon vos besoins */
+}
+
+.actions-col {
+    white-space: nowrap;
 }

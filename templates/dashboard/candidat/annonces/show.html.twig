@@ -1,0 +1,36 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-3 px-auto">
+    <section class="text-dark">
+        <div class="card">
+    <div class="card-header bg-primary text-white">
+    <h1>{{ annonce.titre }}</h1>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <span class="badge bg-success">{{ annonce.status }}</span>
+            <span class="badge bg-warning text-dark">{{ annonce.typeContrat }}</span>
+            <span class="badge bg-info">{{ annonce.salaire }} €</span>
+        </div>
+        <p class="card-text">{{ annonce.description }}</p>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <strong>Nombre de vues</strong>
+                <span>{{ annonce.annonceVues.count }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <strong>Secteur</strong>
+                <span>{{ annonce.secteur.nom }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <strong>Entreprise</strong>
+                <span>{{ annonce.entreprise.getNom() }}</span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+    </section>
+</div>
+{% endblock %}

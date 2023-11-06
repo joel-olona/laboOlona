@@ -2,9 +2,10 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Entity\User;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
@@ -28,5 +29,26 @@ class SecurityController extends AbstractController
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
+
+    #[Route(path: '/connect', name: 'app_connect')]
+    public function connect(): Response
+    {
+        /** @var User|null $user */
+        $user = $this->getUser();
+    
+        if (null === $user || $user->getType() === User::ACCOUNT_MODERATEUR) {
+            return $this->redirectToRoute('app_dashboard_moderateur');
+        }
+    
+        if (null === $user || $user->getType() === User::ACCOUNT_ENTREPRISE) {
+            return $this->redirectToRoute('app_dashboard_entreprise');
+        }
+    
+        if (null === $user || $user->getType() === User::ACCOUNT_CANDIDAT) {
+            return $this->redirectToRoute('app_dashboard_candidat');
+        }
+    
+        return $this->redirectToRoute('app_profile');
     }
 }

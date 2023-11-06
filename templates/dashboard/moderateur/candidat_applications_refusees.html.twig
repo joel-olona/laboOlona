@@ -1,0 +1,55 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2>Applications Refusées du Candidat</h2>
+    <table class="table table-responsive" id="applicationsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom du Candidat</th>
+                <th>Titre de l'Annonce</th>
+                <th>Lettre de Motivation</th>
+                <th>CV</th>
+                <th>Date de Candidature</th>
+                <th>Status</th>
+                <th>Prétention Salariale</th>
+                {# <th>Actions</th> #}
+            </tr>
+        </thead>
+        <tbody>
+            {% for application in applications %}
+                <tr>
+                    <td>{{ application.id }}</td>
+                    <td>{{ application.candidat.candidat.nom }}</td>
+                    <td>{{ application.annonce.titre }}</td>
+                    <td>{{ application.lettreMotivation }}</td>
+                    <td><a href="{{ application.cvLink }}" target="_blank">Voir CV</a></td>
+                    <td>{{ application.dateCandidature|date('Y-m-d H:i') }}</td>
+                    <td>
+                        <form method="post" action="{{ path('change_status_application', {'id': application.id}) }}">
+                            <select name="status" class="form-control" onchange="this.form.submit()">
+                                <option value="ACCEPTED" {{ application.status == 'ACCEPTED' ? 'selected' : '' }}>Accepté</option>
+                                <option value="REFUSED" {{ application.status == 'REFUSED' ? 'selected' : '' }}>Refusé</option>
+                                <option value="PENDING" {{ application.status == 'PENDING' ? 'selected' : '' }}>En attente</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>{{ application.pretentionSalariale }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="btn btn-primary">Retour aux candidats</a>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#applicationsTable').DataTable();
+        });
+    </script>
+{% endblock %}

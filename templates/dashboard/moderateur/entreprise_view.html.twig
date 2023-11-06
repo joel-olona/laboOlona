@@ -1,0 +1,24 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2>Détails de l'Entreprise</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ entreprise.nom }}</h5>
+            <p class="card-text">
+                <strong>Taille:</strong> {{ entreprise.taille }}<br>
+                <strong>Localisation:</strong> {{ entreprise.localisation }}<br>
+                <strong>Site Web:</strong> {{ entreprise.siteWeb }}<br>
+                <strong>Description:</strong> {{ entreprise.description }}<br>
+                <strong>Secteurs:</strong> 
+                {% for secteur in entreprise.secteurs %}
+                    {{ secteur.nom }},
+                {% endfor %}<br>
+            <strong>Nombre d'Annonces:</strong> <a href="{{ path('app_dashboard_moderateur_entreprises_annonces', {'id': entreprise.id}) }}">{{ entreprise.jobListings|length }}</a>
+            </p>
+            <a href="{{ path('app_dashboard_moderateur_entreprises') }}" class="btn btn-primary">Retour aux entreprises</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

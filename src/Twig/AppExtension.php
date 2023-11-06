@@ -91,15 +91,10 @@ class AppExtension extends AbstractExtension
     public function dashboardTitle(): string
     {
         $routeName = $this->requestStack->getCurrentRequest()->attributes->get('_route'); 
-        $user = $this->security->getUser();
         
-        /** @var Identity $identity */
-        $identity = $user->getIdentity();
-
-        $name = $user->getLastName();
-        if($identity->getCompany()){
-            $name = $identity->getCompany()->getName();
-        }
+        /** @var User $user */
+        $user = $this->security->getUser();
+        $name = $user->getPrenom();
 
         return $this->translator->trans($routeName . '.dashboard_title', ['%company_name%' => $name]);
     }
@@ -175,9 +170,9 @@ class AppExtension extends AbstractExtension
         if ($interval->m > 0) {
             $result .= $interval->m . ' mois ';
         }
-        if ($interval->d > 0) {
-            $result .= $interval->d . ' jours';
-        }
+        // if ($interval->d > 0) {
+        //     $result .= $interval->d . ' jours';
+        // }
 
         return trim($result);
     }
