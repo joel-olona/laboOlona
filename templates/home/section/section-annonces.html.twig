@@ -1,0 +1,11 @@
+<section id="postings" class="" style="background-color: white;position:relative">
+    <div class="container d-flex flex-column justify-content-center">
+        <div class="row">
+            <h2 class="text-black text-center my-5 w-100 display-2 text-strong">{{ 'app_home.section.postings.h2'|trans }}</h2>
+            {{ component('annonces_carousel_component')}}
+        </div>
+        <p class="d-flex flex-column flex-sm-row justify-content-center cta-group mt-4">  
+            <span class="my-3"><a href="{{ path('app_dashboard_candidat_annonce')}}" class="btn btn-sm btn-outline-dark text-uppercase px-4 py-2 mx-4 rounded-pill">{{ 'app_home_posting.see_all'|trans }}</a></span>
+        </p>
+    </div>
+</section>
