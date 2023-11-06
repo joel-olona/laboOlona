@@ -1,0 +1,12 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block title %}Chercher un profil{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Profil de {{ candidat.candidat.prenom }} {{ candidat.candidat.nom|slice(0, 1)|upper }}. </h1>
+            {{ dump(candidat)}}
+        <div class="row">
+        </div>
+    </div>
+{% endblock %}

@@ -8,6 +8,7 @@ use App\Form\JobListingType;
 use App\Manager\ProfileManager;
 use App\Entity\CandidateProfile;
 use App\Entity\EntrepriseProfile;
+use App\Entity\ModerateurProfile;
 use App\Service\User\UserService;
 use App\Entity\Moderateur\Metting;
 use App\Manager\ModerateurManager;
@@ -19,27 +20,27 @@ use App\Repository\SecteurRepository;
 use App\Service\Mailer\MailerService;
 use App\Entity\Candidate\Applications;
 use App\Entity\Moderateur\TypeContrat;
-use App\Form\Moderateur\TypeContratType;
-use App\Form\Search\ModerateurAnnonceSearchType;
-use App\Form\Search\ModerateurEntrepriseSearchType;
 use App\Form\Search\SecteurSearchType;
-use App\Form\Search\TypeContratSearchType;
+use App\Form\Moderateur\TypeContratType;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Form\Search\TypeContratSearchType;
 use App\Repository\NotificationRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\CandidateProfileRepository;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\EntrepriseProfileRepository;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Form\Search\ModerateurAnnonceSearchType;
 use App\Repository\Moderateur\MettingRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use App\Form\Search\ModerateurEntrepriseSearchType;
 use App\Repository\Candidate\CompetencesRepository;
 use App\Repository\Candidate\ExperiencesRepository;
 use App\Repository\Entreprise\JobListingRepository;
 use App\Repository\Candidate\ApplicationsRepository;
 use App\Repository\Moderateur\TypeContratRepository;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bridge\Doctrine\ArgumentResolver\EntityValueResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -60,9 +61,26 @@ class ModerateurController extends AbstractController
     ) {
     }
 
+    private function checkModerateur()
+    {
+        /** @var User $user */
+        $user = $this->userService->getCurrentUser();
+        $moderateur = $user->getModerateurProfile();
+        if (!$moderateur instanceof ModerateurProfile){ 
+            return $this->redirectToRoute('app_connect');
+        }
+
+        return null;
+    }
+
     #[Route('/', name: 'app_dashboard_moderateur')]
     public function index(): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         return $this->render('dashboard/moderateur/index.html.twig', [
             'controller_name' => 'ModerateurController',
         ]);
@@ -71,6 +89,11 @@ class ModerateurController extends AbstractController
     #[Route('/secteurs', name: 'app_dashboard_moderateur_secteur')]
     public function sectors(Request $request, SecteurRepository $secteurRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         /** Formulaire de recherche secteur */
         $form = $this->createForm(SecteurSearchType::class);
         $form->handleRequest($request);
@@ -89,6 +112,11 @@ class ModerateurController extends AbstractController
     #[Route('/secteur/new', name: 'app_dashboard_moderateur_new_secteur')]
     public function newSecteur(Request $request): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         /** Initialiser une instance de Secteur */
         $secteur = $this->moderateurManager->initSector();
         $form = $this->createForm(SecteurType::class, $secteur);
@@ -110,6 +138,11 @@ class ModerateurController extends AbstractController
     #[Route('/secteur/{slug}/edit', name: 'app_dashboard_moderateur_edit_secteur')]
     public function editSecteur(Request $request, Secteur $secteur): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         /** @var Secteur $secteur qui vient de {slug} */
         $form = $this->createForm(SecteurType::class, $secteur);
         $form->handleRequest($request);
@@ -130,6 +163,11 @@ class ModerateurController extends AbstractController
     #[Route('/secteur/supprimer/{slug}', name: 'app_dashboard_moderateur_delete_secteur')]
     public function deleteSecteur(Secteur $secteur): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         /** Supprimer le Secteur */
         $this->moderateurManager->deleteSector($secteur);
         $this->addFlash('success', 'Secteur supprimé avec succès.');
@@ -140,6 +178,11 @@ class ModerateurController extends AbstractController
     #[Route('/annonces', name: 'app_dashboard_moderateur_annonces')]
     public function annonces(Request $request, PaginatorInterface $paginatorInterface): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         /** Formulaire de recherche annonces */
         $form = $this->createForm(ModerateurAnnonceSearchType::class);
         $form->handleRequest($request);
@@ -164,6 +207,11 @@ class ModerateurController extends AbstractController
     #[Route('/annonce/{id}', name: 'view_annonce', methods: ['GET'])]
     public function viewAnnonce(JobListing $annonce): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         return $this->render('dashboard/moderateur/view.html.twig', [
             'annonce' => $annonce,
         ]);
@@ -172,6 +220,11 @@ class ModerateurController extends AbstractController
     #[Route('/status/annonce/{id}', name: 'change_status_annonce', methods: ['POST'])]
     public function changeAnnonceStatus(Request $request, EntityManagerInterface $entityManager, JobListing $annonce): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $status = $request->request->get('status');
         if ($status && in_array($status, ['OPEN', 'CLOSED', 'FILLED'])) {
             $annonce->setStatus($status);
@@ -187,6 +240,11 @@ class ModerateurController extends AbstractController
     #[Route('/delete/annonce/{id}', name: 'delete_annonce', methods: ['POST'])]
     public function deleteAnnonce(JobListing $annonce, EntityManagerInterface $entityManager): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $entityManager->remove($annonce);
         $entityManager->flush();
         $this->addFlash('success', 'Annonce supprimée avec succès.');
@@ -197,6 +255,11 @@ class ModerateurController extends AbstractController
     #[Route('/details/annonce/{id}', name: 'details_annonce', methods: ['GET'])]
     public function detailsAnnonce(JobListing $annonce): JsonResponse
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $annonceDetails = [
             'titre' => $annonce->getTitre(),
             'description' => $annonce->getDescription(),
@@ -217,6 +280,11 @@ class ModerateurController extends AbstractController
     #[Route('/entreprises', name: 'app_dashboard_moderateur_entreprises')]
     public function entreprises(Request $request, PaginatorInterface $paginatorInterface): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         /** Formulaire de recherche entreprise */
         $form = $this->createForm(ModerateurEntrepriseSearchType::class);
         $form->handleRequest($request);
@@ -235,6 +303,11 @@ class ModerateurController extends AbstractController
     #[Route('/entreprise/{id}', name: 'voir_entreprise')]
     public function voirEntreprise(EntrepriseProfile $entreprise): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         return $this->render('dashboard/moderateur/entreprise_view.html.twig', [
             'entreprise' => $entreprise,
         ]);
@@ -243,6 +316,11 @@ class ModerateurController extends AbstractController
     #[Route('/supprimer/entreprise/{id}', name: 'supprimer_entreprise', methods: ['POST'])]
     public function supprimerEntreprise(Request $request, EntityManagerInterface $entityManager, EntrepriseProfile $entreprise): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         if ($this->isCsrfTokenValid('delete' . $entreprise->getId(), $request->request->get('_token'))) {
             $entityManager->remove($entreprise);
             $entityManager->flush();
@@ -254,6 +332,11 @@ class ModerateurController extends AbstractController
     #[Route('/entreprises/{id}/annonces', name: 'app_dashboard_moderateur_entreprises_annonces')]
     public function entreprisesAnnonces(EntrepriseProfile $entreprise, JobListingRepository $jobListingRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $annonces = $jobListingRepository->findBy(['entreprise' => $entreprise]);
 
         return $this->render('dashboard/moderateur/entreprises_annonces.html.twig', [
@@ -265,6 +348,11 @@ class ModerateurController extends AbstractController
     #[Route('/entreprise/{entreprise_id}/annonce/{annonce_id}/status', name: 'change_status_annonce_entreprise', methods: ['POST'])]
     public function changeEntrepriseAnnonceStatus(Request $request, EntityManagerInterface $entityManager, int $entreprise_id, int $annonce_id, JobListingRepository $jobListingRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $status = $request->request->get('status');
         $entreprise = $entityManager->getRepository(EntrepriseProfile::class)->find($entreprise_id);
         $annonce = $jobListingRepository->findOneBy(['id' => $annonce_id, 'entreprise' => $entreprise]);
@@ -288,6 +376,11 @@ class ModerateurController extends AbstractController
     #[Route('/entreprises/{entreprise_id}/annonces/{annonce_id}/view', name: 'app_dashboard_moderateur_entreprises_annonces_view')]
     public function entreprisesAnnoncesView(int $entreprise_id, int $annonce_id, EntrepriseProfileRepository $entrepriseProfileRepository, JobListingRepository $jobListingRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $entreprise = $entrepriseProfileRepository->find($entreprise_id);
         $annonce = $jobListingRepository->findOneBy(['id' => $annonce_id, 'entreprise' => $entreprise]);
 
@@ -304,6 +397,11 @@ class ModerateurController extends AbstractController
     #[Route('/type-contrat', name: 'app_dashboard_moderateur_type_contrat')]
     public function typeContrat(Request $request, TypeContratRepository $typeContratRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         /** Formulaire de recherche type de contrat */
         $form = $this->createForm(TypeContratSearchType::class);
         $form->handleRequest($request);
@@ -322,6 +420,11 @@ class ModerateurController extends AbstractController
     #[Route('/type-contrat/new', name: 'app_dashboard_moderateur_new_type_contrat')]
     public function newTypeContrat(Request $request): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         /** Initialiser une instance de TypeContrat */
         $typeContrat = $this->moderateurManager->initTypeContrat();
         $form = $this->createForm(TypeContratType::class, $typeContrat);
@@ -343,6 +446,11 @@ class ModerateurController extends AbstractController
     #[Route('/type-contrat/{slug}/edit', name: 'app_dashboard_moderateur_edit_type_contrat')]
     public function editTypeContrat(Request $request, TypeContrat $typeContrat): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         /** @var TypeContrat $typeContrat qui vient de {slug} */
         $form = $this->createForm(TypeContratType::class, $typeContrat);
         $form->handleRequest($request);
@@ -363,6 +471,11 @@ class ModerateurController extends AbstractController
     #[Route('/type-contrat/supprimer/{slug}', name: 'app_dashboard_moderateur_delete_type_contrat')]
     public function deleteTypeContrat(TypeContrat $typeContrat): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         /** Supprimer le TypeContrat */
         $this->moderateurManager->deleteTypeContrat($typeContrat);
         $this->addFlash('success', 'Type contrat supprimé avec succès.');
@@ -373,6 +486,11 @@ class ModerateurController extends AbstractController
     #[Route('/candidats', name: 'app_dashboard_moderateur_candidats')]
     public function candidats(CandidateProfileRepository $candidateProfileRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $candidats = $candidateProfileRepository->findAll();
 
         return $this->render('dashboard/moderateur/candidats.html.twig', [
@@ -383,6 +501,11 @@ class ModerateurController extends AbstractController
     #[Route('/candidats/{id}', name: 'app_dashboard_moderateur_candidat_view')]
     public function viewCandidat(CandidateProfile $candidat): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         return $this->render('dashboard/moderateur/candidat_view.html.twig', [
             'candidat' => $candidat,
         ]);
@@ -391,6 +514,11 @@ class ModerateurController extends AbstractController
     #[Route('/candidats/{id}/applications', name: 'app_dashboard_moderateur_candidat_applications')]
     public function candidatApplications(int $id, ApplicationsRepository $applicationsRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $applications = $applicationsRepository->findBy(['candidat' => $id]);
 
         return $this->render('dashboard/moderateur/candidat_applications.html.twig', [
@@ -401,6 +529,11 @@ class ModerateurController extends AbstractController
     #[Route('/status/application/{id}', name: 'change_status_application', methods: ['POST'])]
     public function changeApplicationStatus(Request $request, EntityManagerInterface $entityManager, Applications $application): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $status = $request->request->get('status');
         if ($status && in_array($status, ['ACCEPTED', 'REFUSED', 'PENDING'])) {
             $application->setStatus($status);
@@ -416,6 +549,11 @@ class ModerateurController extends AbstractController
     #[Route('/candidats/{id}/applications/en-attente', name: 'app_dashboard_moderateur_candidat_applications_en_attente')]
     public function candidatApplicationsEnAttente(int $id, ApplicationsRepository $applicationsRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $applications = $applicationsRepository->findBy(['candidat' => $id, 'status' => 'PENDING']);
 
         return $this->render('dashboard/moderateur/candidat_applications_en_attente.html.twig', [
@@ -426,6 +564,11 @@ class ModerateurController extends AbstractController
     #[Route('/candidats/{id}/applications/acceptees', name: 'app_dashboard_moderateur_candidat_applications_acceptees')]
     public function candidatApplicationsAcceptees(int $id, ApplicationsRepository $applicationsRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $applications = $applicationsRepository->findBy(['candidat' => $id, 'status' => 'ACCEPTED']);
 
         return $this->render('dashboard/moderateur/candidat_applications_acceptees.html.twig', [
@@ -436,6 +579,11 @@ class ModerateurController extends AbstractController
     #[Route('/candidats/{id}/applications/refusees', name: 'app_dashboard_moderateur_candidat_applications_refusees')]
     public function candidatApplicationsRefusees(int $id, ApplicationsRepository $applicationsRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $applications = $applicationsRepository->findBy(['candidat' => $id, 'status' => 'REFUSED']);
 
         return $this->render('dashboard/moderateur/candidat_applications_refusees.html.twig', [
@@ -457,6 +605,11 @@ class ModerateurController extends AbstractController
     #[Route('/candidats/{id}/competences', name: 'app_dashboard_moderateur_candidat_competences')]
     public function candidatCompetences(int $id, CandidateProfileRepository $candidateProfileRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $candidat = $candidateProfileRepository->find($id);
         if (!$candidat) {
             throw $this->createNotFoundException('Candidat introuvable');
@@ -483,6 +636,11 @@ class ModerateurController extends AbstractController
     #[Route('/candidats/{id}/experiences', name: 'app_dashboard_moderateur_candidat_experiences')]
     public function candidatExperiences(int $id, CandidateProfileRepository $candidateProfileRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $candidat = $candidateProfileRepository->find($id);
         if (!$candidat) {
             throw $this->createNotFoundException('Candidat introuvable');
@@ -499,6 +657,11 @@ class ModerateurController extends AbstractController
     #[Route('/mettings', name: 'app_dashboard_moderateur_mettings')]
     public function mettings(MettingRepository $mettingRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $mettings = $mettingRepository->findAll();
         return $this->render('dashboard/moderateur/mettings.html.twig', compact('mettings'));
     }
@@ -506,12 +669,22 @@ class ModerateurController extends AbstractController
     #[Route('/metting/show/{id}', name: 'app_dashboard_moderateur_metting_show', methods: ['GET'])]
     public function show(Metting $metting): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         return $this->render('dashboard/moderateur/mettings_show.html.twig', compact('metting'));
     }
 
     #[Route('/metting/new', name: 'app_dashboard_moderateur_metting_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $metting = new Metting();
         $form = $this->createForm(MettingType::class, $metting);
         $form->handleRequest($request);
@@ -532,6 +705,11 @@ class ModerateurController extends AbstractController
     #[Route('/metting/{id}/edit', name: 'app_dashboard_moderateur_metting_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Metting $metting, EntityManagerInterface $entityManager): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         $form = $this->createForm(MettingType::class, $metting);
         $form->handleRequest($request);
 
@@ -550,6 +728,11 @@ class ModerateurController extends AbstractController
     #[Route('/metting/{id}', name: 'app_dashboard_moderateur_metting_delete', methods: ['POST'])]
     public function delete(Request $request, Metting $metting, EntityManagerInterface $entityManager): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
         if ($this->isCsrfTokenValid('delete' . $metting->getId(), $request->request->get('_token'))) {
             $entityManager->remove($metting);
             $entityManager->flush();
@@ -561,6 +744,11 @@ class ModerateurController extends AbstractController
     #[Route('/notifications', name: 'app_dashboard_moderateur_notifications')]
     public function notifications(Request $request, NotificationRepository $notificationRepository): Response
     {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+        
         return $this->render('dashboard/moderateur/notifications.html.twig', [
             'sectors' => $notificationRepository->findAll(),
         ]);
