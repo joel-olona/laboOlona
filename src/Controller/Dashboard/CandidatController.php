@@ -4,20 +4,24 @@ namespace App\Controller\Dashboard;
 
 use DateTime;
 use App\Entity\User;
-use App\Repository\UserRepository;
-use App\Repository\Entreprise\JobListingRepository;
 use App\Manager\ProfileManager;
 use App\Entity\CandidateProfile;
-use App\Entity\Entreprise\JobListing;
-use App\Form\Search\AnnonceSearchType;
 use App\Manager\CandidatManager;
 use App\Service\User\UserService;
+use App\Repository\UserRepository;
+use App\Entity\Entreprise\JobListing;
 use App\Service\Mailer\MailerService;
+use App\Form\Search\AnnonceSearchType;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Form\Profile\Candidat\StepOneType;
+use App\Form\Profile\Candidat\StepTwoType;
+use Knp\Component\Pager\PaginatorInterface;
+use App\Form\Profile\Candidat\StepThreeType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\RequestStack;
+use App\Repository\Entreprise\JobListingRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -31,6 +35,7 @@ class CandidatController extends AbstractController
         private MailerService $mailerService,
         private ProfileManager $profileManager,
         private CandidatManager $candidatManager,
+        private JobListingRepository $jobListingRepository,
         private RequestStack $requestStack,
         private UrlGeneratorInterface $urlGenerator,
     ) {
@@ -73,7 +78,7 @@ class CandidatController extends AbstractController
         ]);
     }
 
-    private function searchPostings(string $query, EntityManagerInterface $entityManager): array
+    private function searchPostings(string $query = null, EntityManagerInterface $entityManager): array
     {
         if (empty($query)) {
             return [];
@@ -119,7 +124,7 @@ class CandidatController extends AbstractController
     }
 
     #[Route('/annonces', name: 'app_dashboard_candidat_annonce')]
-    public function annonces(Request $request): Response
+    public function annonces(Request $request, PaginatorInterface $paginatorInterface ): Response
     {
         $this->checkCandidat();
         /** @var User $user */
@@ -129,17 +134,22 @@ class CandidatController extends AbstractController
 
         $form = $this->createForm(AnnonceSearchType::class);
         $form->handleRequest($request);
-        $postings = $this->candidatManager->annoncesCandidat($candidat);
+        $data = $this->jobListingRepository->findAll();
+        $annonces = $this->candidatManager->annoncesCandidatDefaut($candidat);
         if ($form->isSubmitted() && $form->isValid()) {
             $searchTerm = $form->get('query')->getData();
-            $postings = $this->searchPostings($searchTerm, $this->em);
+            $data = $this->searchPostings($searchTerm, $this->em);
         }
 
         return $this->render('dashboard/candidat/annonces/annonces.html.twig', [
             'identity' => $candidat,
             'form' => $form->createView(),
-            // 'recomanded_postings' => $this->postingManager->findExpertAnnouncements($expert),
-            'postings' => $postings,
+            'postings' => $paginatorInterface->paginate(
+                $data,
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'result' => $data,
             'words' => explode(' ', $searchTerm),
         ]);
     }
@@ -147,7 +157,6 @@ class CandidatController extends AbstractController
     #[Route('/annonce/{jobId}', name: 'app_dashboard_candidat_annonce_show')]
     public function showAnnonce(JobListing $annonce): Response
     {
-
         $this->checkCandidat();
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
@@ -167,10 +176,39 @@ class CandidatController extends AbstractController
     }
 
     #[Route('/compte', name: 'app_dashboard_candidat_compte')]
-    public function compte(): Response
+    public function compte(Request $request): Response
     {
+        $this->checkCandidat();
+        /** @var User $user */
+        $user = $this->userService->getCurrentUser();
+        $candidat = $user->getCandidateProfile();
+
+        $formOne = $this->createForm(StepOneType::class, $candidat);
+        $formTwo = $this->createForm(StepTwoType::class, $candidat);
+        $formThree = $this->createForm(StepThreeType::class, $candidat);
+        $formOne->handleRequest($request);
+        $formTwo->handleRequest($request);
+        $formThree->handleRequest($request);
+
+        if ($formOne->isSubmitted() && $formOne->isValid()) {
+            $this->em->persist($candidat);
+            $this->em->flush();
+        }
+
+        if ($formTwo->isSubmitted() && $formTwo->isValid()) {
+            $this->em->persist($candidat);
+            $this->em->flush();
+        }
+
+        if ($formThree->isSubmitted() && $formThree->isValid()) {
+            $this->em->persist($candidat);
+            $this->em->flush();
+        }
+
         return $this->render('dashboard/candidat/compte.html.twig', [
-            'controller_name' => 'CandidatController',
+            'form_one' => $formOne->createView(),
+            'form_two' => $formTwo->createView(),
+            'form_three' => $formThree->createView(),
         ]);
     }
 
