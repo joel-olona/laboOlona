@@ -7,6 +7,7 @@ use Twig\TwigFilter;
 use Twig\TwigFunction;
 use App\Entity\Application;
 use App\Entity\Posting;
+use App\Entity\User;
 use App\Repository\AccountRepository;
 use Twig\Extension\AbstractExtension;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -46,6 +47,7 @@ class AppExtension extends AbstractExtension
             new TwigFunction('date_difference', [$this, 'dateDifference']),
             new TwigFunction('years_difference', [$this, 'yearsDifference']),
             new TwigFunction('status_label', [$this, 'statusLabel']),
+            new TwigFunction('account_label', [$this, 'accountLabel']),
         ];
     }
 
@@ -59,6 +61,18 @@ class AppExtension extends AbstractExtension
                 return '<i class="h6 bi mx-2 bi-circle-fill small text-primary"></i>';
             case Application::STATUS_PENDING :
                 return '<i class="h6 bi mx-2 bi-circle-fill small text-warning"></i>';
+            default:
+                return '<i class="h6 bi mx-2 bi-circle-fill small text-warning"></i>';
+        }
+    }
+
+    public function accountLabel(string $account): string
+    {
+        switch ($account) {
+            case User::ACCOUNT_CANDIDAT :
+                return 'JE CHERCHE UN PROJET';
+            case User::ACCOUNT_ENTREPRISE :
+                return 'J\'AI DES PROJETS';
             default:
                 return '<i class="h6 bi mx-2 bi-circle-fill small text-warning"></i>';
         }
