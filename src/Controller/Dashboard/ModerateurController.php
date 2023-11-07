@@ -32,10 +32,12 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Repository\EntrepriseProfileRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\Search\ModerateurAnnonceSearchType;
+use App\Form\Search\ModerateurCandidatSearchType;
 use App\Repository\Moderateur\MettingRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Form\Search\ModerateurEntrepriseSearchType;
+use App\Manager\CandidatManager;
 use App\Repository\Candidate\CompetencesRepository;
 use App\Repository\Candidate\ExperiencesRepository;
 use App\Repository\Entreprise\JobListingRepository;
@@ -55,7 +57,15 @@ class ModerateurController extends AbstractController
         private EntityManagerInterface $em,
         private MailerService $mailerService,
         private ModerateurManager $moderateurManager,
+        private CandidatManager $candidatManager,
         private ProfileManager $profileManager,
+        private SecteurRepository $secteurRepository,
+        private TypeContratRepository $typeContratRepository,
+        private JobListingRepository $jobListingRepository,
+        private CandidateProfileRepository $candidateProfileRepository,
+        private EntrepriseProfileRepository $entrepriseProfileRepository,
+        private MettingRepository $mettingRepository,
+        private NotificationRepository $notificationRepository,
         private RequestStack $requestStack,
         private UrlGeneratorInterface $urlGenerator,
     ) {
@@ -67,7 +77,7 @@ class ModerateurController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $moderateur = $user->getModerateurProfile();
         if (!$moderateur instanceof ModerateurProfile){ 
-            return $this->redirectToRoute('app_connect');
+            return $this->redirectToRoute('app_profile');
         }
 
         return null;
@@ -82,7 +92,15 @@ class ModerateurController extends AbstractController
         }
 
         return $this->render('dashboard/moderateur/index.html.twig', [
-            'controller_name' => 'ModerateurController',
+            'secteurs' => $this->secteurRepository->findAll(),
+            'typeContrats' => $this->typeContratRepository->findAll(),
+            'annonces' => $this->jobListingRepository->findAll(),
+            'annonces_pending' => $this->jobListingRepository->findBy(['status' => JobListing::STATUS_PENDING]),
+            'entreprises' => $this->entrepriseProfileRepository->findAll(),
+            'candidats' => $this->candidateProfileRepository->findAll(),
+            'candidats_pending' => $this->candidateProfileRepository->findBy(['status' => CandidateProfile::STATUS_PENDING]),
+            'mettings' => $this->mettingRepository->findAll(),
+            'notifications' => $this->notificationRepository->findAll(),
         ]);
     }
 
@@ -484,18 +502,65 @@ class ModerateurController extends AbstractController
     }
 
     #[Route('/candidats', name: 'app_dashboard_moderateur_candidats')]
-    public function candidats(CandidateProfileRepository $candidateProfileRepository): Response
+    public function candidats(Request $request, PaginatorInterface $paginatorInterface, CandidateProfileRepository $candidateProfileRepository): Response
     {
         $redirection = $this->checkModerateur();
         if ($redirection !== null) {
             return $redirection; 
         }
 
-        $candidats = $candidateProfileRepository->findAll();
+        /** Formulaire de recherche candidat */
+        $form = $this->createForm(ModerateurCandidatSearchType::class);
+        $form->handleRequest($request);
+        $candidats = $this->moderateurManager->findAllCandidat();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $nom = $form->get('nom')->getData();
+            $titre = $form->get('titre')->getData();
+            $status = $form->get('status')->getData();
+            $candidats = $this->moderateurManager->searchCandidat($nom, $titre, $status);
+        }
 
-        return $this->render('dashboard/moderateur/candidats.html.twig', [
-            'candidats' => $candidats,
+        return $this->render('dashboard/moderateur/candidat/index.html.twig', [
+            'candidats' => $paginatorInterface->paginate(
+                $candidats,
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'form' => $form->createView(),
         ]);
+    }
+
+    #[Route('/candidat/{uid}/status', name: 'change_status_candidat', methods: ['POST'])]
+    public function changeCandidatStatus(Request $request, EntityManagerInterface $entityManager, CandidateProfile $candidateProfile): Response
+    {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
+        $status = $request->request->get('status');
+        if ($status && in_array($status, ['PENDING', 'BANNISHED', 'VALID', 'FEATURED', 'RESERVED'])) {
+            $candidateProfile->setStatus($status);
+            $entityManager->flush();
+            if($status === CandidateProfile::STATUS_VALID){
+                /** On envoi un mail */
+                $this->mailerService->send(
+                    $candidateProfile->getCandidat()->getEmail(),
+                    "Statut de votre profil sur Olona Talents",
+                    "validate_profile.html.twig",
+                    [
+                        'user' => $candidateProfile->getCandidat(),
+                        'dashboard_url' => $this->urlGenerator->generate('app_connect', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                    ]
+                );
+
+            }
+            $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
+        } else {
+            $this->addFlash('error', 'Statut invalide.');
+        }
+
+        return $this->redirectToRoute('app_dashboard_moderateur_candidats');
     }
 
     #[Route('/candidats/{id}', name: 'app_dashboard_moderateur_candidat_view')]

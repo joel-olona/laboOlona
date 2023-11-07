@@ -191,4 +191,35 @@ class ModerateurManager
         return $qb->getQuery()->getResult();
     }
 
+    public function searchCandidat(?string $nom = null, ?string $titre = null, ?string $status = null): array
+    {
+        $qb = $this->em->createQueryBuilder();
+
+        $parameters = [];
+        $conditions = [];
+
+        if (!empty($titre)) {
+            $conditions[] = '(j.titre LIKE :titre )';
+            $parameters['titre'] = '%' . $titre . '%';
+        }
+
+        if (!empty($nom)) {
+            $conditions[] = '(u.nom LIKE :nom OR u.prenom LIKE :nom OR u.email LIKE :nom )';
+            $parameters['nom'] = '%' . $nom . '%';
+        }
+
+        if (!empty($status)) {
+            $conditions[] = '(c.status LIKE :status )';
+            $parameters['status'] = '%' . $status . '%';
+        }
+
+        $qb->select('c')
+            ->from('App\Entity\CandidateProfile', 'c')
+            ->leftJoin('c.candidat', 'u')
+            ->where(implode(' AND ', $conditions))
+            ->setParameters($parameters);
+        
+        return $qb->getQuery()->getResult();
+    }
+
 }

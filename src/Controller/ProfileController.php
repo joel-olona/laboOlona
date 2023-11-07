@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Entity\Enum\TypeUser;
 use App\Manager\ProfileManager;
 use App\Entity\EntrepriseProfile;
+use App\Entity\ModerateurProfile;
 use App\Form\Profile\AccountType;
 use App\Form\Profile\Candidat\StepOneType;
 use App\Form\Profile\Candidat\StepTwoType;
@@ -46,7 +47,7 @@ class ProfileController extends AbstractController
             return $this->redirectToRoute('app_profile_entreprise');
         }
         if (null === $user || $user->getType() === User::ACCOUNT_MODERATEUR) {
-            return $this->redirectToRoute('app_profile_create');
+            return $this->redirectToRoute('app_profile_moderateur');
         }
         
         return $this->redirectToRoute('app_profile_account', []);
@@ -179,7 +180,7 @@ class ProfileController extends AbstractController
         ]);
     }
 
-    #[Route('/identity/expert/step-three', name: 'app_profile_candidate_step_three')]
+    #[Route('/profile/candidate/step-three', name: 'app_profile_candidate_step_three')]
     public function stepThree(Request $request): Response
     {
         /** @var $user User */
@@ -197,6 +198,21 @@ class ProfileController extends AbstractController
         return $this->render('profile/candidat/step-three.html.twig', [
             'user' => $this->getUser(),
             'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/profile/moderateur', name: 'app_profile_moderateur')]
+    public function moderateur(): Response
+    {
+        /** @var $user User */
+        $user = $this->userService->getCurrentUser();
+        $moderateur = $user->getModerateurProfile();
+
+        if (!$moderateur instanceof ModerateurProfile) {
+            $moderateur = $this->profileManager->createModerateur($user);
+        }
+        return $this->render('profile/confirmation.html.twig', [
+            'controller_name' => 'profileController',
         ]);
     }
 
