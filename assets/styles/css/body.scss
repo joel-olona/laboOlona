@@ -151,3 +151,12 @@ th {
 .actions-col {
     white-space: nowrap;
 }
+
+.photo-gris img {
+filter: grayscale(1);
+-webkit-filter: grayscale(1);
+}
+.photo-gris img:hover {
+filter: grayscale(0);
+-webkit-filter: grayscale(0);
+}
