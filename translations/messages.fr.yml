@@ -55,6 +55,88 @@ app_home:
             h2: PRÊT À TRANSFORMER VOTRE CARRIÈRE OU VOTRE ENTREPRISE ?
             p1: Êtes-vous un professionnel créatif cherchant à mettre en avant vos talents dans un environnement inspirant ? Ne cherchez pas plus loin que Studio Agatho, une agence qui conçoit le futur.
             p2: Rejoignez notre équipe et libérez votre art dans un lieu de travail collaboratif et dynamique.
+
+    privacy:
+        h1: Politique de confidentialité
+        section1:
+            p: "Dernière mise à jour : 07 novembre 2023"
+            p1: "Cette politique de confidentialité décrit nos politiques et procédures sur la collecte, l'utilisation et la divulgation de vos informations lorsque vous utilisez le service et vous informe sur vos droits en matière de confidentialité et sur la manière dont la loi vous protège."
+            p2: "Nous utilisons Vos données personnelles pour fournir et améliorer le Service. En utilisant le Service, Vous acceptez la collecte et l'utilisation d'informations conformément à la présente Politique de confidentialité. Cette politique de confidentialité a été créée à l'aide du <a href=\"%model_url%\">Modèle de politique de confidentialité.</a>"
+
+        section2:
+            h2: "Interprétation et définitions"
+            h3: "Interprétation"
+            p: "Les mots dont la lettre initiale est en majuscule ont des significations définies dans les conditions suivantes. Les définitions suivantes auront la même signification, qu'elles apparaissent au singulier ou au pluriel."
+
+        section3:
+            h3: "Définitions"
+            p: "Aux fins de cette politique de confidentialité :"
+            li0: "Compte désigne un compte unique créé pour vous permettre d'accéder à notre service ou à des parties de notre service."
+            li1: "<strong>Société</strong> (ci-après dénommée « la Société », « Nous », « Nous » ou « Notre » dans le présent Contrat) désigne OLONA, Enceinte Somalco Zone Industrielle Tanjombato Antananarivo - 102 Madagascar."
+            li2: "cookies sont de petits fichiers qui sont placés sur votre ordinateur, appareil mobile ou tout autre appareil par un site Web, contenant les détails de votre historique de navigation sur ce site web parmi ses nombreuses utilisations."
+            li3: "<strong>Pays</strong> fait référence à : Madagascar"
+            li4: "Appareil désigne tout appareil pouvant accéder au Service, tel qu'un ordinateur, un téléphone portable ou une tablette numérique."
+            li5: "données personnelles sont toutes les informations relatives à une personne identifiée ou identifiable."
+            li6: "Service fait référence au site Web."
+            li7: "Prestataire de services désigne toute personne physique ou morale qui traite les données pour le compte de la Société. Il fait référence à des sociétés tierces ou à des personnes employées par la Société pour faciliter le Service, pour fournir le Service au nom de la Société, pour effectuer des services liés au Service ou pour aider la Société à analyser la manière dont le Service est utilisé."
+            li8: "<strong>Service de médias sociaux tiers</strong> désigne tout site Web ou tout site Web de réseau social par lequel un utilisateur peut se connecter ou créer un compte pour utiliser le service ."
+            li9: "<strong>Données d'utilisation</strong> fait référence aux données collectées automatiquement, soit générées par l'utilisation du Service, soit à partir de l'infrastructure du Service elle-même (par exemple, la durée d'un visite de la page)"
+            li10: "<strong>Site Web</strong> fait référence à OLONA TALENTS, accessible depuis <a href=\"%home_url%\">https://olona-talents.com/</a>"
+            li11: "<strong>Vous</strong> désigne la personne accédant ou utilisant le Service, ou la société ou toute autre entité juridique au nom de laquelle cette personne accède ou utilise le Service , selon le cas."
+
+        section4:
+            h2: "Types de données collectées"
+            h3: "Collecte et utilisation de vos données personnelles"
+            p: "Données personnelles"
+            p1: "Lors de l'utilisation de notre service, nous pouvons vous demander de nous fournir certaines informations personnellement identifiables qui peuvent être utilisées pour vous contacter ou vous identifier. Les informations personnellement identifiables peuvent inclure, mais sans s'y limiter :"
+            li0: "Adresse e-mail"
+            li1: "Prénom et nom"
+            li2: "Numéro de téléphone"
+            li3: "Adresse, État, Province, Code postal/ZIP, Ville"
+            li4: "Données d'utilisation"
+            p3: "Données d'utilisation"
+            p4: "Les données d'utilisation sont collectées automatiquement lors de l'utilisation du service."
+            p5: "Les données d'utilisation peuvent inclure des informations telles que l'adresse de protocole Internet de votre appareil (par exemple, l'adresse IP), le type de navigateur, la version du navigateur, les pages de notre service que vous visitez, l'heure et la date de votre visite,"
+
+        section5:
+            h2: "Reconnaissance"
+            p: "Ce sont les Termes et Conditions régissant l'utilisation de ce Service et l'accord qui opère entre Vous et la Société. Les présentes conditions générales définissent les droits et obligations de tous les utilisateurs concernant l'utilisation du service."
+            p1: "Votre accès et votre utilisation du Service sont conditionnés par Votre acceptation et votre respect des présentes Conditions générales. Ces Termes et Conditions s'appliquent à tous les visiteurs, utilisateurs et autres qui accèdent ou utilisent le Service."
+            p2: "En accédant ou en utilisant le Service, vous acceptez d'être lié par ces Termes et Conditions. Si vous n'êtes pas d'accord avec une partie de ces conditions générales, vous ne pouvez pas accéder au service."
+            p3: "Vous déclarez que vous avez plus de 18 ans. La Société n'autorise pas les moins de 18 ans à utiliser le Service."
+            p4: "Votre accès et votre utilisation du Service sont également conditionnés par Votre acceptation et votre respect de la Politique de confidentialité de la Société. Notre politique de confidentialité décrit nos politiques et procédures sur la collecte, l'utilisation et la divulgation de vos informations personnelles lorsque vous utilisez l'application ou le site Web et vous informe de vos droits en matière de confidentialité et de la manière dont la loi vous protège. Veuillez lire attentivement notre politique de confidentialité avant d'utiliser notre service."
+
+        section6:
+            h2: "Liens vers d'autres sites Web"
+            p: "Notre Service peut contenir des liens vers des sites Web tiers ou des services qui ne sont ni détenus ni contrôlés par la Société."
+            p1: "La Société n'a aucun contrôle sur le contenu, les politiques de confidentialité ou les pratiques des sites Web ou services tiers et n'assume aucune responsabilité à leur égard. Vous reconnaissez et acceptez en outre que la Société ne sera pas responsable, directement ou indirectement, de tout dommage ou perte causé ou présumé avoir été causé par ou en relation avec l'utilisation ou la confiance accordée à ces contenus, biens ou services disponibles sur ou par l'intermédiaire de ces sites Web ou services."
+            p2: "Nous vous conseillons vivement de lire les termes et conditions et les politiques de confidentialité de tous les sites Web ou services tiers que vous visitez."
+
+            
+    terms:
+        h1: Conditions Générales d'Utilisations
+        section1:
+            p: "Dernière mise à jour : 07 novembre 2023"
+            p1: "Veuillez lire attentivement ces termes et conditions avant d'utiliser Notre Service."
+
+        section2:
+            h2: "Interprétation et définitions"
+            h3: "Interprétation"
+            p: "Les mots dont la lettre initiale est en majuscule ont des significations définies dans les conditions suivantes. Les définitions suivantes auront la même signification, qu'elles apparaissent au singulier ou au pluriel."
+
+        section3:
+            h3: "Définitions"
+            p: "Aux fins de cette politique de confidentialité :"
+            li0: "Affilié désigne une entité qui contrôle, est contrôlée par ou est sous contrôle commun avec une partie, où « contrôle » ; désigne la propriété de 50 % ou plus des actions, des participations ou d'autres titres habilités à voter pour l'élection des administrateurs ou d'une autre autorité de gestion."
+            li1: "<strong>Pays</strong> fait référence à : Madagascar"
+            li2: "<strong>Société</strong> (ci-après dénommée « la Société », « Nous », « Nous » ou « Notre » dans le présent Contrat) désigne OLONA, Enceinte Somalco Zone Industrielle Tanjombato Antananarivo - 102 Madagascar."
+            li3: "Appareil désigne tout appareil pouvant accéder au Service, tel qu'un ordinateur, un téléphone portable ou une tablette numérique."
+            li4: "Service fait référence au site Web."
+            li5: "<strong>Conditions générales</strong> (également appelées « Conditions ») désignent les présentes Conditions générales qui constituent l'intégralité de l'accord entre vous et la Société concernant l'utilisation du Service. Cet accord de conditions générales a été créé à l'aide du <a href=\"%model_url%\">Modèle de politique de confidentialité.</a> ."
+            li6: "<strong>Service de médias sociaux tiers</strong> désigne tout service ou contenu (y compris les données, informations, produits ou services) fourni par un tiers qui peut être affiché, inclus ou mis à disposition par le Service."
+            li7: "<strong>Site Web</strong> fait référence à OLONA TALENTS, accessible depuis <a href=\"%home_url%\">https://olona-talents.com/</a>"
+            li8: "<strong>Vous</strong> désigne la personne accédant ou utilisant le Service, ou la société ou toute autre entité juridique au nom de laquelle cette personne accède ou utilise le Service , selon le cas."
+
     legal:
         h1: Mentions légales
         section1:
@@ -111,15 +193,81 @@ app_home:
             p: "Le Client est informé des réglementations concernant la communication marketing, la loi du 21 Juin 2014 pour la confiance dans l’Economie Numérique, la Loi Informatique et Liberté du 06 Août 2004 ainsi que du Règlement Général sur la Protection des Données (RGPD : n° 2016-679)."
 
         section9:
-            h2: "7.1 Responsables de la collecte des données personnelles"
+            h3: "7.1 Responsables de la collecte des données personnelles"
             p: "Pour les Données Personnelles collectées dans le cadre de la création du compte personnel de l’Utilisateur et de sa navigation sur le Site, le responsable du traitement des Données Personnelles est : OLONA. <a href=\"%home_url%\">https://olona-talents.com/</a> est représenté par Stephane Maurel, son représentant légal"
-            p1: "En tant que responsable du traitement des données qu’il collecte, <a href=\"%home_url%\">https://olona-talents.com/</a>  s’engage à respecter le cadre des dispositions légales en vigueur. Il lui appartient notamment au Client d’établir les finalités de ses traitements de données, de fournir à ses prospects et clients, à partir de la collecte de leurs consentements, une information complète sur le traitement de leurs données personnelles et de maintenir un registre des traitements conforme à la réalité. Chaque fois que <a href=\"%home_url%\">https://olona-talents.com/</a> traite des Données Personnelles, <a href=\"%home_url%\">https://olona-talents.com/</a>  prend toutes les mesures raisonnables pour s’assurer de l’exactitude et de la pertinence des Données Personnelles au regard des finalités pour lesquelles https://olona-outsourcing.com/ les traite."
+            p1: "En tant que responsable du traitement des données qu’il collecte, <a href=\"%home_url%\">https://olona-talents.com/</a>  s’engage à respecter le cadre des dispositions légales en vigueur. Il lui appartient notamment au Client d’établir les finalités de ses traitements de données, de fournir à ses prospects et clients, à partir de la collecte de leurs consentements, une information complète sur le traitement de leurs données personnelles et de maintenir un registre des traitements conforme à la réalité. Chaque fois que <a href=\"%home_url%\">https://olona-talents.com/</a> traite des Données Personnelles, <a href=\"%home_url%\">https://olona-talents.com/</a>  prend toutes les mesures raisonnables pour s’assurer de l’exactitude et de la pertinence des Données Personnelles au regard des finalités pour lesquelles <a href=\"%home_url%\">https://olona-talents.com/</a> les traite."
         
         section10:
-            h2: "7.2 Finalité des données collectées"
-            p: "<a href=\"%home_url%\">https://olona-talents.com/</a> agit en tant qu’éditeur du site. <a href=\"%home_url%\">https://olona-talents.com/</a> est responsable de la qualité et de la véracité du Contenu qu’il publie."
-            p1: "L’objectif est d’apporter une prestation qui assure le meilleur taux d’accessibilité. L’hébergeur assure la continuité de son service 24 Heures sur 24, tous les jours de l’année. Il se réserve néanmoins la possibilité d’interrompre le service d’hébergement pour les durées les plus courtes possibles notamment à des fins de maintenance, d’amélioration de ses infrastructures, de défaillance de ses infrastructures ou si les Prestations et Services génèrent un trafic réputé anormal."
-            p2: "<a href=\"%home_url%\">https://olona-talents.com/</a> et l’hébergeur ne pourront être tenus responsables en cas de dysfonctionnement du réseau Internet, des lignes téléphoniques ou du matériel informatique et de téléphonie lié notamment à l’encombrement du réseau empêchant l’accès au serveur."
+            h3: "7.2 Finalité des données collectées"
+            p: "<a href=\"%home_url%\">https://olona-talents.com/</a> est susceptible de traiter tout ou partie des données :"
+            li0: "pour permettre la navigation sur le Site et la gestion et la traçabilité des prestations et services commandés par l’utilisateur : données de connexion et d’utilisation du Site, facturation, historique des commandes, etc."
+            li1: "pour prévenir et lutter contre la fraude informatique (spamming, hacking…) : matériel informatique utilisé pour la navigation, l’adresse IP, le mot de passe (hashé)"
+            li2: "pour améliorer la navigation sur le Site : données de connexion et d’utilisation"
+            li3: "pour mener des enquêtes de satisfaction facultatives sur <a href=\"%home_url%\">https://olona-talents.com/</a> : adresse email"
+            li4: "pour mener des campagnes de communication (sms, mail) : numéro de téléphone, adresse email"
+            p1: "<a href=\"%home_url%\">https://olona-talents.com/</a>ne commercialise pas vos données personnelles qui sont donc uniquement utilisées par nécessité ou à des fins statistiques et d’analyses."
+ 
+        section11:
+            h3: "7.3 Droit d’accès, de rectification et d’opposition"
+            p: "Conformément à la réglementation européenne en vigueur, les Utilisateurs de<a href=\"%home_url%\">https://olona-talents.com/</a> disposent des droits suivants :"
+            li0: "droit d'accès (article 15 RGPD) et de rectification (article 16 RGPD), de mise à jour, de complétude des données des Utilisateurs droit de verrouillage ou d’effacement des données des Utilisateurs à caractère personnel (article 17 du RGPD), lorsqu’elles sont inexactes, incomplètes, équivoques, périmées, ou dont la collecte, l'utilisation, la communication ou la conservation est interdite"
+            li1: "droit de retirer à tout moment un consentement (article 13-2c RGPD)"
+            li2: "droit à la limitation du traitement des données des Utilisateurs (article 18 RGPD)"
+            li3: "droit d’opposition au traitement des données des Utilisateurs (article 21 RGPD)"
+            li4: "droit à la portabilité des données que les Utilisateurs auront fournies, lorsque ces données font l’objet de traitements automatisés fondés sur leur consentement ou sur un contrat (article 20 RGPD)"
+            li5: "droit de définir le sort des données des Utilisateurs après leur mort et de choisir à qui <a href=\"%home_url%\">https://olona-talents.com/</a> devra communiquer (ou non) ses données à un tiers qu’ils aura préalablement désigné"
+            p1: "Dès que <a href=\"%home_url%\">https://olona-talents.com/</a> a connaissance du décès d’un Utilisateur et à défaut d’instructions de sa part, <a href=\"%home_url%\">https://olona-talents.com/</a> s’engage à détruire ses données, sauf si leur conservation s’avère nécessaire à des fins probatoires ou pour répondre à une obligation légale."
+            p2: "Si l’Utilisateur souhaite savoir comment <a href=\"%home_url%\">https://olona-talents.com/</a> utilise ses Données Personnelles, demander à les rectifier ou s’oppose à leur traitement, l’Utilisateur peut contacter <a href=\"%home_url%\">https://olona-talents.com/</a> par écrit à l’adresse suivante :"
+            p3: "OLONA – DPO, Stephane Maurel <br>38 Bis, Avenue Victor Hugo 06000 Nice, France."
+            p4: "Dans ce cas, l’Utilisateur doit indiquer les Données Personnelles qu’il souhaiterait que <a href=\"%home_url%\">https://olona-talents.com/</a> corrige, mette à jour ou supprime, en s’identifiant précisément avec une copie d’une pièce d’identité (carte d’identité ou passeport)."
+            p5: "Les demandes de suppression de Données Personnelles seront soumises aux obligations qui sont imposées à <a href=\"%home_url%\">https://olona-talents.com/</a> par la loi, notamment en matière de conservation ou d’archivage des documents. Enfin, les Utilisateurs de <a href=\"%home_url%\">https://olona-talents.com/</a> peuvent déposer une réclamation auprès des autorités de contrôle, et notamment de la CNIL (https://www.cnil.fr/fr/plaintes)."
+
+
+        section12:
+            h3: "7.4 Non-communication des données personnelles"
+            p: "<a href=\"%home_url%\">https://olona-talents.com/</a> s’interdit de traiter, héberger ou transférer les Informations collectées sur ses Clients vers un pays situé en dehors de l’Union européenne ou reconnu comme « non adéquat » par la Commission européenne sans en informer préalablement le client. Pour autant, <a href=\"%home_url%\">https://olona-talents.com/</a> reste libre du choix de ses sous-traitants techniques et commerciaux à la condition qu’il présentent les garanties suffisantes au regard des exigences du Règlement Général sur la Protection des Données (RGPD : n° 2016-679)."
+            p1: "<a href=\"%home_url%\">https://olona-talents.com/</a> s’engage à prendre toutes les précautions nécessaires afin de préserver la sécurité des Informations et notamment qu’elles ne soient pas communiquées à des personnes non autorisées. Cependant, si un incident impactant l’intégrité ou la confidentialité des Informations du Client est portée à la connaissance de <a href=\"%home_url%\">https://olona-talents.com/</a>, celle-ci devra dans les meilleurs délais informer le Client et lui communiquer les mesures de corrections prises. Par ailleurs <a href=\"%home_url%\">https://olona-talents.com/</a> ne collecte aucune « données sensibles »."
+            p2: "Les Données Personnelles de l’Utilisateur peuvent être traitées par des filiales de <a href=\"%home_url%\">https://olona-talents.com/</a> et des sous-traitants (prestataires de services), exclusivement afin de réaliser les finalités de la présente politique."
+            p3: "Dans la limite de leurs attributions respectives et pour les finalités rappelées ci-dessus, les principales personnes susceptibles d’avoir accès aux données des Utilisateurs de <a href=\"%home_url%\">https://olona-talents.com/</a> sont principalement les agents de notre service client."
+
+        section13:
+            h3: "7.5 Types de données collectées"
+            p: "Concernant les utilisateurs d’un Site <a href=\"%home_url%\">https://olona-talents.com/</a>, nous collectons les données suivantes qui sont indispensables au fonctionnement du service , et qui seront conservées pendant une période maximale de 9 mois après la fin de la relation contractuelle: <br>nom, prénom, adresse mail, N° téléphone, adresse IP, ville, pays"
+            p1: "<a href=\"%home_url%\">https://olona-talents.com/</a> collecte en outre des informations qui permettent d’améliorer l’expérience utilisateur et de proposer des conseils contextualisés : <br>Comportement sur le site Liens visités Temps de visite Mesure d'audience Utilisation de contenu et des services Publicité personnalisé"
+            p2: "Ces  données sont conservées pour une période maximale de 9 mois après la fin de la relation contractuelle"
+            
+        section14:
+            h2: "8. Notification d’incident"
+            p: "Quels que soient les efforts fournis, aucune méthode de transmission sur Internet et aucune méthode de stockage électronique n'est complètement sûre. Nous ne pouvons en conséquence pas garantir une sécurité absolue. Si nous prenions connaissance d'une brèche de la sécurité, nous avertirions les utilisateurs concernés afin qu'ils puissent prendre les mesures appropriées. Nos procédures de notification d’incident tiennent compte de nos obligations légales, qu'elles se situent au niveau national ou européen. Nous nous engageons à informer pleinement nos clients de toutes les questions relevant de la sécurité de leur compte et à leur fournir toutes les informations nécessaires pour les aider à respecter leurs propres obligations réglementaires en matière de reporting."
+            p1: "Aucune information personnelle de l'utilisateur du site <a href=\"%home_url%\">https://olona-talents.com/</a> n'est publiée à l'insu de l'utilisateur, échangée, transférée, cédée ou vendue sur un support quelconque à des tiers. Seule l'hypothèse du rachat de <a href=\"%home_url%\">https://olona-talents.com/</a> et de ses droits permettrait la transmission des dites informations à l'éventuel acquéreur qui serait à son tour tenu de la même obligation de conservation et de modification des données vis à vis de l'utilisateur du site <a href=\"%home_url%\">https://olona-talents.com/</a>."
+            h3: "Sécurité"
+            p2: "Pour assurer la sécurité et la confidentialité des Données Personnelles et des Données Personnelles de Santé, <a href=\"%home_url%\">https://olona-talents.com/</a> utilise des réseaux protégés par des dispositifs standards tels que par pare-feu, la pseudonymisation, l’encryption et mot de passe."
+            p3: "Lors du traitement des Données Personnelles, <a href=\"%home_url%\">https://olona-talents.com/</a> prend toutes les mesures raisonnables visant à les protéger contre toute perte, utilisation détournée, accès non autorisé, divulgation, altération ou destruction."
+            
+        section15:
+            h2: "9. Liens hypertextes « cookies » et balises (“tags”) internet"
+            p: "Le site <a href=\"%home_url%\">https://olona-talents.com/</a> contient un certain nombre de liens hypertextes vers d’autres sites, mis en place avec l’autorisation de <a href=\"%home_url%\">https://olona-talents.com/</a>. Cependant, <a href=\"%home_url%\">https://olona-talents.com/</a> n’a pas la possibilité de vérifier le contenu des sites ainsi visités, et n’assumera en conséquence aucune responsabilité de ce fait."
+            p1: "Sauf si vous décidez de désactiver les cookies, vous acceptez que le site puisse les utiliser. Vous pouvez à tout moment désactiver ces cookies et ce gratuitement à partir des possibilités de désactivation qui vous sont offertes et rappelées ci-après, sachant que cela peut réduire ou empêcher l’accessibilité à tout ou partie des Services proposés par le site."
+            h3: "9.1. « COOKIES »"
+            p2: "Un « cookie » est un petit fichier d’information envoyé sur le navigateur de l’Utilisateur et enregistré au sein du terminal de l’Utilisateur (ex : ordinateur, smartphone), (ci-après « Cookies »). Ce fichier comprend des informations telles que le nom de domaine de l’Utilisateur, le fournisseur d’accès Internet de l’Utilisateur, le système d’exploitation de l’Utilisateur, ainsi que la date et l’heure d’accès. Les Cookies ne risquent en aucun cas d’endommager le terminal de l’Utilisateur."
+            p3: "<a href=\"%home_url%\">https://olona-talents.com/</a> est susceptible de traiter les informations de l’Utilisateur concernant sa visite du Site, telles que les pages consultées, les recherches effectuées. Ces informations permettent à <a href=\"%home_url%\">https://olona-talents.com/</a> d’améliorer le contenu du Site, de la navigation de l’Utilisateur."
+            p4: "Les Cookies facilitant la navigation et/ou la fourniture des services proposés par le Site, l’Utilisateur peut configurer son navigateur pour qu’il lui permette de décider s’il souhaite ou non les accepter de manière à ce que des Cookies soient enregistrés dans le terminal ou, au contraire, qu’ils soient rejetés, soit systématiquement, soit selon leur émetteur. L’Utilisateur peut également configurer son logiciel de navigation de manière à ce que l’acceptation ou le refus des Cookies lui soient proposés ponctuellement, avant qu’un Cookie soit susceptible d’être enregistré dans son terminal. <a href=\"%home_url%\">https://olona-talents.com/</a> informe l’Utilisateur que, dans ce cas, il se peut que les fonctionnalités de son logiciel de navigation ne soient pas toutes disponibles."
+            p5: "Si l’Utilisateur refuse l’enregistrement de Cookies dans son terminal ou son navigateur, ou si l’Utilisateur supprime ceux qui y sont enregistrés, l’Utilisateur est informé que sa navigation et son expérience sur le Site peuvent être limitées. Cela pourrait également être le cas lorsque <a href=\"%home_url%\">https://olona-talents.com/</a> ou l’un de ses prestataires ne peut pas reconnaître, à des fins de compatibilité technique, le type de navigateur utilisé par le terminal, les paramètres de langue et d’affichage ou le pays depuis lequel le terminal semble connecté à Internet."
+            p6: "Le cas échéant, <a href=\"%home_url%\">https://olona-talents.com/</a> décline toute responsabilité pour les conséquences liées au fonctionnement dégradé du Site et des services éventuellement proposés par <a href=\"%home_url%\">https://olona-talents.com/</a>, résultant (i) du refus de Cookies par l’Utilisateur (ii) de l’impossibilité pour <a href=\"%home_url%\">https://olona-talents.com/</a> d’enregistrer ou de consulter les Cookies nécessaires à leur fonctionnement du fait du choix de l’Utilisateur. Pour la gestion des Cookies et des choix de l’Utilisateur, la configuration de chaque navigateur est différente. Elle est décrite dans le menu d’aide du navigateur, qui permettra de savoir de quelle manière l’Utilisateur peut modifier ses souhaits en matière de Cookies."
+            p7: "À tout moment, l’Utilisateur peut faire le choix d’exprimer et de modifier ses souhaits en matière de Cookies. <a href=\"%home_url%\">https://olona-talents.com/</a> pourra en outre faire appel aux services de prestataires externes pour l’aider à recueillir et traiter les informations décrites dans cette section."
+            p8: "Enfin, en cliquant sur les icônes dédiées aux réseaux sociaux Twitter, Facebook, Linkedin et Google Plus figurant sur le Site de <a href=\"%home_url%\">https://olona-talents.com/</a> ou dans son application mobile et si l’Utilisateur a accepté le dépôt de cookies en poursuivant sa navigation sur le Site Internet ou l’application mobile de <a href=\"%home_url%\">https://olona-talents.com/</a>, Twitter, Facebook, Linkedin et Google Plus peuvent également déposer des cookies sur vos terminaux (ordinateur, tablette, téléphone portable)."
+            p9: "Ces types de cookies ne sont déposés sur vos terminaux qu’à condition que vous y consentiez, en continuant votre navigation sur le Site Internet ou l’application mobile de <a href=\"%home_url%\">https://olona-talents.com/</a>. À tout moment, l’Utilisateur peut néanmoins revenir sur son consentement à ce que <a href=\"%home_url%\">https://olona-talents.com/</a> dépose ce type de cookies."
+
+        section16:
+            h3: "9.2. BALISES (“TAGS”) INTERNET"
+            p: "<a href=\"%home_url%\">https://olona-talents.com/</a> peut employer occasionnellement des balises Internet (également appelées « tags », ou balises d’action, GIF à un pixel, GIF transparents, GIF invisibles et GIF un à un) et les déployer par l’intermédiaire d’un partenaire spécialiste d’analyses Web susceptible de se trouver (et donc de stocker les informations correspondantes, y compris l’adresse IP de l’Utilisateur) dans un pays étranger."
+            p1: "Ces balises sont placées à la fois dans les publicités en ligne permettant aux internautes d’accéder au Site, et sur les différentes pages de celui-ci."
+            p2: "Cette technologie permet à <a href=\"%home_url%\">https://olona-talents.com/</a> d’évaluer les réponses des visiteurs face au Site et l’efficacité de ses actions (par exemple, le nombre de fois où une page est ouverte et les informations consultées), ainsi que l’utilisation de ce Site par l’Utilisateur."
+            p3: "Le prestataire externe pourra éventuellement recueillir des informations sur les visiteurs du Site et d’autres sites Internet grâce à ces balises, constituer des rapports sur l’activité du Site à l’attention de <a href=\"%home_url%\">https://olona-talents.com/</a>, et fournir d’autres services relatifs à l’utilisation de celui-ci et d’Internet."
+
+        section17:
+            h2: "10. Droit applicable et attribution de juridiction."
+            p: "Tout litige en relation avec l’utilisation du site <a href=\"%home_url%\">https://olona-talents.com/</a> est soumis au droit français. En dehors des cas où la loi ne le permet pas, il est fait attribution exclusive de juridiction aux tribunaux compétents de Nice"
 
 
 app_home_experts:
