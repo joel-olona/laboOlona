@@ -4,6 +4,7 @@ namespace App\Manager;
 
 use App\Entity\CandidateProfile;
 use App\Entity\Entreprise\JobListing;
+use App\Repository\CandidateProfileRepository;
 use App\Repository\EntrepriseProfileRepository;
 use App\Service\User\UserService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,6 +18,7 @@ class CandidatManager
         private SluggerInterface $sluggerInterface,
         private RequestStack $requestStack,
         private EntrepriseProfileRepository $entrepriseProfileRepository,
+        private CandidateProfileRepository $candidateProfileRepository,
         private UserService $userService
     ){}
 
@@ -89,6 +91,11 @@ class CandidatManager
         }
 
         return $annonces;
+    }
+    
+    public function getAll(): array
+    {
+        return $this->candidateProfileRepository->findAll();
     }
 
 }

@@ -17,12 +17,19 @@ use App\Repository\CandidateProfileRepository;
 use DateTime;
 use Symfony\Component\HttpFoundation\File\File;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Uid\Uuid;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: CandidateProfileRepository::class)]
 #[Vich\Uploadable]
 class CandidateProfile implements Serializable
 {
+    const STATUS_PENDING = 'PENDING';
+    const STATUS_BANNISHED = 'BANNISHED';
+    const STATUS_VALID = 'VALID';
+    const STATUS_FEATURED = 'FEATURED';
+    const STATUS_RESERVED = 'RESERVED';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -80,6 +87,15 @@ class CandidateProfile implements Serializable
 
     #[ORM\OneToMany(mappedBy: 'candidat', targetEntity: CandidatVues::class)]
     private Collection $vues;
+
+    #[ORM\Column]
+    private ?bool $isValid = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $status = null;
+
+    #[ORM\Column(type: 'uuid')]
+    private ?Uuid $uid = null;
 
     public function __construct()
     {
@@ -461,6 +477,42 @@ class CandidateProfile implements Serializable
                 $vue->setCandidat(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isIsValid(): ?bool
+    {
+        return $this->isValid;
+    }
+
+    public function setIsValid(bool $isValid): static
+    {
+        $this->isValid = $isValid;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getUid(): ?Uuid
+    {
+        return $this->uid;
+    }
+
+    public function setUid(Uuid $uid): static
+    {
+        $this->uid = $uid;
 
         return $this;
     }
