@@ -3,40 +3,62 @@
 {% block body %}
 <div class="container mt-5">
     <h2>Gestion des candidats</h2>
-    <a href="{{ path('app_dashboard_moderateur_new_secteur')}}" class="btn btn-secondary my-3">Nouveau</a>
-    {{ form_start(form, {'attr': {'class': 'form-group mb-2 col-6'}}) }}
-    <div class="input-group">
-        {{ form_widget(form.secteur, {'attr': {'class': 'form-control'}}) }}
-        <div class="input-group-append">
-            <button type="submit" class="btn btn-primary"><i class="h5 bi mx-2 bi-search"></i></button>
+        {{ form_start(form, {'attr': {'class': 'form-group my-4'}}) }}
+        <div class="row">
+            <div class="input-group">
+                    <div class="col">
+                        {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col">
+                        {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col">
+                        {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary"><i class="h5 bi mx-2 bi-search"></i></button>
+                </div>
+            </div>
         </div>
-    </div>
-    {{ form_end(form) }}
+        {{ form_end(form) }}
     <table class="table table-responsive">
         <thead>
             <tr>
                 <th class="col-1">ID</th>
-                <th class="col-4">Titre</th>
-                <th class="col-4">Description</th>
-                <th class="col-3">Actions</th>
+                <th class="col-2">Nom et prénom</th>
+                <th class="col-4">Email</th>
+                <th class="col-2">Titre</th>
+                <th class="col-2">Statut</th>
+                <th class="col-1">Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for secteur in sectors %}
+            {% for candidat in candidats %}
                 <tr>
-                    <td class="id-column">{{ secteur.id }}</td>
-                    <td>{{ secteur.nom }}</td>
-                    <td>{{ secteur.description|length > 50 ? secteur.description|slice(0, 50) ~ '...' : secteur.description }}</td>
+                    <td class="id-column">{{ candidat.id }}</td>
+                    <td>{{ candidat.candidat.nom }} {{ candidat.candidat.prenom }}</td>
+                    <td>{{ candidat.candidat.email }}</td>
+                    <td>{{ candidat.titre }}</td>
+                    <td>
+                        <form method="post" action="{{ path('change_status_candidat', {'uid': candidat.uid}) }}">
+                            <select name="status" class="form-control" onchange="this.form.submit()">
+                                <option value="PENDING" {{ candidat.status == 'PENDING' ? 'selected' : '' }}>En attente</option>
+                                <option value="BANNISHED" {{ candidat.status == 'BANNISHED' ? 'selected' : '' }}>Banni</option>
+                                <option value="VALID" {{ candidat.status == 'VALID' ? 'selected' : '' }}>Valide</option>
+                                <option value="FEATURED" {{ candidat.status == 'FEATURED' ? 'selected' : '' }}>Mis en avant</option>
+                                <option value="RESERVED" {{ candidat.status == 'RESERVED' ? 'selected' : '' }}>Réservé</option>
+                            </select>
+                        </form>
+                    </td>
                     <td class="actions-col">
-                        <a href="{{path('app_dashboard_moderateur_edit_secteur', { 'slug': secteur.slug}) }}" class="btn btn-sm btn-info">Modifier</a>
-                        <a href="{{path('app_dashboard_moderateur_delete_secteur', { 'slug': secteur.slug}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce type de contrat ?');">Supprimer</a>
+                        <a href="{{path('app_dashboard_moderateur_candidat_view', {'id': candidat.id})}}" class="btn btn-sm btn-info"><i class="bi bi-eye"></i></a>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
     <div class="navigation">
-        {{ knp_pagination_render(annonces, 'parts/_pagination.html.twig') }}
+        {{ knp_pagination_render(candidats, 'parts/_pagination.html.twig') }}
     </div>
 </div>
 

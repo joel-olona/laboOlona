@@ -28,6 +28,8 @@ class CandidateProfileRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('c')
              ->andWhere('c.fileName <> :defaultAvatar') 
+             ->andWhere('c.status = :statusValid') 
+             ->setParameter('statusValid', CandidateProfile::STATUS_VALID)
              ->setParameter('defaultAvatar', 'avatar-default.jpg')
              ->orderBy('c.id', 'ASC')
              ->setMaxResults($max)
@@ -43,6 +45,8 @@ class CandidateProfileRepository extends ServiceEntityRepository
              ->select('c, COUNT(v.id) as HIDDEN num_views')
              ->leftJoin('c.vues', 'v')  
              ->andWhere('c.fileName <> :defaultAvatar') 
+             ->andWhere('c.status = :statusFeatured') 
+             ->setParameter('statusFeatured', CandidateProfile::STATUS_FEATURED)
              ->setParameter('defaultAvatar', 'avatar-default.jpg')
              ->groupBy('c')
              ->orderBy('num_views', 'DESC') 
