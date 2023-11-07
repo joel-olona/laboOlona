@@ -16,11 +16,14 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-            custom_authenticator: App\Security\AppAuthenticator
+            custom_authenticator: 
+                - App\Security\AppAuthenticator
+                - App\Security\GoogleAuthenticator
             logout:
                 path: app_logout
                 # where to redirect after logout
                 # target: app_any_route
+                invalidate_session: true # Ceci va effacer la session
 
             remember_me:
                 secret: '%kernel.secret%'
@@ -39,7 +42,7 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/profile/, roles: ROLE_USER }
-        - { path: ^/dashboard, roles: ROLE_USER }
+        - { path: ^/dashboard/, roles: ROLE_USER }
 
 when@test:
     security:

@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Moderateur\ContactForm;
+use App\Form\Moderateur\ContactFormType;
 use App\Service\User\UserService;
 use App\Repository\SecteurRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,6 +13,9 @@ use App\Repository\EntrepriseProfileRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\Entreprise\JobListingRepository;
 use App\Service\Annonce\AnnonceService;
+use App\Service\Mailer\MailerService;
+use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class HomeController extends AbstractController
@@ -21,9 +26,12 @@ class HomeController extends AbstractController
         private CandidateProfileRepository $candidateProfileRepository,
         private SecteurRepository $secteurRepository,
         private UserService $userService,
+        private EntityManagerInterface $em,
+        private MailerService $mailerService,
         private AnnonceService $annonceService,
     ){
     }
+    
     #[Route('/', name: 'app_home')]
     public function index(): Response
     {
@@ -36,10 +44,29 @@ class HomeController extends AbstractController
     }
 
     #[Route('/contact', name: 'app_home_contact')]
-    public function contact(): Response
+    public function contact(Request $request): Response
     {
+        $contactForm = new ContactForm;
+        $contactForm->setCreatedAt(new DateTime());
+        $form = $this->createForm(ContactFormType::class, $contactForm);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $contactForm = $form->getData();
+            $this->em->persist($contactForm);
+            $this->em->flush();
+            $this->mailerService->send(
+                "contact@olona-talents.com",
+                "Nouvelle entrée sur le formulaire de contact",
+                "contact.html.twig",
+                [
+                    'user' => $contactForm,
+                ]
+            );
+            $this->addFlash('success', 'Votre message a été bien envoyé. Nous vous repondrons dans le plus bref delais');
+        }
+
         return $this->render('home/contact.html.twig', [
-            'controller_name' => 'HomeController',
+            'form' => $form->createView(),
         ]);
     }
 

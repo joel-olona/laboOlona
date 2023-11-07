@@ -269,6 +269,20 @@ app_home:
             h2: "10. Droit applicable et attribution de juridiction."
             p: "Tout litige en relation avec l’utilisation du site <a href=\"%home_url%\">https://olona-talents.com/</a> est soumis au droit français. En dehors des cas où la loi ne le permet pas, il est fait attribution exclusive de juridiction aux tribunaux compétents de Nice"
 
+    contact:
+        h1: Laissez-nous un message
+        button: Envoyer
+        title: Votre Nom*
+        email: E-mail*
+        message: Message*
+        number: Téléphone
+        agree_terms: "J'accepte les <a href=\"%terms_url%\">CGU</a>"
+    
+        placeholder:
+            title: Entrez votre nom
+            email: Entrez un email valide
+            message: Entrez votre message
+            number: Entez numéro de téléphone
 
 app_home_experts:
     menu: "Trouver un profil"
