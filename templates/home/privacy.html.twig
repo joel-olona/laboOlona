@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<section id="legal" class="my-5" style="background-color: black;">
+    <div class="container my-5 d-flex flex-column justify-content-center">
+        <div class="row my-4">
+            <div class="col d-flex flex-column justify-content-center">
+                <h1 class="text-white text-center display-2">{{ 'app_home.privacy.h1'|trans }}</h1>
+                <div class="">
+                    <p class="text-white fs-6">{{ 'app_home.privacy.section1.p'|trans |raw }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.privacy.section1.p1'|trans |raw }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.privacy.section1.p2'|trans({
+                        '%model_url%': 'https://www.privacypolicies.com/blog/privacy-policy-template/',
+                    })|raw }}</p>
+                </div>
+
+                <h2 class="text-white display-6 my-3">{{ 'app_home.privacy.section2.h2'|trans | raw }}</h2>
+                <div class="">
+                    <h3 class="text-white display-7 my-3">{{ 'app_home.privacy.section2.h3'|trans | raw }}</h3>
+                    <p class="text-white fs-6">{{ 'app_home.privacy.section2.p'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                    <h3 class="text-white display-7 my-3">{{ 'app_home.privacy.section3.h3'|trans | raw }}</h3>
+                    <p class="text-white fs-6">{{ 'app_home.privacy.section3.p'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                    <ul class="text-white fs-6">
+                        <li>
+                            {{ 'app_home.privacy.section3.li0'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section3.li1'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section3.li2'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section3.li3'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section3.li4'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section3.li5'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section3.li6'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section3.li7'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section3.li8'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section3.li9'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section3.li10'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section3.li11'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                    </ul>
+                </div>
+
+                <h2 class="text-white display-6 my-3">{{ 'app_home.privacy.section4.h2'|trans }}</h2>
+                <div class="">
+                <h3 class="text-white display-7 my-3">{{ 'app_home.privacy.section4.h3'|trans }}</h3>
+                    <p class="text-white fs-4">{{ 'app_home.privacy.section4.p'|trans }}</p>
+                    <p class="text-white fs-6">{{ 'app_home.privacy.section4.p1'|trans({
+                        '%terms_url%': path('app_home_terms'),
+                    })|raw }}</p>
+                    <ul class="text-white fs-6">
+                        <li>
+                            {{ 'app_home.privacy.section4.li0'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section4.li1'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section4.li2'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section4.li3'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                        <li>
+                            {{ 'app_home.privacy.section4.li4'|trans({
+                                '%terms_url%': path('app_home_terms'),
+                            })|raw }}
+                        </li><br>
+                    </ul>
+                <p class="text-white fs-4">{{ 'app_home.privacy.section4.p3'|trans }}</p>
+                <p class="text-white fs-6">{{ 'app_home.privacy.section4.p4'|trans({
+                    '%terms_url%': path('app_home_terms'),
+                })|raw }}</p>
+                <p class="text-white fs-6">{{ 'app_home.privacy.section4.p5'|trans({
+                    '%terms_url%': path('app_home_terms'),
+                })|raw }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
