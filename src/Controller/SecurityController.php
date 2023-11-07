@@ -39,16 +39,19 @@ class SecurityController extends AbstractController
     {
         /** @var User|null $user */
         $user = $this->getUser();
-    
-        if (null === $user || $user->getType() === User::ACCOUNT_MODERATEUR) {
+
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_profile');
+        }
+        if ($user->getType() === User::ACCOUNT_MODERATEUR) {
             return $this->redirectToRoute('app_dashboard_moderateur');
         }
     
-        if (null === $user || $user->getType() === User::ACCOUNT_ENTREPRISE) {
+        if ($user->getType() === User::ACCOUNT_ENTREPRISE) {
             return $this->redirectToRoute('app_dashboard_entreprise');
         }
     
-        if (null === $user || $user->getType() === User::ACCOUNT_CANDIDAT) {
+        if ($user->getType() === User::ACCOUNT_CANDIDAT) {
             return $this->redirectToRoute('app_dashboard_candidat');
         }
     

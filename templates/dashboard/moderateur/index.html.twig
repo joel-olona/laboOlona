@@ -1,4 +1,113 @@
 {% extends 'dashboard/base.html.twig' %}
 
 {% block body %}
+<div class="container mt-5">
+    <h1 class="mb-4">Tableau de bord</h1>
+
+    <div class="row">
+        <div class="col-md-4">
+            <a href="{{ path('app_dashboard_moderateur_secteur') }}" class="text-decoration-none">
+                <div class="card text-white bg-primary mb-3">
+                    <div class="card-body">
+                        <h2 class="card-title">{{ secteurs|length }}</h2>
+                        <p class="card-text">Secteur d'activité</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="{{ path('app_dashboard_moderateur_type_contrat') }}" class="text-decoration-none">
+                <div class="card text-white bg-success mb-3">
+                    <div class="card-body">
+                        <h2 class="card-title">{{ typeContrats|length }}</h2>
+                        <p class="card-text">Type de contrat</p>
+                    </div>
+                </div>
+            </a>
+        </div>    
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-4">
+            <a href="{{ path('app_dashboard_moderateur_annonces') }}" class="text-decoration-none">
+                <div class="card text-white bg-secondary mb-3">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card-body">
+                                <h2 class="card-title">{{ annonces|length }}</h2>
+                                <p class="card-text">Annonces</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card-body">
+                            {% if annonces_pending|length > 0 %}
+                                <p class="card-text"> <span class="badge text-bg-dark rounded-pill"><span class="fs-6">{{ annonces_pending|length }}</span> à valider</span></p>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div> 
+        <div class="col-md-4">
+            <a href="{{ path('app_dashboard_moderateur_entreprises') }}" class="text-decoration-none">
+                <div class="card text-white bg-primary mb-3">
+                    <div class="card-body">
+                        <h2 class="card-title">{{ entreprises|length }}</h2>
+                        <p class="card-text">Entreprises</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="text-decoration-none">
+                <div class="card text-white bg-success mb-3">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card-body">
+                                <h2 class="card-title">{{ candidats|length }}</h2>
+                                <p class="card-text">Candidats</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card-body">
+                            {% if candidats_pending|length > 0 %}
+                                <p class="card-text"> <span class="badge text-bg-dark rounded-pill"><span class="fs-6">{{ candidats_pending|length }}</span> à valider</span></p>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>    
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <a href="{{ path('app_dashboard_moderateur_mettings') }}" class="text-decoration-none">
+                <div class="card text-white bg-warning mb-3">
+                    <div class="card-body">
+                        <h2 class="card-title">{{ mettings|length }}</h2>
+                        <p class="card-text">Rendez-vous</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="{{ path('app_dashboard_moderateur_notifications') }}" class="text-decoration-none">
+                <div class="card text-white bg-secondary mb-3">
+                    <div class="card-body">
+                        <h2 class="card-title">{{ notifications|length }}</h2>
+                        <p class="card-text">Notifications</p>
+                    </div>
+                </div>
+            </a>
+        </div>    
+    </div>
+</div>
+
 {% endblock %}
