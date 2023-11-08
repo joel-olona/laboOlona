@@ -296,11 +296,6 @@ class AppFixtures extends Fixture
                 'slug' => 'deutsch',
                 'code' => 'de',
             ],
-            5 => [
-                'name' => 'عرب',
-                'slug' => 'arabe',
-                'code' => 'ar',
-            ]
         ];
 
         $statusJob = [
