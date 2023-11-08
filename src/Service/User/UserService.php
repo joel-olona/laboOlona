@@ -11,6 +11,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserService
 {
@@ -19,6 +20,7 @@ class UserService
         private UserRepository $userRepository,
         private RequestStack $requestStack,
         private EntityManagerInterface $em,
+        private UserPasswordHasherInterface $encoder,
     ){
     }
 
@@ -93,6 +95,31 @@ class UserService
         $this->saveCandidat($profilCandidat);
 
         return $profilCandidat;
+
+    }
+
+    public function initUser(string $email, string $plainPassword):User
+    {
+        $user = $this->userRepository->findOneBy(['email' => $email]);
+
+        if(!$user instanceof User){
+            $user = new User();
+                $user->setDateInscription(new DateTime())
+                ->setEmail($email)
+                ->setPassword($this->encoder->hashPassword($user, $plainPassword))
+            ;
+        }
+
+        $user
+            ->setNom('Olona')
+            ->setType(User::ACCOUNT_MODERATEUR)
+            ->setPrenom('Modérateur')
+        ;
+
+        $this->em->persist($user);
+        $this->em->flush();
+
+        return $user;
 
     }
 }
