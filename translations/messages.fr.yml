@@ -504,9 +504,13 @@ app_dashboard_moderateur:
         publish: "Publier"
         cancel: "Annuler"
 
-app_dashboard_moderateur_sector:
+app_dashboard_moderateur_secteur:
     title: Modération
     dashboard_title: Secteurs d'activité
+
+app_dashboard_moderateur_type_contrat:
+    title: Modération
+    dashboard_title: Type de contrat
 
 app_dashboard_moderateur_annonces:
     title: Modération
@@ -528,7 +532,7 @@ app_dashboard_moderateur_notifications:
     title: Modération
     dashboard_title: Mes notifications
 
-app_dashboard_company:
+app_dashboard_entreprise:
     title: "Tableau de bord"
     dashboard_title: "Bienvenue dans votre espace Entreprise : %company_name%"
     description: "Votre profil est maintenant créé et prêt à être exploré"
@@ -553,8 +557,8 @@ app_dashboard_company:
         refused: "Annonces refusées"
         all: "Voir toutes les annonces"
 
-app_dashboard_company_posting_new:
-    title: "Deposer une annonce"
+app_dashboard_entreprise_posting_new:
+    title: "Déposer une annonce"
     form_title: "Deposer une annonce"
     dashboard_title: "Titre de l'annonce"
     menu: "Deposer une annonce"
@@ -572,7 +576,23 @@ app_dashboard_company_posting_new:
     planned_date: "Date de début "
     sector: "Quel secteur d'activité de votre entreprise sera sollicité pour cette mission ? "
 
-app_dashboard_company_posting_all:
+app_dashboard_entreprise_new_annonce:
+    title: Déposer une annonce
+    dashboard_title: Déposer une annonce
+
+app_dashboard_entreprise_annonces:
+    title: Mes annonces
+    dashboard_title: Mes annonces
+
+app_dashboard_entreprise_candidatures:
+    title: Candidature
+    dashboard_title: Candidature
+
+app_dashboard_entreprise_rendez_vous:
+    title: Mes rendez-vous
+    dashboard_title: Mes rendez-vous
+
+app_dashboard_entreprise_posting_all:
     title: "Mes annonces"
     dashboard_title: "Mes annonces - %company_name%"
     get_started: "Déposez votre annonce en 1 clic"
@@ -584,7 +604,7 @@ app_dashboard_company_posting_all:
         moderate: "En cours de moderation"
         unpublished: "Non publiée"
 
-app_dashboard_company_posting_edit:
+app_dashboard_entreprise_posting_edit:
     title: "Modifier une annonce"
     dashboard_title: "Modifier une annonce - %company_name%"
     get_started: "Déposez votre annonce en 1 clic"
@@ -596,28 +616,28 @@ app_dashboard_company_posting_edit:
         moderate: "En cours de moderation"
         unpublished: "Non publiée"
 
-app_dashboard_company_profile:
+app_dashboard_entreprise_recherche_candidats:
     title: "Trouver un profil"
     get_started: "Entrez des compétances, un nom ou un domaine pour trouver le profil ideal"
     dashboard_title: "Decouvrez des talents"
     recommanded: "Profils recommandés"
     catalog: "Catalogue de profils"
 
-app_dashboard_company_message:
+app_dashboard_entreprise_message:
     title: "Messagerie"
     dashboard_title: "Messagerie"
 
-app_dashboard_company_notification:
+app_dashboard_entreprise_notifications:
     title: "Notifications"
     dashboard_title: "Notifications"
 
-app_dashboard_company_account:
+app_dashboard_entreprise_profil:
     title: "Mon compte"
     dashboard_title: "Mon compte"
     edit: "Mes informations"
     button: "Mettre à jour"
 
-app_dashboard_expert:
+app_dashboard_candidat:
     title: "Tableau de bord"
     dashboard_title: "Bienvenue %company_name%! Decouvrez les offres qui correspondent à votre profil"
     description: "Votre profil est maintenant créé et prêt à être exploré"
@@ -646,7 +666,7 @@ app_dashboard_expert:
     recommanded: Annonces recommandées
     recommanded_posting: Selon votre profil et vos recherches précédentes, voici quelques annonces de missions que nous pensons être parfaitement adaptées pour vous!
 
-app_dashboard_expert_posting:
+app_dashboard_candidat_annonce:
     title: "Tableau de bord"
     dashboard_title: "Trouver une mission"
     description: "Votre profil est maintenant créé et prêt à être exploré"
@@ -658,7 +678,7 @@ app_dashboard_expert_posting:
     my_account: "Mon compte"
     logout: "Sortir"
 
-app_dashboard_expert_posting_all:
+app_dashboard_candidat_annonces:
     title: "Tableau de bord"
     dashboard_title: "Mes missions"
     my_posting: "Mes missions"
@@ -668,17 +688,17 @@ app_dashboard_expert_posting_all:
         finished: Terminée
         negociate: En cours de négociation
 
-app_dashboard_expert_formation:
+app_dashboard_candidat_formation:
     title: "Tableau de bord"
     dashboard_title: "Mes formations"
     menu: "Mes formations"
 
-app_dashboard_expert_tools:
+app_dashboard_candidat_tools:
     title: "Tableau de bord"
     dashboard_title: "Mes outils de travail"
     menu: "Mes outils de travail"
 
-app_dashboard_expert_account:
+app_dashboard_candidat_compte:
     title: Tableau de bord
     dashboard_title: Mon compte
     menu: Mon compte

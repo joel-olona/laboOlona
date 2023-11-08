@@ -6,13 +6,20 @@
     <div class="row text-dark">
         <p>
             <i class="h5 bi mx-2 bi-plus-lg"></i> 
-            {{ 'app_dashboard_expert.get_started'|trans }} 
+            {{ 'app_dashboard_candidat.get_started'|trans }} 
         </p>
         {{ form_start(form, {'attr': {'class': 'form-group mb-5 px-5'}}) }}
-        <div class="input-group">
-            {{ form_widget(form.query, {'attr': {'class': 'form-control'}}) }}
-            <div class="input-group-append">
-                <button type="submit" class="btn btn-primary"><i class="h5 bi mx-2 bi-search"></i></button>
+        <div class="row">
+            <div class="col-9">
+                <div class="input-group">
+                    {{ form_widget(form.query, {'attr': {'class': 'form-control'}}) }}
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary"><i class="mx-2 h5 bi bi-search"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                {{ form_widget(form.typeContrat, {'attr': {'class': 'form-control'}}) }}
             </div>
         </div>
         {{ form_end(form) }}
