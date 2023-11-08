@@ -8,7 +8,6 @@ use App\Manager\ProfileManager;
 use App\Entity\CandidateProfile;
 use App\Manager\CandidatManager;
 use App\Service\User\UserService;
-use App\Repository\UserRepository;
 use App\Entity\Entreprise\JobListing;
 use App\Service\Mailer\MailerService;
 use App\Form\Search\AnnonceSearchType;
@@ -24,6 +23,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\Entreprise\JobListingRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Form\Profile\Candidat\Edit\StepOneType as EditStepOneType;
+use App\Form\Profile\Candidat\Edit\StepTwoType as EditStepTwoType;
+use App\Form\Profile\Candidat\Edit\StepThreeType as EditStepThreeType;
 
 
 #[Route('/dashboard/candidat')]
@@ -54,7 +56,7 @@ class CandidatController extends AbstractController
     }
 
     #[Route('/', name: 'app_dashboard_candidat')]
-    public function index(Request $request): Response
+    public function index(Request $request, PaginatorInterface $paginatorInterface): Response
     {
         $this->checkCandidat();
         /** @var User $user */
@@ -72,13 +74,24 @@ class CandidatController extends AbstractController
 
         $form = $this->createForm(AnnonceSearchType::class);
         $form->handleRequest($request);
+        $data = $this->jobListingRepository->findAll();
+        $annonces = $this->candidatManager->annoncesCandidatDefaut($candidat);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $searchTerm = $form->get('query')->getData();
+            $data = $this->searchPostings($searchTerm, $this->em);
+        }
 
         return $this->render('dashboard/candidat/index.html.twig', [
             'identity' => $candidat,
-            'annonces' => $this->candidatManager->annoncesCandidatDefaut($candidat),
+            'annonces' => $annonces,
             'formatMonday' => $formatMonday,
             'formatSunday' => $formatSunday,
             'form' => $form->createView(),
+            'postings' => $paginatorInterface->paginate(
+                $data,
+                $request->query->getInt('page', 1),
+                10
+            ),
         ]);
     }
 
@@ -207,9 +220,9 @@ class CandidatController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $candidat = $user->getCandidateProfile();
 
-        $formOne = $this->createForm(StepOneType::class, $candidat);
-        $formTwo = $this->createForm(StepTwoType::class, $candidat);
-        $formThree = $this->createForm(StepThreeType::class, $candidat);
+        $formOne = $this->createForm(EditStepOneType::class, $candidat);
+        $formTwo = $this->createForm(EditStepTwoType::class, $candidat);
+        $formThree = $this->createForm(EditStepThreeType::class, $candidat);
         $formOne->handleRequest($request);
         $formTwo->handleRequest($request);
         $formThree->handleRequest($request);
@@ -233,6 +246,22 @@ class CandidatController extends AbstractController
             'form_one' => $formOne->createView(),
             'form_two' => $formTwo->createView(),
             'form_three' => $formThree->createView(),
+            'candidat' => $candidat,
+            'experiences' => $candidat->getExperiences(),
+            'competences' => $candidat->getCompetences(),
+        ]);
+    }
+
+    #[Route('/guides/astuce', name: 'app_dashboard_guides_astuce')]
+    public function astuce(): Response
+    {
+        $redirection = $this->checkCandidat();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+        
+        return $this->render('dashboard/candidat/guides/astuce.html.twig', [
+            'controller_name' => 'GuidesController',
         ]);
     }
 
@@ -244,7 +273,7 @@ class CandidatController extends AbstractController
             return $redirection; 
         }
         
-        return $this->render('dashboard/candidat/motivation.html.twig', [
+        return $this->render('dashboard/candidat/guides/motivation.html.twig', [
             'controller_name' => 'GuidesController',
         ]);
     }
@@ -256,7 +285,7 @@ class CandidatController extends AbstractController
         if ($redirection !== null) {
             return $redirection; 
         }
-        return $this->render('dashboard/candidat/cv.html.twig', [
+        return $this->render('dashboard/candidat/guides/cv.html.twig', [
             'controller_name' => 'GuidesController',
         ]);
     }
@@ -268,7 +297,7 @@ class CandidatController extends AbstractController
         if ($redirection !== null) {
             return $redirection; 
         }
-        return $this->render('dashboard/candidat/reseautage.html.twig', [
+        return $this->render('dashboard/candidat/guides/reseautage.html.twig', [
             'controller_name' => 'GuidesController',
         ]);
     }

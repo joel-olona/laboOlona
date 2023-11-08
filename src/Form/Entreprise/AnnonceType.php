@@ -21,12 +21,12 @@ class AnnonceType extends AbstractType
         $builder
             ->add('titre', TextType::class, ['label' => 'Donnez un titre à votre annonce',])
             ->add('secteur', EntityType::class, [
-                'label' => 'app_dashboard_company_posting_new.sector',
+                'label' => 'app_dashboard_entreprise_posting_new.sector',
                 'class' => Secteur::class,
                 'attr' => []
             ])
             ->add('dateExpiration', DateType::class, [
-                'label' => 'app_dashboard_company_posting_new.planned_date',
+                'label' => 'app_dashboard_entreprise_posting_new.planned_date',
                 'widget' => 'single_text',  
                 'format' => 'yyyy-MM-dd',   
             ])
@@ -37,16 +37,16 @@ class AnnonceType extends AbstractType
                     'Stage' => 'Stage',
                     'Alternance' => 'Alternance',
                 ],
-                'label' => 'app_dashboard_company_posting_new.type'
+                'label' => 'app_dashboard_entreprise_posting_new.type'
             ])
             ->add('description', TextareaType::class, [
-                'label' => 'app_dashboard_company_posting_new.desc_form',
+                'label' => 'app_dashboard_entreprise_posting_new.desc_form',
                 'required' => true,
                 'attr' => [
                     'rows' => 8
                 ]
             ])
-            ->add('salaire', MoneyType::class, ['label' => 'app_dashboard_company_posting_new.tarif'])
+            ->add('salaire', MoneyType::class, ['label' => 'app_dashboard_entreprise_posting_new.tarif'])
             ->add('lieu', TextType::class, ['label' => 'Lieu',])
             // ->add('competences')
             // ->add('langues')
