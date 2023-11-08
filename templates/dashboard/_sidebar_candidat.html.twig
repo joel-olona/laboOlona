@@ -13,29 +13,29 @@
       <li>
         <a href="{{ path('app_dashboard_candidat_annonce') }}" class="nav-link {{ current_route == 'app_dashboard_candidat_annonce' ? 'active' : 'text-white' }}">
           <i class="mx-2 h5 bi bi-search"></i>
-          {{ 'app_dashboard_expert.find'|trans }}
+          {{ 'app_dashboard_candidat.find'|trans }}
         </a>
       </li>
       <li>
         <a href="{{ path('app_dashboard_candidat_annonces') }}" class="nav-link {{ current_route == 'app_dashboard_candidat_annonces' ? 'active' : 'text-white' }}">
           <i class="mx-2 h5 bi bi-megaphone"></i>
-          {{ 'app_dashboard_expert_posting_all.my_posting'|trans }}
+          {{ 'app_dashboard_candidat_annonces.my_posting'|trans }}
         </a>
 
       </li>
     {# <li class="nav-item">
-            <a href="{{ path('app_dashboard_expert_formation')}}" 
-                class="nav-link {{ current_route == 'app_dashboard_expert_formation' ? 'active' : 'text-white' }}" 
-                {{ current_route == 'app_dashboard_expert_formation' ? 'aria-current=page' : '' }}>
+            <a href="{{ path('app_dashboard_candidat_formation')}}" 
+                class="nav-link {{ current_route == 'app_dashboard_candidat_formation' ? 'active' : 'text-white' }}" 
+                {{ current_route == 'app_dashboard_candidat_formation' ? 'aria-current=page' : '' }}>
                 <i class="mx-2 h5 bi bi-archive"></i>
-                {{ 'app_dashboard_expert_formation.menu'|trans }}   
+                {{ 'app_dashboard_candidat_formation.menu'|trans }}   
             </a>
           </li>
           <li>
-            <a href="{{ path('app_dashboard_expert_tools')}}" 
-                class="nav-link {{ current_route == 'app_dashboard_expert_tools' ? 'active' : 'text-white' }}">
+            <a href="{{ path('app_dashboard_candidat_tools')}}" 
+                class="nav-link {{ current_route == 'app_dashboard_candidat_tools' ? 'active' : 'text-white' }}">
                 <i class="mx-2 h5 bi bi-tools"></i>
-                {{ 'app_dashboard_expert_tools.menu'|trans }}  
+                {{ 'app_dashboard_candidat_tools.menu'|trans }}  
             </a>
           </li> #}
     </ul>
@@ -45,13 +45,13 @@
         <li class="nav-item">
           <a href="{{ path('app_dashboard_candidat_compte') }}" class="nav-link {{ current_route == 'app_dashboard_candidat_compte' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-person-circle"></i>
-            {{ 'app_dashboard_expert_account.menu'|trans }}
+            {{ 'app_dashboard_candidat_compte.menu'|trans }}
           </a>
         </li>
         <li>
           <a href="{{ path('app_logout') }}" class="nav-link text-white">
             <i class="mx-2 h5 bi bi-box-arrow-right"></i>
-            {{ 'app_dashboard_company.logout'|trans }}
+            {{ 'app_dashboard_entreprise.logout'|trans }}
           </a>
         </li>
       </ul>

@@ -4,4 +4,4 @@
 # php bin/console app:init-project
 
 # To create moderateur run this command with two arguments <email> and <password>
-# php bin/console app:create-moderator <email> <password>
+# php bin/console app:create-moderateur <email> <password>
