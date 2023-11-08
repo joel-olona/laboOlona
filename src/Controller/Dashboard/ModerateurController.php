@@ -4,7 +4,6 @@ namespace App\Controller\Dashboard;
 
 use App\Entity\Secteur;
 use App\Form\MettingType;
-use App\Form\JobListingType;
 use App\Manager\ProfileManager;
 use App\Entity\CandidateProfile;
 use App\Entity\EntrepriseProfile;
@@ -13,8 +12,6 @@ use App\Service\User\UserService;
 use App\Entity\Moderateur\Metting;
 use App\Manager\ModerateurManager;
 use App\Form\Moderateur\SecteurType;
-use App\Entity\Candidate\Competences;
-use App\Entity\Candidate\Experiences;
 use App\Entity\Entreprise\JobListing;
 use App\Repository\SecteurRepository;
 use App\Service\Mailer\MailerService;
@@ -38,13 +35,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Form\Search\ModerateurEntrepriseSearchType;
 use App\Manager\CandidatManager;
-use App\Repository\Candidate\CompetencesRepository;
-use App\Repository\Candidate\ExperiencesRepository;
 use App\Repository\Entreprise\JobListingRepository;
 use App\Repository\Candidate\ApplicationsRepository;
 use App\Repository\Moderateur\TypeContratRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Bridge\Doctrine\ArgumentResolver\EntityValueResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
@@ -287,8 +281,6 @@ class ModerateurController extends AbstractController
             'salaire' => $annonce->getSalaire(),
             'lieu' => $annonce->getLieu(),
             'typeContrat' => $annonce->getTypeContrat(),
-            // // Si 'entreprise' et 'entreprise.nom' sont des entités ou des objets, vous devez vous assurer qu'ils sont correctement initialisés et qu'ils ont une méthode toString() ou similaire.
-            // 'entreprise' => (string)$annonce->getEntreprise()?->getEntreprise()?->getNom(),
         ];
 
         return $this->json($annonceDetails);
@@ -656,17 +648,6 @@ class ModerateurController extends AbstractController
         ]);
     }
 
-    // #[Route('/candidats/{id}/competences', name: 'app_dashboard_moderateur_candidat_competences')]
-    // public function candidatCompetences(CandidateProfile $candidat, CompetencesRepository $competencesRepository): Response
-    // {
-    //     $competences = $competencesRepository->findBy(['profil' => $candidat]);
-
-    //     return $this->render('dashboard/moderateur/candidat_competences.html.twig', [
-    //         'candidat' => $candidat,
-    //         'competences' => $competences,
-    //     ]);
-    // }
-
     #[Route('/candidats/{id}/competences', name: 'app_dashboard_moderateur_candidat_competences')]
     public function candidatCompetences(int $id, CandidateProfileRepository $candidateProfileRepository): Response
     {
@@ -684,19 +665,6 @@ class ModerateurController extends AbstractController
             'candidat' => $candidat,
         ]);
     }
-
-    // #[Route('/candidats/{id}/experiences', name: 'app_dashboard_moderateur_candidat_experiences')]
-    // public function candidatExperiences(int $id, ExperiencesRepository $experiencesRepository): Response
-    // {
-    //     $candidat = $experiencesRepository->find($id);
-    //     if (!$candidat) {
-    //         throw $this->createNotFoundException('Candidat introuvable');
-    //     }
-
-    //     return $this->render('dashboard/moderateur/candidat_experiences.html.twig', [
-    //         'candidat' => $candidat,
-    //     ]);
-    // }
 
     #[Route('/candidats/{id}/experiences', name: 'app_dashboard_moderateur_candidat_experiences')]
     public function candidatExperiences(int $id, CandidateProfileRepository $candidateProfileRepository): Response
