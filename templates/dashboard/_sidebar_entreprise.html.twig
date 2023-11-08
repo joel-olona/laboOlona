@@ -1,7 +1,7 @@
 {% set current_route = app.request.attributes.get('_route') %}
 <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark position-sticky top-0" style="width: 280px;">
     <a href="{{ path('app_dashboard_entreprise')}}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-      <span class="fs-4">{{ 'app_dashboard_company.title'|trans }}   </span>
+      <span class="fs-4">{{ 'app_dashboard_entreprise.title'|trans }}   </span>
     </a>
     <hr>
 
@@ -11,14 +11,14 @@
             class="nav-link {{ current_route == 'app_dashboard_entreprise_new_annonce' ? 'active' : 'text-white' }}" 
             {{ current_route == 'app_dashboard_entreprise_new_annonce' ? 'aria-current=page' : '' }}>
             <i class="mx-2 h5 bi bi-plus-lg"></i>
-            {{ 'app_dashboard_company.publish'|trans }}   
+            {{ 'app_dashboard_entreprise.publish'|trans }}   
         </a>
       </li>
       <li>
         <a href="{{ path('app_dashboard_entreprise_annonces')}}" 
             class="nav-link {{ current_route == 'app_dashboard_entreprise_annonces' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-megaphone"></i>
-            {{ 'app_dashboard_company.my_posting'|trans }}   
+            {{ 'app_dashboard_entreprise.my_posting'|trans }}   
         </a>
 
       </li>
@@ -26,28 +26,28 @@
         <a href="{{ path('app_dashboard_entreprise_recherche_candidats')}}" 
             class="nav-link {{ current_route == 'app_dashboard_entreprise_recherche_candidats' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-search"></i>
-            {{ 'app_dashboard_company.find'|trans }}  
+            {{ 'app_dashboard_entreprise.find'|trans }}  
         </a>
       </li>
       <li>
         <a href="{{ path('app_dashboard_entreprise_candidatures')}}" 
             class="nav-link {{ current_route == 'app_dashboard_entreprise_candidatures' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-person-badge-fill"></i>
-            {{ 'app_dashboard_company.manage'|trans }}  
+            {{ 'app_dashboard_entreprise.manage'|trans }}  
         </a>
       </li>
       <li>
         <a href="{{ path('app_dashboard_entreprise_rendez_vous')}}" 
             class="nav-link {{ current_route == 'app_dashboard_entreprise_rendez_vous' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-calendar3"></i>
-            {{ 'app_dashboard_company.metting'|trans }} 
+            {{ 'app_dashboard_entreprise.metting'|trans }} 
         </a>
       </li>
       <li>
         <a href="{{ path('app_dashboard_entreprise_notifications')}}" 
             class="nav-link {{ current_route == 'app_dashboard_entreprise_notifications' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-bell"></i>
-            {{ 'app_dashboard_company.notification'|trans }}  
+            {{ 'app_dashboard_entreprise.notification'|trans }}  
         </a>
       </li>
     </ul>
@@ -58,13 +58,13 @@
         <a href="{{ path('app_dashboard_entreprise_profil')}}" 
             class="nav-link {{ current_route == 'app_dashboard_entreprise_profil' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-person-circle"></i>
-            {{ 'app_dashboard_company.my_account'|trans }}    
+            {{ 'app_dashboard_entreprise.my_account'|trans }}    
         </a>
       </li>
       <li>
         <a href="{{ path('app_logout')}}" class="nav-link text-white">
             <i class="mx-2 h5 bi bi-box-arrow-right"></i>
-            {{ 'app_dashboard_company.logout'|trans }}    
+            {{ 'app_dashboard_entreprise.logout'|trans }}    
         </a>
       </li>
     </ul>

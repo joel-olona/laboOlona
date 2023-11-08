@@ -6,15 +6,24 @@
         <section class="text-dark">
             <h4 class="mt-3">
                 <i class="bi bi-search mx-2"></i>
-                {{ 'app_dashboard_expert.get_started'|trans }}
+                {{ 'app_dashboard_candidat.get_started'|trans }}
             </h4>
-            {{ form_start(form, {'attr': {'class': 'form-group mb-5 px-5', 'action': path('app_dashboard_candidat_annonce')}}) }}
-                <div class="input-group">
-                    {{ form_widget(form.query, {'attr': {'class': 'form-control'}}) }}
-                    <div class="input-group-append">
-                        <button type="submit" class="btn btn-primary">Rechercher</button>
+            {{ form_start(form, {'attr': {'class': 'form-group my-5 px-5', 'action': path('app_dashboard_candidat_annonce')}}) }}
+
+            <div class="row">
+                <div class="col-9">
+                    <div class="input-group">
+                        {{ form_widget(form.query, {'attr': {'class': 'form-control'}}) }}
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-primary"><i class="mx-2 h5 bi bi-search"></i></button>
+                        </div>
                     </div>
                 </div>
+                <div class="col-3">
+                    {{ form_widget(form.typeContrat, {'attr': {'class': 'form-control'}}) }}
+                </div>
+            </div>
+            
             {{ form_end(form) }}
         </section>
         <hr>
@@ -22,23 +31,23 @@
         <section class="notifications mt-3">
             <h4>
                 <i class="bi bi-bell mx-2"></i>
-                {{ 'app_dashboard_expert.notification'|trans }}
+                {{ 'app_dashboard_candidat.notification'|trans }}
             </h4>
             <div class="mx-4">
                 <p class="">
                     <i class="bi bi-view-list h5 mx-2"></i>
-                    {{ 'app_dashboard_expert.profile_view'|trans({'%views%': 0})|raw }}
+                    {{ 'app_dashboard_candidat.profile_view'|trans({'%views%': 0})|raw }}
                 </p>
             </div>
             <p class="mx-4">
                 <i class="h5 bi mx-2 bi-clock-history"></i> 
-                {{ 'app_dashboard_expert.history'|trans({
+                {{ 'app_dashboard_candidat.history'|trans({
                     '%demandes%': 0
                 })|raw }} 
             </p>
             <p class="mx-4">
                 <i class="h5 bi mx-2 bi-calendar3"></i> 
-                {{ 'app_dashboard_expert.calandar'|trans({
+                {{ 'app_dashboard_candidat.calandar'|trans({
                     '%formatMonday%': formatMonday,
                     '%formatSunday%': formatSunday,
                 })|raw  }} 
@@ -50,10 +59,10 @@
         <section class="recommandations my-4">
             <h4>
                 <i class="bi bi-star-fill mx-2"></i>
-                {{ 'app_dashboard_expert.recommanded'|trans }}
+                {{ 'app_dashboard_candidat.recommanded'|trans }}
             </h4>
             <div class="mx-4">
-                <p class="fs-7  mx-2">{{ 'app_dashboard_expert.recommanded_posting'|trans }}</p>
+                <p class="fs-7  mx-2">{{ 'app_dashboard_candidat.recommanded_posting'|trans }}</p>
 
                 <div class="flex row">
 
@@ -72,45 +81,45 @@
             <p class="h4 my-4">
                 <i class="h4 bi mx-2 bi-lightbulb-fill"></i>
 
-                {{ 'app_dashboard_expert.astuce'|trans }}
+                {{ 'app_dashboard_candidat.astuce'|trans }}
             </p>
             <p class="m-4">
                 <i class="h5 bi mx-2 bi-check2-square"></i>
-                {{ 'app_dashboard_expert.investigate'|trans }}
+                {{ 'app_dashboard_candidat.investigate'|trans }}
                 <br>
                     <br>
                 <a href="#" class="btn btn-danger btn-sm rounded-pill">
-                    {{ 'app_dashboard_expert.olona_formation'|trans }}
+                    {{ 'app_dashboard_candidat.olona_formation'|trans }}
                 </a>
             <hr>
             </p>
             <p class="m-4">
                 <i class="h5 bi mx-2 bi-check2-square"></i>
-                {{ 'app_dashboard_expert.personnalize'|trans }}
+                {{ 'app_dashboard_candidat.personnalize'|trans }}
                 <br>
                 <br>
                 <a href="{{ path('app_dashboard_guides_motivation') }}" class="px-3 btn btn-outline-secondary btn-sm rounded-pill">
-                    {{ 'app_dashboard_expert.read_more'|trans }}
+                    {{ 'app_dashboard_candidat.read_more'|trans }}
                 </a>
                 <hr>
             </p>
             <p class="m-4">
                 <i class="h5 bi mx-2 bi-check2-square"></i>
-                {{ 'app_dashboard_expert.curriculum'|trans }}
+                {{ 'app_dashboard_candidat.curriculum'|trans }}
                 <br>
                 <br>
                 <a href="{{ path('app_dashboard_guides_cv') }}" class="px-3 btn btn-outline-secondary btn-sm rounded-pill">
-                    {{ 'app_dashboard_expert.read_more'|trans }}
+                    {{ 'app_dashboard_candidat.read_more'|trans }}
                 </a>
             <hr>
             </p>
             <p class="m-4">
                 <i class="h5 bi mx-2 bi-check2-square"></i>
-                {{ 'app_dashboard_expert.groups'|trans }}
+                {{ 'app_dashboard_candidat.groups'|trans }}
                     <br>
                     <br>
                 <a href="{{ path('app_dashboard_guides_reseautage') }}" class="px-3 btn btn-outline-secondary btn-sm rounded-pill">
-                    {{ 'app_dashboard_expert.read_more'|trans }}
+                    {{ 'app_dashboard_candidat.read_more'|trans }}
                 </a>
             </p>
         
