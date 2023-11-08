@@ -2,18 +2,19 @@
 
 namespace App\Manager;
 
-use App\Entity\Moderateur\TypeContrat;
 use DateTime;
+use App\Entity\Langue;
 use App\Entity\Secteur;
-use App\Repository\CandidateProfileRepository;
-use App\Repository\Entreprise\JobListingRepository;
-use App\Repository\EntrepriseProfileRepository;
-use App\Repository\Moderateur\TypeContratRepository;
-use App\Repository\SecteurRepository;
 use Symfony\Component\Form\Form;
 use App\Service\User\UserService;
+use App\Repository\SecteurRepository;
+use App\Entity\Moderateur\TypeContrat;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\CandidateProfileRepository;
+use App\Repository\EntrepriseProfileRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
+use App\Repository\Entreprise\JobListingRepository;
+use App\Repository\Moderateur\TypeContratRepository;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class ModerateurManager
@@ -29,6 +30,51 @@ class ModerateurManager
         private CandidateProfileRepository $candidateProfileRepository,
         private UserService $userService
     ){}
+
+    public function initProject(): void
+    {
+        $langues = [
+            ['name' => 'English', 'slug' => 'english', 'code' => 'gb'],
+            ['name' => 'Français', 'slug' => 'francais', 'code' => 'fr'],
+            ['name' => 'Español', 'slug' => 'espagnole', 'code' => 'es'],
+            ['name' => 'Deutsch', 'slug' => 'deutsch', 'code' => 'de'],
+            ['name' => 'Русский', 'slug' => 'russian', 'code' => 'rs'],
+        ];        
+        
+        $secteurs = [
+            ['name' => 'IT - Devéloppement', 'slug' => 'it-developpement'],
+            ['name' => 'Marketing Digital', 'slug' => 'marketing-digital'],
+            ['name' => 'Commercial', 'slug' => 'commercial'],
+            ['name' => 'Recrutement', 'slug' => 'recrutement'],
+            ['name' => 'RH - Administration', 'slug' => 'rh-administration'],
+            ['name' => 'Finance', 'slug' => 'finance'],
+            ['name' => 'Construction', 'slug' => 'construction'],
+            ['name' => 'Immobilier', 'slug' => 'immobilier'],
+            ['name' => 'Transport et logistique', 'slug' => 'transport-et-logistique'],
+            ['name' => 'Éducation', 'slug' => 'education'],
+        ];        
+
+        foreach ($langues as $value) {
+            $language = new Langue();
+            $language
+                ->setNom($value['name'])
+                ->setSlug($value['slug'])
+                ->setCode($value['code'])
+            ;
+            $this->em->persist($language);
+        }
+
+        foreach ($secteurs as $value) {
+            $secteur = new Secteur();
+            $secteur
+                ->setNom($value['name'])
+                ->setSlug($value['slug'])
+            ;
+            $this->em->persist($secteur);
+        }
+
+        $this->em->flush();
+    }
 
     public function initSector(): Secteur
     {
