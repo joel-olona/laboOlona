@@ -11,7 +11,47 @@
                 <div class="card mb-3">
                     <div class="card-body">
                         {{ form_start(form) }}
-                        {{ form_widget(form) }}
+                        <div class="row">
+                            <div class="col">
+                                {{ form_label(form.titre) }}
+                                {{ form_widget(form.titre, {'attr': {'class': 'form-control mb-4'}}) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                {{ form_label(form.secteur) }}
+                                {{ form_widget(form.secteur, {'attr': {'class': 'mb-4'}}) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                {{ form_label(form.typeContrat) }}
+                                {{ form_widget(form.typeContrat, {'attr': {'class': 'form-control mb-4'}}) }}
+                            </div>
+                            <div class="col">
+                                {{ form_label(form.lieu) }}
+                                {{ form_widget(form.lieu, {'attr': {'class': 'form-control mb-4'}}) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                {{ form_label(form.dateExpiration) }}
+                                {{ form_widget(form.dateExpiration, {'attr': {'class': 'form-control mb-4'}}) }}
+                            </div>
+                            <div class="col">
+                                {{ form_label(form.salaire) }}
+                                {{ form_widget(form.salaire, {'attr': {'class': 'form-control mb-4'}}) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                {{ form_label(form.description) }}
+                                {{ form_widget(form.description, {'attr': {'class': 'form-control mb-4'}}) }}
+                            </div>
+                        </div>
+                        <div style="display:none">
+                            {{ form_widget(form) }}
+                        </div>
                         <button type="submit" class="btn btn-primary rounded-pill">Mettre à jour</button>
                         {{ form_end(form) }}
                     </div>

@@ -2,18 +2,21 @@
 
 namespace App\Controller\Dashboard;
 
-use App\Entity\CandidateProfile;
 use App\Entity\User;
 use Symfony\Component\Uid\Uuid;
+use App\Entity\CandidateProfile;
 use App\Manager\CandidatManager;
 use App\Entity\EntrepriseProfile;
 use App\Service\User\UserService;
+use App\Manager\EntrepriseManager;
 use App\Form\Entreprise\AnnonceType;
 use App\Form\Profile\EntrepriseType;
 use App\Entity\Entreprise\JobListing;
-use App\Manager\EntrepriseManager;
 use App\Service\Mailer\MailerService;
+use App\Form\Profile\EditEntrepriseType;
+use App\Manager\ModerateurManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\CandidateProfileRepository;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,10 +25,9 @@ use App\Repository\Moderateur\MettingRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\Entreprise\JobListingRepository;
 use App\Repository\Candidate\ApplicationsRepository;
-use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 
 #[Route('/dashboard/entreprise')]
 class EntrepriseController extends AbstractController
@@ -35,6 +37,7 @@ class EntrepriseController extends AbstractController
         private EntityManagerInterface $em,
         private MailerService $mailerService,
         private CandidatManager $candidatManager,
+        private ModerateurManager $moderateurManager,
         private EntrepriseManager $entrepriseManager,
         private RequestStack $requestStack,
         private UrlGeneratorInterface $urlGenerator,
@@ -110,6 +113,18 @@ class EntrepriseController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->em->persist($jobListing);
             $this->em->flush();
+            /** Envoi email moderateur */
+            $this->mailerService->sendMultiple(
+                $this->moderateurManager->getModerateurEmails(),
+                "Nouvelle annonce sur Olona Talents",
+                "moderateur/notification_annonce.html.twig",
+                [
+                    'user' => $entreprise->getEntreprise(),
+                    'objet' => "ajoutée",
+                    'details_annonce' => $jobListing,
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_moderateur_annonce_view', ['id' => $jobListing->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
             $this->addFlash('success', 'Annonce créée avec succès.');
 
             return $this->redirectToRoute('app_dashboard_entreprise_annonces');
@@ -132,8 +147,22 @@ class EntrepriseController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $jobListing = $form->getData();
+            $jobListing->setStatus(JobListing::STATUS_PENDING);
             $this->em->persist($jobListing);
             $this->em->flush();
+            /** Envoi email moderateur */
+            $this->mailerService->sendMultiple(
+                $this->moderateurManager->getModerateurEmails(),
+                "Mis à jour d'une annonce sur Olona Talents",
+                "moderateur/notification_annonce.html.twig",
+                [
+                    'user' => $jobListing->getEntreprise()->getEntreprise(),
+                    'objet' => "mise à jour",
+                    'details_annonce' => $jobListing,
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_moderateur_annonce_view', ['id' => $jobListing->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
             $this->addFlash('success', 'Annonce modifiée avec succès.');
 
             return $this->redirectToRoute('app_dashboard_entreprise_annonces');
@@ -285,7 +314,7 @@ class EntrepriseController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $entreprise = $user->getEntrepriseProfile();
 
-        $form = $this->createForm(EntrepriseType::class, $entreprise);
+        $form = $this->createForm(EditEntrepriseType::class, $entreprise);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

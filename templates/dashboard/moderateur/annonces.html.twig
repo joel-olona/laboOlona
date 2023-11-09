@@ -43,7 +43,7 @@
                         </form>
                     </td>
                     <td class="actions-col">
-                        <a href="{{ path('view_annonce', {'id': annonce.id}) }}" class="btn btn-info">Voir</a>
+                        <a href="{{ path('app_dashboard_moderateur_annonce_view', {'id': annonce.id}) }}" class="btn btn-info">Voir</a>
                         <form method="post" action="{{ path('delete_annonce', {'id': annonce.id}) }}">
                             <button type="submit" class="btn btn-danger">Supprimer</button>
                         </form>

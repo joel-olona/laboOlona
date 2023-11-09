@@ -52,7 +52,7 @@
                         </form>
                     </td>
                     <td class="actions-col">
-                        <a href="{{path('view_annonce', { 'id': annonce.id}) }}" class="btn btn-sm btn-info">Modifier</a>
+                        <a href="{{path('app_dashboard_moderateur_annonce_view', { 'id': annonce.id}) }}" class="btn btn-sm btn-info">Voir</a>
                         <a href="{{path('delete_annonce', { 'id': annonce.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?');">Supprimer</a>
                     </td>
                 </tr>
