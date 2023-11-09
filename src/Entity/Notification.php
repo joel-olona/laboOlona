@@ -9,6 +9,21 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: NotificationRepository::class)]
 class Notification
 {
+    const TYPE_ANNONCE = 'ANNONCE';
+    const TYPE_PROFIL = 'PROFIL';
+    const TYPE_MESSAGE = 'MESSAGE';
+    const TYPE_RELANCE = 'RELANCE';
+
+
+    public static function getStatuses() {
+        return [
+            'Annonce' => self::TYPE_ANNONCE ,
+            'Profil' => self::TYPE_PROFIL ,
+            'Message' => self::TYPE_MESSAGE ,
+            'Relance' => self::TYPE_RELANCE ,
+        ];
+    }
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -33,6 +48,12 @@ class Notification
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $status = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $titre = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $type = null;
 
     public function getId(): ?int
     {
@@ -107,6 +128,30 @@ class Notification
     public function setStatus(?string $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getTitre(): ?string
+    {
+        return $this->titre;
+    }
+
+    public function setTitre(?string $titre): static
+    {
+        $this->titre = $titre;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }
