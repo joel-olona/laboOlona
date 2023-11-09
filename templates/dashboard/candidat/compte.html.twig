@@ -170,8 +170,8 @@
         <hr class="mb-4">
         <div class="row">
             <div class="col">
+                <h5 class=""><i class="bi bi-person-fill-gear mx-2 h5"></i> Competences ({{ competences|length }})</h5>
                 {% if competences|length > 0 %}
-                    <h5 class=""><i class="bi bi-person-fill-gear mx-2 h5"></i> Competences ({{ competences|length }})</h5>
                     {% for competence in competences %}
                     <p class="text-dark d-flex justify-content-between align-items-center">
                         {{ competence.nom }}

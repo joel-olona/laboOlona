@@ -37,4 +37,29 @@ class MailerService
 
         }
     }
+    
+    public function sendMultiple(
+        array $to,
+        string $subject,
+        string $template,
+        array $context
+    ): void {
+        $email = new TemplatedEmail();
+        $email
+            ->from(new Address('noreply@olona-talents.com', 'Olona Talents'))
+            ->subject($subject)
+            ->htmlTemplate("mails/$template")
+            ->context($context);
+    
+        // Ajout de chaque destinataire
+        foreach ($to as $recipient) {
+            $email->addTo($recipient);
+        }
+    
+        try {
+            $this->mailer->send($email);
+        } catch (TransportExceptionInterface $transportException) {
+            throw $transportException;
+        }
+    }
 }

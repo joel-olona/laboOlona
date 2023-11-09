@@ -6,6 +6,7 @@ use DateTime;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use App\Entity\Application;
+use App\Entity\EntrepriseProfile;
 use App\Entity\Posting;
 use App\Entity\User;
 use App\Repository\AccountRepository;
@@ -109,6 +110,9 @@ class AppExtension extends AbstractExtension
         /** @var User $user */
         $user = $this->security->getUser();
         $name = $user->getPrenom();
+        if($user->getEntrepriseProfile() instanceof EntrepriseProfile){
+            $name = $user->getEntrepriseProfile()->getNom();
+        }
 
         return $this->translator->trans($routeName . '.dashboard_title', ['%company_name%' => $name]);
     }
