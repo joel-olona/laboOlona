@@ -45,6 +45,21 @@ class JobListing
             'Réservée' => self::STATUS_RESERVED ,
         ];
     }
+
+    public static function getArrayStatuses() {
+        return [
+             self::STATUS_DRAFT ,
+             self::STATUS_PUBLISHED ,
+             self::STATUS_PENDING ,
+             self::STATUS_REJECTED ,
+             self::STATUS_EXPIRED ,
+             self::STATUS_ARCHIVED ,
+             self::STATUS_UNPUBLISHED ,
+             self::STATUS_DELETED ,
+             self::STATUS_FEATURED ,
+             self::STATUS_RESERVED ,
+        ];
+    }
     
     #[ORM\Id]
     #[ORM\GeneratedValue]

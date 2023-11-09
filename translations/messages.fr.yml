@@ -516,6 +516,14 @@ app_dashboard_moderateur_annonces:
     title: Modération
     dashboard_title: Toutes les annonces
 
+app_dashboard_moderateur_annonce_view:
+    title: Modération
+    dashboard_title: Détails de l'Annonce
+
+app_dashboard_moderateur_annonce_notifier:
+    title: Modération
+    dashboard_title: Signaler une annonce
+
 app_dashboard_moderateur_entreprises:
     title: Modération
     dashboard_title: Entreprises
@@ -579,6 +587,10 @@ app_dashboard_entreprise_posting_new:
 app_dashboard_entreprise_new_annonce:
     title: Déposer une annonce
     dashboard_title: Déposer une annonce
+
+app_dashboard_entreprise_edit_annonce:
+    title: Modifier une annonce
+    dashboard_title: Modifier une annonce
 
 app_dashboard_entreprise_annonces:
     title: Mes annonces

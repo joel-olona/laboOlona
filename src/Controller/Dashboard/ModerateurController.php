@@ -17,6 +17,8 @@ use App\Repository\SecteurRepository;
 use App\Service\Mailer\MailerService;
 use App\Entity\Candidate\Applications;
 use App\Entity\Moderateur\TypeContrat;
+use App\Entity\Notification;
+use App\Form\Moderateur\NotificationType;
 use App\Form\Search\SecteurSearchType;
 use App\Form\Moderateur\TypeContratType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -38,6 +40,7 @@ use App\Manager\CandidatManager;
 use App\Repository\Entreprise\JobListingRepository;
 use App\Repository\Candidate\ApplicationsRepository;
 use App\Repository\Moderateur\TypeContratRepository;
+use DateTime;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -216,7 +219,7 @@ class ModerateurController extends AbstractController
         ]);
     }
 
-    #[Route('/annonce/{id}', name: 'view_annonce', methods: ['GET'])]
+    #[Route('/annonce/{id}', name: 'app_dashboard_moderateur_annonce_view', methods: ['GET'])]
     public function viewAnnonce(JobListing $annonce): Response
     {
         $redirection = $this->checkModerateur();
@@ -224,12 +227,57 @@ class ModerateurController extends AbstractController
             return $redirection; 
         }
 
-        return $this->render('dashboard/moderateur/view.html.twig', [
+        return $this->render('dashboard/moderateur/annonce/view.html.twig', [
             'annonce' => $annonce,
         ]);
     }
 
-    #[Route('/status/annonce/{id}', name: 'change_status_annonce', methods: ['POST'])]
+    #[Route('/notifier/{annonce}/entreprise/{entreprise}', name: 'app_dashboard_moderateur_annonce_notifier')]
+    public function notifierAnnonce(Request $request, JobListing $annonce, EntrepriseProfile $entreprise): Response
+    {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
+        $notification = new Notification();
+        $notification->setDateMessage(new DateTime());
+        $notification->setExpediteur($this->userService->getCurrentUser());
+        $notification->setDestinataire($entreprise->getEntreprise());
+        $notification->setType(Notification::TYPE_ANNONCE);
+        $notification->setIsRead(false);
+
+        $form = $this->createForm(NotificationType::class, $notification);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $notification = $form->getData();
+            $this->em->persist($notification);
+            $this->em->flush();
+            /** Envoi email à l'entreprise */
+            $this->mailerService->send(
+                $entreprise->getEntreprise()->getEmail(),
+                "Statut de votre annonce sur Olona Talents",
+                "notification_annonce.html.twig",
+                [
+                    'user' => $entreprise->getEntreprise(),
+                    'details_annonce' => $notification->getContenu(),
+                    'objet' => "est toujours en cours de moderation",
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_entreprise_view_annonce', ['id' => $annonce->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
+            $this->addFlash('success', 'Un email a été envoyé à l\'entreprise');
+
+            return $this->redirectToRoute('app_dashboard_moderateur_annonce_view', ['id' => $annonce->getId()]);
+        }
+
+        return $this->render('dashboard/moderateur/annonce/notify.html.twig', [
+            'annonce' => $annonce,
+            'entreprise' => $entreprise,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/status/annonce/{id}', name: 'change_status_annonce')]
     public function changeAnnonceStatus(Request $request, EntityManagerInterface $entityManager, JobListing $annonce): Response
     {
         $redirection = $this->checkModerateur();
@@ -238,9 +286,23 @@ class ModerateurController extends AbstractController
         }
 
         $status = $request->request->get('status');
-        if ($status && in_array($status, ['OPEN', 'CLOSED', 'FILLED'])) {
+        if ($status && in_array($status, JobListing::getArrayStatuses())) {
             $annonce->setStatus($status);
             $entityManager->flush();
+            /** Envoi email à l'entreprise si validée*/
+            if($annonce->getStatus() === JobListing::STATUS_PUBLISHED || $annonce->getStatus() === JobListing::STATUS_FEATURED ){
+                $this->mailerService->send(
+                    $annonce->getEntreprise()->getEntreprise()->getEmail(),
+                    "Statut de votre annonce sur Olona Talents",
+                    "notification_annonce.html.twig",
+                    [
+                        'user' => $annonce->getEntreprise()->getEntreprise(),
+                        'details_annonce' => $annonce->getTitre(),
+                        'objet' => "a été validée",
+                        'dashboard_url' => $this->urlGenerator->generate('app_dashboard_entreprise_view_annonce', ['id' => $annonce->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                    ]
+                );
+            }
             $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
         } else {
             $this->addFlash('error', 'Statut invalide.');
@@ -372,7 +434,7 @@ class ModerateurController extends AbstractController
             return $this->redirectToRoute('app_dashboard_moderateur_entreprises_annonces', ['id' => $entreprise_id]);
         }
 
-        if ($status && in_array($status, ['OPEN', 'CLOSED', 'FILLED'])) {
+        if ($status && in_array($status, JobListing::getArrayStatuses())) {
             $annonce->setStatus($status);
             $entityManager->flush();
             $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
