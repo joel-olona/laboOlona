@@ -15,6 +15,7 @@ use App\Repository\EntrepriseProfileRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\Entreprise\JobListingRepository;
 use App\Repository\Moderateur\TypeContratRepository;
+use App\Repository\ModerateurProfileRepository;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class ModerateurManager
@@ -28,6 +29,7 @@ class ModerateurManager
         private JobListingRepository $jobListingRepository,
         private EntrepriseProfileRepository $entrepriseProfileRepository,
         private CandidateProfileRepository $candidateProfileRepository,
+        private ModerateurProfileRepository $moderateurProfileRepository,
         private UserService $userService
     ){}
 
@@ -74,6 +76,16 @@ class ModerateurManager
         }
 
         $this->em->flush();
+    }
+
+    public function getModerateurEmails(): array
+    {
+        $emails = [];
+        foreach($this->moderateurProfileRepository->findAll() as $value){
+            $emails[] = $value->getModerateur()->getEmail();
+        }
+        
+        return $emails;
     }
 
     public function initSector(): Secteur
