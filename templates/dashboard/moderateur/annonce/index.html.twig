@@ -3,8 +3,7 @@
 {% block body %}
 <div class="container mt-5">
     <h2>Gestion des annonces</h2>
-    {# <a href="{{ path('app_dashboard_moderateur_new_secteur')}}" class="btn btn-secondary my-3">Nouveau</a> #}
-    {{ form_start(form, {'attr': {'class': 'form-group my-4'}}) }}
+    {{ form_start(form, {'attr': {'class': 'form-group my-4', 'id':'moderateur-annonce-search-form'}}) }}
     <div class="row">
         <div class="input-group">
                 <div class="col">
@@ -22,47 +21,30 @@
         </div>
     </div>
     {{ form_end(form) }}
-    <table class="table table-responsive">
-        <thead>
-            <tr>
-                <th class="col-1">ID</th>
-                <th class="col-3">Titre</th>
-                <th class="col-3">Entreprise</th>
-                <th class="col-2">Status</th>
-                <th class="col-3">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for annonce in annonces %}
-                <tr>
-                    <td class="id-column">{{ annonce.id }}</td>
-                    <td>{{ annonce.titre }}</td>
-                    <td>{{ annonce.entreprise.nom }}</td>
-                    <td>
-                        <form method="post" action="{{ path('change_status_annonce', {'id': annonce.id}) }}">
-                            <select name="status" class="form-control" onchange="this.form.submit()">
-                                <option value="PUBLISHED" {{ annonce.status == 'PUBLISHED' ? 'selected' : '' }}>Publiée</option>
-                                <option value="PENDING" {{ annonce.status == 'PENDING' ? 'selected' : '' }}>En attente</option>
-                                <option value="REJECTED" {{ annonce.status == 'REJECTED' ? 'selected' : '' }}>Rejetée</option>
-                                <option value="EXPIRED" {{ annonce.status == 'EXPIRED' ? 'selected' : '' }}>Expirée</option>
-                                <option value="FEATURED" {{ annonce.status == 'FEATURED' ? 'selected' : '' }}>Mis en avant</option>
-                                <option value="ARCHIVED" {{ annonce.status == 'ARCHIVED' ? 'selected' : '' }}>Archivée</option>
-                                <option value="DELETED" {{ annonce.status == 'DELETED' ? 'selected' : '' }}>Effacée</option>
-                            </select>
-                        </form>
-                    </td>
-                    <td class="actions-col">
-                        <a href="{{path('app_dashboard_moderateur_annonce_view', { 'id': annonce.id}) }}" class="btn btn-sm btn-info">Voir</a>
-                        <a href="{{path('delete_annonce', { 'id': annonce.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?');">Supprimer</a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <div class="navigation">
-        {{ knp_pagination_render(annonces, 'parts/_pagination.html.twig') }}
+    <div id="annonces-container">
+        {% include 'dashboard/moderateur/annonce/_annonces.html.twig' %}
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    function searchAnnonces() {
+        var formData = $('#moderateur-annonce-search-form').serialize();
+
+        $.ajax({
+            url: '{{ path('app_dashboard_moderateur_annonces') }}',
+            type: 'GET',
+            data: formData,
+            success: function(data) {
+                $('#annonces-container').html(data.content);
+            }
+        });
+    }
+    $('#moderateur-annonce-search-form input, #moderateur-annonce-search-form select').on('keyup change', function() {
+        searchAnnonces();
+    });
+});
+</script>
 {% endblock %}
 

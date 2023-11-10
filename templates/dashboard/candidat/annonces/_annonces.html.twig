@@ -1,0 +1,45 @@
+
+
+
+<p class="mx-2">
+Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
+</p>
+<div class="navigation">
+    {{ knp_pagination_render(annonces, 'parts/_pagination.html.twig') }}
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th class="col-3">Titre</th>
+            <th class="col-1">Contrat</th>
+            <th class="col-4">Competences</th>
+            <th class="col-1">Lieu</th>
+            <th class="col-1">Début</th>
+            <th class="col-1">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for annonce in annonces %}
+        <tr>
+            <td>{{ annonce.titre }}</td>
+            <td>{{ annonce.typeContrat }}</td>
+            <td>
+                {% if annonce.competences|length > 0 %}
+                    {% for skill in annonce.competences %}
+                    <span class="badge text-bg-dark">{{ skill.nom }}</span>
+                    {% endfor %}
+                {% endif %}
+            </td>
+            <td>{{ annonce.lieu }}</td>
+            <td>{{ annonce.dateExpiration|date('d/m/Y') }}</td>
+            <td>
+                <a href="{{ path('app_dashboard_candidat_annonce_show', {'jobId': annonce.jobId}) }}">voir</a>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="7">Aucune annonces trouvées</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

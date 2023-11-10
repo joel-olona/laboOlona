@@ -8,107 +8,51 @@
             <i class="h5 bi mx-2 bi-plus-lg"></i> 
             {{ 'app_dashboard_candidat.get_started'|trans }} 
         </p>
-        {{ form_start(form, {'attr': {'class': 'form-group mb-5 px-5'}}) }}
+        {{ form_start(form, {'attr': {'class': 'form-group mb-5 px-5', 'id':'candidat-annonce-search-form'}}) }}
         <div class="row">
-            <div class="col-9">
-                <div class="input-group">
-                    {{ form_widget(form.query, {'attr': {'class': 'form-control'}}) }}
-                    <div class="input-group-append">
-                        <button type="submit" class="btn btn-primary"><i class="mx-2 h5 bi bi-search"></i></button>
+            <div class="input-group">
+                    <div class="col">
+                        {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
                     </div>
-                </div>
-            </div>
-            <div class="col-3">
-                {{ form_widget(form.typeContrat, {'attr': {'class': 'form-control'}}) }}
+                    <div class="col">
+                        {{ form_widget(form.lieu, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col">
+                        {{ form_widget(form.competences, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col">
+                        {{ form_widget(form.typeContrat, {'attr': {'class': 'form-control'}}) }}
+                    </div>
             </div>
         </div>
         {{ form_end(form) }}
-        <p class="mx-2">
-            Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
-        </p>
-
-        <div class="navigation">
-            {{ knp_pagination_render(postings, 'parts/_pagination.html.twig') }}
-        </div>
         
         <hr>
-
-
-            <table class="table">
-            <thead>
-                <tr>
-                    <th>Titre</th>
-                    <th>Entreprise</th>
-                    <th>Contrat</th>
-                    <th>salaire</th>
-                    <th>Expire le</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for posting in postings %}
-                <tr>
-                    <td>{{ posting.titre }}</td>
-                    <td>{{ posting.entreprise.nom }}</td>
-                    <td>{{ posting.typeContrat }}</td>
-                    <td>{{ posting.salaire }}</td>
-                    <td>{{ posting.dateExpiration|date('d M Y à H:i') }}</td>
-                    <td>{{ posting.status }}</td>
-                    <td>
-                        <a href="{{ path('app_dashboard_candidat_annonce_show', {'jobId': posting.jobId}) }}">voir</a>
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="7">Aucun rendez-vous trouvé</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        <div id="annonces-container">
+            {% include 'dashboard/candidat/annonces/_annonces.html.twig' %}
+        </div>
     </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
-    $(document).ready(function() {
-        $('.remove-badge').on('click', function(e) {
-            e.preventDefault();
-            let wordToRemove = $(this).data('word');
-    
-            $(this).parent().remove();
-    
-            let currentSearchValue = $('#posting_search_query').val();
-            let newSearchValue = currentSearchValue.replace(wordToRemove, '').trim();
-            $('#posting_search_query').val(newSearchValue);
-            $(this).closest('.badge').remove();
+$(document).ready(function() {
+    function searchAnnonces() {
+        var formData = $('#candidat-annonce-search-form').serialize();
+
+        $.ajax({
+            url: '{{ path('app_dashboard_candidat_annonce') }}',
+            type: 'GET',
+            data: formData,
+            success: function(data) {
+                $('#annonces-container').html(data.content);
+            }
         });
-
-        $('#resetFilters').on('click', function() {
-            $('#customFilterForm').trigger("reset");
-        });
-    });
-
-    $(document).ready(function() {
-    // Filtre par type de mission
-    $('.mission-filter').on('click', function() {
-        const missionType = $(this).data('mission-type');
-        // Appliquer le filtre ici
-    });
-
-    // Filtre par secteur d'activité
-    $('.activity-filter').on('click', function() {
-        const activitySector = $(this).data('activity');
-        // Appliquer le filtre ici
-    });
-    
-    // Bouton Réinitialiser
-    $('.reset-filter').on('click', function() {
-        // Réinitialisez tous les filtres ici
+    }
+    $('#candidat-annonce-search-form input, #candidat-annonce-search-form select').on('keyup change', function() {
+        searchAnnonces();
     });
 });
-
 </script>
 
 {% endblock %}

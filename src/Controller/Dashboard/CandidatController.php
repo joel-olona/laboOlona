@@ -10,6 +10,7 @@ use App\Manager\CandidatManager;
 use App\Service\User\UserService;
 use App\Entity\Entreprise\JobListing;
 use App\Service\Mailer\MailerService;
+use App\Entity\Moderateur\TypeContrat;
 use App\Form\Search\AnnonceSearchType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Form\Profile\Candidat\StepOneType;
@@ -19,6 +20,7 @@ use App\Form\Profile\Candidat\StepThreeType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\Entreprise\JobListingRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -26,7 +28,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Form\Profile\Candidat\Edit\StepOneType as EditStepOneType;
 use App\Form\Profile\Candidat\Edit\StepTwoType as EditStepTwoType;
 use App\Form\Profile\Candidat\Edit\StepThreeType as EditStepThreeType;
-
+use App\Form\Search\CandidatAnnonceSearchType;
+use App\Repository\Moderateur\TypeContratRepository;
 
 #[Route('/dashboard/candidat')]
 class CandidatController extends AbstractController
@@ -38,6 +41,7 @@ class CandidatController extends AbstractController
         private ProfileManager $profileManager,
         private CandidatManager $candidatManager,
         private JobListingRepository $jobListingRepository,
+        private TypeContratRepository $typeContratRepository,
         private RequestStack $requestStack,
         private UrlGeneratorInterface $urlGenerator,
     ) {
@@ -61,6 +65,9 @@ class CandidatController extends AbstractController
         $this->checkCandidat();
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
+
+        return $this->redirectToRoute('app_dashboard_candidat_annonce');
+
         $candidat = $user->getCandidateProfile();
         $now = new DateTime();
 
@@ -78,6 +85,7 @@ class CandidatController extends AbstractController
         $annonces = $this->candidatManager->annoncesCandidatDefaut($candidat);
         if ($form->isSubmitted() && $form->isValid()) {
             $searchTerm = $form->get('query')->getData();
+            // $typeContrat = $form->get('typeContrat')->getData();
             $data = $this->searchPostings($searchTerm, $this->em);
         }
 
@@ -98,7 +106,7 @@ class CandidatController extends AbstractController
     private function searchPostings(string $query = null, EntityManagerInterface $entityManager): array
     {
         if (empty($query)) {
-            return [];
+            return $this->jobListingRepository->findAllJobListingPublished();
         }
 
         $qb = $entityManager->createQueryBuilder();
@@ -116,12 +124,16 @@ class CandidatController extends AbstractController
             $parameters['query' . $key] = '%' . $keyword . '%';
         }
 
+        // if (!empty($typeContrat)) {
+        //     array_merge($parameters, ['typeContrat' => $typeContrat->getNom()]);
+        // }
+
         $qb->select('p')
             ->from('App\Entity\Entreprise\JobListing', 'p')
             ->leftJoin('p.secteur', 'sec')
             ->leftJoin('p.competences', 'ts')
             ->leftJoin('p.langues', 'lang')
-            ->where(implode(' OR ', $conditions))
+            ->where(implode(' AND ', $conditions))
             ->andWhere('p.status = :status')
             ->setParameters(array_merge($parameters, ['status' => JobListing::STATUS_PUBLISHED]));
 
@@ -156,27 +168,49 @@ class CandidatController extends AbstractController
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
         $candidat = $user->getCandidateProfile();
-        $searchTerm = "";
+        $typesContrat = $this->typeContratRepository->findAll();
 
-        $form = $this->createForm(AnnonceSearchType::class);
+        $form = $this->createForm(CandidatAnnonceSearchType::class, null, [
+            'types_contrat' => $typesContrat,
+        ]);
+
         $form->handleRequest($request);
-        $data = $this->jobListingRepository->findAll();
-        $annonces = $this->candidatManager->annoncesCandidatDefaut($candidat);
+        $data = $this->jobListingRepository->findAllJobListingPublished();
+        // $annonces = $this->candidatManager->annoncesCandidatDefaut($candidat);
         if ($form->isSubmitted() && $form->isValid()) {
-            $searchTerm = $form->get('query')->getData();
-            $data = $this->searchPostings($searchTerm, $this->em);
+            // dd($form->getData());
+            $titre = $form->get('titre')->getData();
+            $typeContratObjet = $form->get('typeContrat')->getData();
+            $typeContrat = $typeContratObjet ? $typeContratObjet->getNom() : null; 
+            $lieu = $form->get('lieu')->getData();
+            $competences = $form->get('competences')->getData();
+            $data = $this->candidatManager->searchAnnonce($titre, $lieu, $typeContrat, $competences);
+            if ($request->isXmlHttpRequest()) {
+                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
+                dump($data);
+                return new JsonResponse([
+                    'content' => $this->renderView('dashboard/candidat/annonces/_annonces.html.twig', [
+                        'annonces' => $paginatorInterface->paginate(
+                            $data,
+                            $request->query->getInt('page', 1),
+                            10
+                        ),
+                        'result' => $data
+                    ])
+                ]);
+            }
         }
 
         return $this->render('dashboard/candidat/annonces/annonces.html.twig', [
             'identity' => $candidat,
             'form' => $form->createView(),
-            'postings' => $paginatorInterface->paginate(
+            'annonces' => $paginatorInterface->paginate(
                 $data,
                 $request->query->getInt('page', 1),
                 10
             ),
+            // 'postings' => $data,
             'result' => $data,
-            'words' => explode(' ', $searchTerm),
         ]);
     }
 

@@ -207,6 +207,18 @@ class ModerateurController extends AbstractController
             $entreprise = $form->get('entreprise')->getData();
             $status = $form->get('status')->getData();
             $data = $this->moderateurManager->searchAnnonce($titre, $entreprise, $status);
+            if ($request->isXmlHttpRequest()) {
+                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
+                return new JsonResponse([
+                    'content' => $this->renderView('dashboard/moderateur/annonce/_annonces.html.twig', [
+                        'annonces' => $paginatorInterface->paginate(
+                            $data,
+                            $request->query->getInt('page', 1),
+                            10
+                        )
+                    ])
+                ]);
+            }
         }
 
         return $this->render('dashboard/moderateur/annonce/index.html.twig', [
@@ -294,11 +306,10 @@ class ModerateurController extends AbstractController
                 $this->mailerService->send(
                     $annonce->getEntreprise()->getEntreprise()->getEmail(),
                     "Statut de votre annonce sur Olona Talents",
-                    "notification_annonce.html.twig",
+                    "entreprise/notification_annonce.html.twig",
                     [
                         'user' => $annonce->getEntreprise()->getEntreprise(),
-                        'details_annonce' => $annonce->getTitre(),
-                        'objet' => "a été validée",
+                        'details_annonce' => $annonce,
                         'dashboard_url' => $this->urlGenerator->generate('app_dashboard_entreprise_view_annonce', ['id' => $annonce->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
                     ]
                 );
