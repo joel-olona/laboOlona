@@ -6,6 +6,7 @@ use DateTime;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use App\Entity\Application;
+use App\Entity\Entreprise\JobListing;
 use App\Entity\EntrepriseProfile;
 use App\Entity\Posting;
 use App\Entity\User;
@@ -49,9 +50,29 @@ class AppExtension extends AbstractExtension
             new TwigFunction('years_difference', [$this, 'yearsDifference']),
             new TwigFunction('status_label', [$this, 'statusLabel']),
             new TwigFunction('account_label', [$this, 'accountLabel']),
+            new TwigFunction('getStatuses', [$this, 'getStatuses']),
         ];
     }
 
+
+
+    public function getStatuses(string $status = NULL): string
+    {
+        $statuses = [
+            JobListing::STATUS_DRAFT => 'Bruillon',
+            JobListing::STATUS_PUBLISHED => 'Publiée',
+            JobListing::STATUS_PENDING => 'En attente de modération',
+            JobListing::STATUS_REJECTED => 'Rejetée',
+            JobListing::STATUS_EXPIRED => 'Expirée',
+            JobListing::STATUS_ARCHIVED => 'Archivée',
+            JobListing::STATUS_UNPUBLISHED => 'Non publiée',
+            JobListing::STATUS_DELETED => 'Effacée',
+            JobListing::STATUS_FEATURED => 'Mis en avant',
+            JobListing::STATUS_RESERVED => 'Réservée',
+        ];
+
+        return $statuses[$status];
+    }
 
     public function statusLabel(string $status = NULL): string
     {

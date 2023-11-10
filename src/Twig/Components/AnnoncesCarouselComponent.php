@@ -2,6 +2,7 @@
 
 namespace App\Twig\Components;
 
+use App\Entity\Entreprise\JobListing;
 use App\Repository\Entreprise\JobListingRepository;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
@@ -16,6 +17,8 @@ class AnnoncesCarouselComponent
 
     public function getAnnonces(): array
     {
-        return $this->jobListingRepository->findAll();
+        return $this->jobListingRepository->findBy([
+            'status' => JobListing::STATUS_PUBLISHED
+        ]);
     }
 }
