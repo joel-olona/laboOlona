@@ -56,7 +56,7 @@ class RegistrationController extends AbstractController
                 (new TemplatedEmail())
                     ->from(new Address('support@olona-talents.com', 'Olona Talents'))
                     ->to($user->getEmail())
-                    ->subject('Please Confirm your Email')
+                    ->subject('Veuillez confirmer votre inscription sur olona-talents.com')
                     ->htmlTemplate('registration/confirmation_email.html.twig')
                     ->context(['user' => $user])
             );
@@ -105,7 +105,7 @@ class RegistrationController extends AbstractController
         $tokenStorage->setToken($token);
 
         // @TODO Change the redirect on success and handle or remove the flash message in your templates
-        $this->addFlash('success', 'Your email address has been verified.');
+        $this->addFlash('success', 'Votre adresse email a été bien vérifiée.');
         
         return $this->redirectToRoute('app_connect');
     }

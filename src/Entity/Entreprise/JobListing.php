@@ -111,6 +111,9 @@ class JobListing
     #[ORM\Column(type: 'uuid')]
     private ?Uuid $jobId = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $nombrePoste = null;
+
     public function __construct()
     {
         $this->applications = new ArrayCollection();
@@ -360,6 +363,18 @@ class JobListing
     public function setJobId(Uuid $jobId): static
     {
         $this->jobId = $jobId;
+
+        return $this;
+    }
+
+    public function getNombrePoste(): ?int
+    {
+        return $this->nombrePoste;
+    }
+
+    public function setNombrePoste(?int $nombrePoste): static
+    {
+        $this->nombrePoste = $nombrePoste;
 
         return $this;
     }
