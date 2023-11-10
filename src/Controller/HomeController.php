@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Entreprise\JobListing;
 use App\Entity\Moderateur\ContactForm;
+use App\Form\JobListingType;
 use App\Form\Moderateur\ContactFormType;
 use App\Service\User\UserService;
 use App\Repository\SecteurRepository;
@@ -39,7 +41,9 @@ class HomeController extends AbstractController
             'sectors' => $this->secteurRepository->findAll(),
             'candidats' => $this->candidateProfileRepository->findTopExperts(),
             'topRanked' => $this->candidateProfileRepository->findTopRanked(),
-            'annonces' => $this->jobListingRepository->findAll(),
+            'annonces' => $this->jobListingRepository->findBy([
+                'status' => JobListing::STATUS_PUBLISHED,
+            ]),
         ]);
     }
 

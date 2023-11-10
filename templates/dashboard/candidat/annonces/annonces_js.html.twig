@@ -1,0 +1,108 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+
+<div class="container mt-3">
+    <div class="row text-dark">
+        <p>
+            <i class="h5 bi mx-2 bi-plus-lg"></i> 
+            {{ 'app_dashboard_candidat.get_started'|trans }} 
+        </p>
+        {{ form_start(form, {'attr': {'class': 'form-group mb-5 px-5'}}) }}
+        <div class="row">
+            <div class="col-9">
+                <div class="input-group">
+                    {{ form_widget(form.query, {'attr': {'class': 'form-control'}}) }}
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary"><i class="mx-2 h5 bi bi-search"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="display:none;">
+            {{ form_widget(form)}}
+        </div>
+        {{ form_end(form) }}
+        <p class="mx-2">
+            Votre recherche renvoie <strong>{{ postings|length }}</strong> résultats.
+        </p>
+
+        {# <div class="navigation">
+            {{ knp_pagination_render(postings, 'parts/_pagination.html.twig') }}
+        </div> #}
+        
+        <hr>
+
+
+         
+    <table class="table table-responsive">
+    <thead>
+        <tr>
+            <th class="id-column col-1">ID</th>
+            <th class="titre-col col-2">Titre</th>
+            <th class="entreprise-col col-1">Contrat</th>
+            <th class="description-col col-4">Description</th>
+            <th class="lieu-col col-1">Lieu</th>
+            <th class="date-col col-2">competences</th>
+            <th class="actions-col col-1">Expirée le</th>
+        </tr>
+         <tr>
+            <th></th> <!-- Pas de champ de recherche pour l'ID -->
+            <th><input type="text" id="filter-titre" class="filter-input" data-column="1" placeholder="Par Titre"></th>
+            <th><input type="text" id="filter-entreprise" class="filter-input" data-column="2" placeholder="Par Contrat"></th>
+            <th><input type="text" id="filter-description" class="filter-input" data-column="3" placeholder="Par Description"></th>
+            <th><input type="text" id="filter-lieu" class="filter-input" data-column="4" placeholder="Par Lieu"></th>
+            <th><input type="text" id="filter-competences" class="filter-input" data-column="5" placeholder="Par Compétences"></th>
+            {# <th><input type="date" id="filter-expiration" class="filter-input" data-column="6" placeholder="Date d'expiration"></th> #}
+        
+            <th></th> <!-- Colonne pour les actions, pas de champ de recherche -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for annonce in postings %}
+            <tr>
+                <td class="id-column">{{ annonce.id }}</td>
+                <td><a href="{{ path('app_dashboard_candidat_annonce_show', {'jobId': annonce.jobId}) }}">{{ annonce.titre}}</a></td>
+                <td>{{ annonce.typeContrat }}</td>
+                <td>{{ annonce.description|length > 50 ? annonce.description|slice(0, 47) ~ '...' : annonce.description }}</td>
+                <td>{{ annonce.lieu }}</td>
+                <td>
+                {% if annonce.competences|length > 0 %}
+                    <ul>
+                    {% for skill in annonce.competences %}
+                    <li>{{ skill.nom }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+                </td>
+                <td>{{ annonce.dateExpiration|date('d/m/Y') }}</td>
+                {# <td class="actions-col">
+                    <a href="{{ path('app_dashboard_moderateur_annonce_view', {'id': annonce.id}) }}" class="btn btn-info">Voir</a>
+                </td> #}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+    </div>
+</div>
+
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $(".filter-input").on("keyup", function() {
+                var input = $(this).val().toLowerCase();
+                var column = $(this).data('column');
+                $("tbody tr").filter(function() {
+                    $(this).toggle($(this).children("td").eq(column).text().toLowerCase().indexOf(input) > -1)
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
+{% endblock %}
+{% block inner_footer %}{% include "dashboard/_inner_footer.html.twig" %}{% endblock %}
