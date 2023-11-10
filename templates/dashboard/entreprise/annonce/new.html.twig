@@ -45,6 +45,16 @@
                         </div>
                         <div class="row">
                             <div class="col">
+                                {{ form_label(form.nombrePoste) }}
+                                {{ form_widget(form.nombrePoste, {'attr': {'class': 'form-control mb-4'}}) }}
+                            </div>
+                            <div class="col">
+                                {{ form_label(form.competences) }}
+                                {{ form_widget(form.competences, {'attr': {'class': 'form-control mb-4'}}) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
                                 {{ form_label(form.description) }}
                                 {{ form_widget(form.description, {'attr': {'class': 'form-control mb-4'}}) }}
                             </div>
@@ -52,7 +62,26 @@
                         <div style="display:none">
                             {{ form_widget(form) }}
                         </div>
-                        <button type="submit" class="btn btn-primary rounded-pill">Ajouter</button>
+                        <button type="button" data-bs-toggle="modal" id="previewButton" data-bs-target="#previewModal" class="px-3 btn btn-dark rounded-pill">Prévisualiser</button>
+                        <button type="submit" class="btn btn-primary rounded-pill">Publier</button>
+                        <button type="reset" class="btn btn-outline-dark rounded-pill">Annuler</button>
+                        <!-- Modal -->
+                        <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h2 class="modal-title fs-2" id="previewModalLabel">Prévisualisation de votre annonce</h2>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                ...
+                              </div>
+                              <div class="modal-footer">
+                                <button type="submit" class="px-3 btn btn-dark">Publier</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                         {{ form_end(form) }}
                     </div>
                 </div>
