@@ -20,6 +20,24 @@ class JobListingRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, JobListing::class);
     }
+    
+    public function findAllOrderedByIdDesc()
+    {
+        return $this->createQueryBuilder('j')
+            ->orderBy('j.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+    
+    public function findAllJobListingPublished()
+    {
+        return $this->createQueryBuilder('j')
+            ->andWhere('j.status = :published') 
+            ->setParameter('published', JobListing::STATUS_PUBLISHED)
+            ->orderBy('j.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 
 //    /**
 //     * @return JobListing[] Returns an array of JobListing objects

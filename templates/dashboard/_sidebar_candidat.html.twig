@@ -1,7 +1,7 @@
 {% set current_route = app.request.attributes.get('_route') %}
 <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark position-sticky top-0" style="width: 280px;">
     <ul class="nav nav-pills flex-column mb-auto">
-    <li class="nav-item">
+    {# <li class="nav-item">
       <a href="{{ path('app_dashboard_candidat')}}" 
           class="nav-link {{ current_route == 'app_dashboard_candidat' ? 'active' : 'text-white' }}" 
           {{ current_route == 'app_dashboard_candidat' ? 'aria-current=page' : '' }}>
@@ -9,7 +9,7 @@
           Tableau de bord  
       </a>
     </li>
-    <hr>
+    <hr> #}
       <li>
         <a href="{{ path('app_dashboard_candidat_annonce') }}" class="nav-link {{ current_route == 'app_dashboard_candidat_annonce' ? 'active' : 'text-white' }}">
           <i class="mx-2 h5 bi bi-search"></i>

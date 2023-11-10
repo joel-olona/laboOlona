@@ -144,7 +144,7 @@ class ModerateurManager
 
     public function findAllListingJob(): array
     {
-        return $this->jobListingRepository->findAll();
+        return $this->jobListingRepository->findAllOrderedByIdDesc();
     }
 
     public function findAllEntreprise(): array

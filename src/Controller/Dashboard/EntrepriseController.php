@@ -125,6 +125,17 @@ class EntrepriseController extends AbstractController
                     'dashboard_url' => $this->urlGenerator->generate('app_dashboard_moderateur_annonce_view', ['id' => $jobListing->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
                 ]
             );
+            /** Envoi email entreprise apres avoir publier une annonce */
+            $this->mailerService->send(
+                $entreprise->getEntreprise()->getEmail(),
+                "Votre soumission d'annonce sur Olona Talents a été prise en compte",
+                "entreprise/notification_annonce.html.twig",
+                [
+                    'user' => $entreprise,
+                    'details_annonce' => $jobListing,
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_moderateur_annonce_view', ['id' => $jobListing->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
             $this->addFlash('success', 'Annonce créée avec succès.');
 
             return $this->redirectToRoute('app_dashboard_entreprise_annonces');
