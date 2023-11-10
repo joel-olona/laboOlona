@@ -85,4 +85,57 @@ $(function() {
             });
         }
     });
+
+    $('#previewButton').on('click', function(e) {
+        e.preventDefault();
+        // Récupérer les données du formulaire
+        const formData = {
+            titre: $('input[name="annonce[titre]"]').val(),
+            description: $('textarea[name="annonce[description]"]').val(),
+            salaire: $('input[name="annonce[salaire]"]').val(),
+            nombrePoste: $('input[name="annonce[nombrePoste]"]').val(),
+            dateExpiration: $('input[name="annonce[dateExpiration]"]').val(),
+        };
+        const typeText = $('select[name="annonce[typeContrat]"] option:selected').text();
+        const sectorText = $('select[name="annonce[secteur]"] option:selected').text();
+        // Créer un tableau pour stocker les valeurs
+        var values = [];
+
+        // Sélectionner tous les éléments avec la classe 'item' et itérer sur chacun
+        $('.ts-control .item').each(function() {
+            // Récupérer le texte de l'élément, qui est la valeur souhaitée
+            var value = $(this).text().trim().replace('×', '');
+
+            // Ajouter la valeur au tableau
+            values.push(value);
+        });
+
+        const content = `
+        <div class="container">
+            <div class="row">
+                <!-- Colonne pour la description -->
+                <div class="col-md-6">
+                <p><span class="text-strong">Titre :</span> <br>${formData.titre}</p>
+                <p><span class="text-strong">Type :</span> <br>${typeText}</p>
+                <p><span class="text-strong">Secteur d'activité :</span> <br>${sectorText}</p>
+                <p><span class="text-strong">Budget :</span> <br>${formData.salaire} €</p>
+                <p><span class="text-strong">Nombre de personne à chercher :</span> <br>${formData.nombrePoste}</p>
+                <p><span class="text-strong">Date du début :</span> <br>${formData.dateExpiration} </p>
+                <!-- Et ainsi de suite pour les autres champs... -->
+                </div>
+                <!-- Colonne pour la liste des éléments dans values -->
+                <div class="col-md-6">
+                <p><span class="text-strong">Comptétences requises :</span></p>
+                <ul>
+                    ${values.map(value => `<li>${value}</li>`).join('')}
+                </ul>
+                <p><span class="text-strong">Description du poste:</span> <br>${formData.description}</p>
+                </div>
+            </div>
+            </div>
+
+        `;
+        $('#previewModal .modal-body').html(content);
+    
+    });
 });
