@@ -18,10 +18,22 @@ class EntrepriseProfile
     const SIZE_MEDIUM = 'MD';
     const SIZE_LARGE = 'LG';
 
+    const STATUS_VALID = 'VALID';
+    const STATUS_PENDING = 'PENDING';
+    const STATUS_PREMIUM = 'PREMIUM';
+    const STATUS_BANNED = 'BANNED';
+
     const CHOICE_SIZE = [        
          'Petite (1-10 employés)' => self::SIZE_SMALL ,
          'Moyenne (11-100 employés)' => self::SIZE_MEDIUM ,
          'Grande (plus de 100 employés)' => self::SIZE_LARGE ,
+    ];
+
+    const CHOICE_STATUS = [        
+        'Valide' => self::STATUS_VALID,
+        'En attente' => self::STATUS_PENDING,
+        'Premium' => self::STATUS_PREMIUM,
+        'Banni' => self::STATUS_BANNED,
     ];
     
     #[ORM\Id]
@@ -55,6 +67,9 @@ class EntrepriseProfile
 
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $status = null;
 
     public function __construct()
     {
@@ -228,6 +243,18 @@ class EntrepriseProfile
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }

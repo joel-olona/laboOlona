@@ -74,6 +74,18 @@ class AppExtension extends AbstractExtension
         return $statuses[$status];
     }
 
+    public function getEntrepriseStatuses(string $status = NULL): string
+    {
+        $statuses = [
+            EntrepriseProfile::STATUS_VALID => 'Valide',
+            EntrepriseProfile::STATUS_PREMIUM => 'Premium',
+            EntrepriseProfile::STATUS_PENDING => 'En attente',
+            EntrepriseProfile::STATUS_BANNED => 'Banni',
+        ];
+
+        return $statuses[$status];
+    }
+
     public function statusLabel(string $status = NULL): string
     {
         switch ($status) {
