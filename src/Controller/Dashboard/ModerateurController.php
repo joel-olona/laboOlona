@@ -102,7 +102,7 @@ class ModerateurController extends AbstractController
     }
 
     #[Route('/secteurs', name: 'app_dashboard_moderateur_secteur')]
-    public function sectors(Request $request, SecteurRepository $secteurRepository): Response
+    public function sectors(Request $request, SecteurRepository $secteurRepository, PaginatorInterface $paginatorInterface): Response
     {
         $redirection = $this->checkModerateur();
         if ($redirection !== null) {
@@ -116,10 +116,28 @@ class ModerateurController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $searchTerm = $form->get('secteur')->getData();
             $data = $this->moderateurManager->searchSecteur($searchTerm);
+            if ($request->isXmlHttpRequest()) {
+                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
+                return new JsonResponse([
+                    'content' => $this->renderView('dashboard/moderateur/secteur/_secteurs.html.twig', [
+                        'secteurs' => $paginatorInterface->paginate(
+                            $data,
+                            $request->query->getInt('page', 1),
+                            10
+                        ),
+                        'result' => $data
+                    ])
+                ]);
+            }
         }
 
         return $this->render('dashboard/moderateur/secteur/index.html.twig', [
-            'sectors' => $data,
+            'secteurs' => $paginatorInterface->paginate(
+                $data,
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'result' => $data,
             'form' => $form->createView(),
         ]);
     }
@@ -190,6 +208,113 @@ class ModerateurController extends AbstractController
         return $this->redirectToRoute('app_dashboard_moderateur_secteur');
     }
 
+    #[Route('/type-contrat', name: 'app_dashboard_moderateur_type_contrat')]
+    public function typeContrat(Request $request, TypeContratRepository $typeContratRepository, PaginatorInterface $paginatorInterface): Response
+    {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
+        /** Formulaire de recherche type de contrat */
+        $form = $this->createForm(TypeContratSearchType::class);
+        $form->handleRequest($request);
+        $data = $typeContratRepository->findAll();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $searchTerm = $form->get('typeContrat')->getData();
+            $data = $this->moderateurManager->searchTypeContrat($searchTerm);
+            if ($request->isXmlHttpRequest()) {
+                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
+                return new JsonResponse([
+                    'content' => $this->renderView('dashboard/moderateur/type-contrat/_type_contrats.html.twig', [
+                        'types_contrat' => $paginatorInterface->paginate(
+                            $data,
+                            $request->query->getInt('page', 1),
+                            10
+                        ),
+                        'result' => $data
+                    ])
+                ]);
+            }
+        }
+        
+        return $this->render('dashboard/moderateur/type-contrat/index.html.twig', [
+            'types_contrat' => $paginatorInterface->paginate(
+                $data,
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'result' => $data,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/type-contrat/new', name: 'app_dashboard_moderateur_new_type_contrat')]
+    public function newTypeContrat(Request $request): Response
+    {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
+        /** Initialiser une instance de TypeContrat */
+        $typeContrat = $this->moderateurManager->initTypeContrat();
+        $form = $this->createForm(TypeContratType::class, $typeContrat);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** Sauvegarder TypeContrat */
+            $typeContrat = $this->moderateurManager->saveTypeContratForm($form);
+            $this->addFlash('success', 'Type contrat sauvegardé');
+
+            return $this->redirectToRoute('app_dashboard_moderateur_type_contrat', []);
+        }
+
+        return $this->render('dashboard/moderateur/type-contrat/new_edit.html.twig', [
+            'form' => $form->createView(),
+            'button_label' => 'Créer',
+        ]);
+    }
+
+    #[Route('/type-contrat/{slug}/edit', name: 'app_dashboard_moderateur_edit_type_contrat')]
+    public function editTypeContrat(Request $request, TypeContrat $typeContrat): Response
+    {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
+        /** @var TypeContrat $typeContrat qui vient de {slug} */
+        $form = $this->createForm(TypeContratType::class, $typeContrat);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** Mettre à jour le TypeContrat */
+            $typeContrat = $this->moderateurManager->saveTypeContratForm($form);
+            $this->addFlash('success', 'Type contrat mis à jour');
+
+            return $this->redirectToRoute('app_dashboard_moderateur_type_contrat', []);
+        }
+
+        return $this->render('dashboard/moderateur/type-contrat/new_edit.html.twig', [
+            'form' => $form->createView(),
+            'button_label' => 'Mettre à jour',
+        ]);
+    }
+
+    #[Route('/type-contrat/supprimer/{slug}', name: 'app_dashboard_moderateur_delete_type_contrat')]
+    public function deleteTypeContrat(TypeContrat $typeContrat): Response
+    {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
+        /** Supprimer le TypeContrat */
+        $this->moderateurManager->deleteTypeContrat($typeContrat);
+        $this->addFlash('success', 'Type contrat supprimé avec succès.');
+
+        return $this->redirectToRoute('app_dashboard_moderateur_type_contrat');
+    }
+
     #[Route('/annonces', name: 'app_dashboard_moderateur_annonces')]
     public function annonces(Request $request, PaginatorInterface $paginatorInterface): Response
     {
@@ -215,7 +340,8 @@ class ModerateurController extends AbstractController
                             $data,
                             $request->query->getInt('page', 1),
                             10
-                        )
+                        ),
+                        'result' => $data
                     ])
                 ]);
             }
@@ -227,6 +353,7 @@ class ModerateurController extends AbstractController
                 $request->query->getInt('page', 1),
                 10
             ),
+            'result' => $data,
             'form' => $form->createView(),
         ]);
     }
@@ -359,7 +486,6 @@ class ModerateurController extends AbstractController
         return $this->json($annonceDetails);
     }
 
-
     #[Route('/entreprises', name: 'app_dashboard_moderateur_entreprises')]
     public function entreprises(Request $request, PaginatorInterface $paginatorInterface): Response
     {
@@ -372,6 +498,25 @@ class ModerateurController extends AbstractController
         $form = $this->createForm(ModerateurEntrepriseSearchType::class);
         $form->handleRequest($request);
         $data = $this->moderateurManager->findAllEntreprise();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $nom = $form->get('nom')->getData();
+            $secteur = $form->get('secteur')->getData();
+            $status = $form->get('status')->getData();
+            $data = $this->moderateurManager->searchEntreprise($nom, $secteur, $status);
+            if ($request->isXmlHttpRequest()) {
+                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
+                return new JsonResponse([
+                    'content' => $this->renderView('dashboard/moderateur/entreprise/_entreprises.html.twig', [
+                        'entreprises' => $paginatorInterface->paginate(
+                            $data,
+                            $request->query->getInt('page', 1),
+                            10
+                        ),
+                        'result' => $data
+                    ])
+                ]);
+            }
+        }
 
         return $this->render('dashboard/moderateur/entreprise/index.html.twig', [
             'entreprises' => $paginatorInterface->paginate(
@@ -379,6 +524,7 @@ class ModerateurController extends AbstractController
                 $request->query->getInt('page', 1),
                 10
             ),
+            'result' => $data,
             'form' => $form->createView(),
         ]);
     }
@@ -477,95 +623,6 @@ class ModerateurController extends AbstractController
         ]);
     }
 
-    #[Route('/type-contrat', name: 'app_dashboard_moderateur_type_contrat')]
-    public function typeContrat(Request $request, TypeContratRepository $typeContratRepository): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        /** Formulaire de recherche type de contrat */
-        $form = $this->createForm(TypeContratSearchType::class);
-        $form->handleRequest($request);
-        $data = $typeContratRepository->findAll();
-        if ($form->isSubmitted() && $form->isValid()) {
-            $searchTerm = $form->get('typeContrat')->getData();
-            $data = $this->moderateurManager->searchTypeContrat($searchTerm);
-        }
-        
-        return $this->render('dashboard/moderateur/type-contrat/index.html.twig', [
-            'types_contrat' => $data,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    #[Route('/type-contrat/new', name: 'app_dashboard_moderateur_new_type_contrat')]
-    public function newTypeContrat(Request $request): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        /** Initialiser une instance de TypeContrat */
-        $typeContrat = $this->moderateurManager->initTypeContrat();
-        $form = $this->createForm(TypeContratType::class, $typeContrat);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** Sauvegarder TypeContrat */
-            $typeContrat = $this->moderateurManager->saveTypeContratForm($form);
-            $this->addFlash('success', 'Type contrat sauvegardé');
-
-            return $this->redirectToRoute('app_dashboard_moderateur_type_contrat', []);
-        }
-
-        return $this->render('dashboard/moderateur/type-contrat/new_edit.html.twig', [
-            'form' => $form->createView(),
-            'button_label' => 'Créer',
-        ]);
-    }
-
-    #[Route('/type-contrat/{slug}/edit', name: 'app_dashboard_moderateur_edit_type_contrat')]
-    public function editTypeContrat(Request $request, TypeContrat $typeContrat): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        /** @var TypeContrat $typeContrat qui vient de {slug} */
-        $form = $this->createForm(TypeContratType::class, $typeContrat);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** Mettre à jour le TypeContrat */
-            $typeContrat = $this->moderateurManager->saveTypeContratForm($form);
-            $this->addFlash('success', 'Type contrat mis à jour');
-
-            return $this->redirectToRoute('app_dashboard_moderateur_type_contrat', []);
-        }
-
-        return $this->render('dashboard/moderateur/type-contrat/new_edit.html.twig', [
-            'form' => $form->createView(),
-            'button_label' => 'Mettre à jour',
-        ]);
-    }
-
-    #[Route('/type-contrat/supprimer/{slug}', name: 'app_dashboard_moderateur_delete_type_contrat')]
-    public function deleteTypeContrat(TypeContrat $typeContrat): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        /** Supprimer le TypeContrat */
-        $this->moderateurManager->deleteTypeContrat($typeContrat);
-        $this->addFlash('success', 'Type contrat supprimé avec succès.');
-
-        return $this->redirectToRoute('app_dashboard_moderateur_type_contrat');
-    }
-
     #[Route('/candidats', name: 'app_dashboard_moderateur_candidats')]
     public function candidats(Request $request, PaginatorInterface $paginatorInterface, CandidateProfileRepository $candidateProfileRepository): Response
     {
@@ -577,17 +634,30 @@ class ModerateurController extends AbstractController
         /** Formulaire de recherche candidat */
         $form = $this->createForm(ModerateurCandidatSearchType::class);
         $form->handleRequest($request);
-        $candidats = $this->moderateurManager->findAllCandidat();
+        $data = $this->moderateurManager->findAllCandidat();
         if ($form->isSubmitted() && $form->isValid()) {
             $nom = $form->get('nom')->getData();
             $titre = $form->get('titre')->getData();
             $status = $form->get('status')->getData();
-            $candidats = $this->moderateurManager->searchCandidat($nom, $titre, $status);
+            $data = $this->moderateurManager->searchCandidat($nom, $titre, $status);
+            if ($request->isXmlHttpRequest()) {
+                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
+                return new JsonResponse([
+                    'content' => $this->renderView('dashboard/moderateur/annonce/_annonces.html.twig', [
+                        'annonces' => $paginatorInterface->paginate(
+                            $data,
+                            $request->query->getInt('page', 1),
+                            10
+                        ),
+                        'result' => $data
+                    ])
+                ]);
+            }
         }
 
         return $this->render('dashboard/moderateur/candidat/index.html.twig', [
             'candidats' => $paginatorInterface->paginate(
-                $candidats,
+                $data,
                 $request->query->getInt('page', 1),
                 10
             ),

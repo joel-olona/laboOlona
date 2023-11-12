@@ -3,6 +3,7 @@
 namespace App\Form\Search;
 
 use App\Entity\Entreprise\JobListing;
+use App\Entity\EntrepriseProfile;
 use App\Manager\ModerateurManager;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -35,11 +36,7 @@ class ModerateurEntrepriseSearchType extends AbstractType
                 'placeholder' => 'Secteur d\'activité ...',
             ])
             ->add('status', ChoiceType::class, [
-                'choices' => [
-                    'Valide' => 'VALID',
-                    'En attente' => 'PENDING',
-                    'Premium' => 'PREMIUM',
-                ],
+                'choices' => EntrepriseProfile::CHOICE_STATUS,
                 'required' => false,
                 'label' => false,
                 'placeholder' => 'Status ...',
