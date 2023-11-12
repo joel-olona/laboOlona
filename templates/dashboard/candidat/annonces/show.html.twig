@@ -2,34 +2,44 @@
 
 {% block body %}
 <div class="container mt-3 px-auto">
-    <section class="text-dark">
-        <div class="card">
-    <div class="card-header bg-primary text-white">
-    <h1>{{ annonce.titre }}</h1>
-    </div>
-    <div class="card-body">
-        <div class="mb-3">
-            <span class="badge bg-success">{{ annonce.status }}</span>
-            <span class="badge bg-warning text-dark">{{ annonce.typeContrat }}</span>
-            <span class="badge bg-info">{{ annonce.salaire }} €</span>
+    <section class="text-dark"><div class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">{{ annonce.titre }}</h3>
+            <h5 class="text-muted">{{ annonce.typeContrat }}</h5>
+            <p><i class="bi bi-geo-alt-fill"></i> {{ annonce.lieu }}</p>
+            <p><i class="bi bi-calendar"></i> Date d'expiration : {{ annonce.dateExpiration|date('d/m/Y') }}</p>
+            <hr>
+
+            <div class="card-text">
+                <h5>Description</h5>
+                <p>{{ annonce.description }}</p>
+            </div>
+
+            <div class="mb-3">
+                <h5>Compétences requises</h5>
+                {% if annonce.competences|length > 0 %}
+                    {% for skill in annonce.competences %}
+                        <span class="badge bg-secondary">{{ skill.nom }}</span>
+                    {% endfor %}
+                {% else %}
+                    <p>Aucune compétence spécifique requise.</p>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <h5>Nombre de vues</h5>
+                <p><i class="bi bi-eye"></i> {{ annonce.annonceVues|length }}</p>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <button class="btn btn-primary">Postuler</button>
+                <button class="btn btn-outline-primary"><i class="bi bi-heart"></i> J'aime</button>
+            </div>
         </div>
-        <p class="card-text">{{ annonce.description }}</p>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <strong>Nombre de vues</strong>
-                <span>{{ annonce.annonceVues.count }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <strong>Secteur</strong>
-                <span>{{ annonce.secteur.nom }}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <strong>Entreprise</strong>
-                <span>{{ annonce.entreprise.getNom() }}</span>
-            </li>
-        </ul>
     </div>
 </div>
+
 
     </section>
 </div>

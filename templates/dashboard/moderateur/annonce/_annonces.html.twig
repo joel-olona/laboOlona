@@ -1,3 +1,10 @@
+    
+    <p class="mx-2">
+    Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
+    </p>
+    <div class="navigation">
+    {{ knp_pagination_render(annonces, 'parts/_pagination.html.twig') }}
+    </div>
     <table class="table table-responsive">
         <thead>
             <tr>
@@ -35,7 +42,4 @@
             {% endfor %}
         </tbody>
     </table>
-    <div class="navigation">
-        {{ knp_pagination_render(annonces, 'parts/_pagination.html.twig') }}
-    </div>
 
