@@ -11,6 +11,7 @@ use App\Service\User\UserService;
 use App\Entity\Entreprise\JobListing;
 use App\Service\Mailer\MailerService;
 use App\Entity\Moderateur\TypeContrat;
+use App\Entity\Vues\AnnonceVues;
 use App\Form\Search\AnnonceSearchType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Form\Profile\Candidat\StepOneType;
@@ -215,7 +216,7 @@ class CandidatController extends AbstractController
     }
 
     #[Route('/annonce/{jobId}', name: 'app_dashboard_candidat_annonce_show')]
-    public function showAnnonce(JobListing $annonce): Response
+    public function showAnnonce(Request $request, JobListing $annonce): Response
     {
         $redirection = $this->checkCandidat();
         if ($redirection !== null) {
@@ -224,6 +225,25 @@ class CandidatController extends AbstractController
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
         $candidat = $user->getCandidateProfile();
+
+        if ($annonce) {
+            $ipAddress = $request->getClientIp();
+            $viewRepository = $this->em->getRepository(AnnonceVues::class);
+            $existingView = $viewRepository->findOneBy([
+                'annonce' => $annonce,
+                'idAdress' => $ipAddress,
+            ]);
+    
+            if (!$existingView) {
+                $view = new AnnonceVues();
+                $view->setAnnonce($annonce);
+                $view->setIdAdress($ipAddress);
+    
+                $this->em->persist($view);
+                $annonce->addAnnonceVue($view);
+                $this->em->flush();
+            }
+        }
 
         return $this->render('dashboard/candidat/annonces/show.html.twig', [
             'annonce' => $annonce,
@@ -237,9 +257,13 @@ class CandidatController extends AbstractController
         if ($redirection !== null) {
             return $redirection; 
         }
+        /** @var User $user */
+        $user = $this->userService->getCurrentUser();
+        $candidat = $user->getCandidateProfile();
 
         return $this->render('dashboard/candidat/annonces/all.html.twig', [
             'controller_name' => 'GuidesController',
+            'applications' => $candidat->getApplications(),
         ]);
     }
 

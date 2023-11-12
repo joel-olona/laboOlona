@@ -3,7 +3,7 @@
 {% block body %}
 <div class="container mt-5">
     <h2>Gestion des entreprises</h2>
-    {{ form_start(form, {'attr': {'class': 'form-group my-3'}}) }}
+    {{ form_start(form, {'attr': {'class': 'form-group my-3', 'id':'moderateur-entreprise-search-form'}}) }}
     <div class="row">
         <div class="input-group">
                 <div class="col">
@@ -15,43 +15,37 @@
                 <div class="col">
                     {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
                 </div>
-            <div class="input-group-append">
-                <button type="submit" class="btn btn-primary"><i class="h5 bi mx-2 bi-search"></i></button>
-            </div>
         </div>
     </div>
     {{ form_end(form) }}
-    <table class="table table-responsive">
-        <thead>
-            <tr>
-                <th class="col-1">ID</th>
-                <th class="col-3">Titre</th>
-                <th class="col-1">Secteurs</th>
-                <th class="col-1">Annonces</th>
-                <th class="col-1">RDV</th>
-                <th class="col-2">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for entreprise in entreprises %}
-                <tr>
-                    <td class="id-column">{{ entreprise.id }}</td>
-                    <td>{{ entreprise.nom }}</td>
-                    <td>{{ entreprise.secteurs|length }}</td>
-                    <td>{{ entreprise.jobListings|length }}</td>
-                    <td>{{ entreprise.mettings|length }}</td>
-                    <td class="actions-col">
-                        <a href="{{path('voir_entreprise', { 'id': entreprise.id}) }}" class="btn btn-sm btn-info">Voir</a>
-                        <a href="{{path('supprimer_entreprise', { 'id': entreprise.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce type de contrat ?');">Supprimer</a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div id="entreprises-container">
+        {% include 'dashboard/moderateur/entreprise/_entreprises.html.twig' %}
+    </div>
     <div class="navigation">
         {{ knp_pagination_render(entreprises, 'parts/_pagination.html.twig') }}
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    function searchAnnonces() {
+        var formData = $('#moderateur-entreprise-search-form').serialize();
+
+        $.ajax({
+            url: '{{ path('app_dashboard_moderateur_entreprises') }}',
+            type: 'GET',
+            data: formData,
+            success: function(data) {
+                $('#entreprises-container').html(data.content);
+            }
+        });
+    }
+    $('#moderateur-entreprise-search-form input, #moderateur-entreprise-search-form select').on('keyup change', function() {
+        searchAnnonces();
+    });
+});
+
+</script>
 {% endblock %}
 
