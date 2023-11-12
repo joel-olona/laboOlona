@@ -225,6 +225,10 @@ class ModerateurManager
         $parameters = [];
         $conditions = [];
 
+        if($titre == null && $entreprise == null && $status == null){
+            return $this->jobListingRepository->findAllJobListingPublished();
+        }
+
         if (!empty($titre)) {
             $conditions[] = '(j.titre LIKE :titre )';
             $parameters['titre'] = '%' . $titre . '%';
@@ -256,6 +260,10 @@ class ModerateurManager
         $parameters = [];
         $conditions = [];
 
+        if($nom == null && $titre == null && $status == null){
+            return $this->findAllCandidat();
+        }
+
         if (!empty($titre)) {
             $conditions[] = '(j.titre LIKE :titre )';
             $parameters['titre'] = '%' . $titre . '%';
@@ -274,6 +282,41 @@ class ModerateurManager
         $qb->select('c')
             ->from('App\Entity\CandidateProfile', 'c')
             ->leftJoin('c.candidat', 'u')
+            ->where(implode(' AND ', $conditions))
+            ->setParameters($parameters);
+        
+        return $qb->getQuery()->getResult();
+    }
+
+    public function searchEntreprise(?string $nom = null, ?string $secteur = null, ?string $status = null): array
+    {
+        $qb = $this->em->createQueryBuilder();
+
+        $parameters = [];
+        $conditions = [];
+
+        if($nom == null && $secteur == null && $status == null){
+            return $this->findAllEntreprise();
+        }
+
+        if (!empty($secteur)) {
+            $conditions[] = '(s.nom LIKE :secteur )';
+            $parameters['secteur'] = '%' . $secteur . '%';
+        }
+
+        if (!empty($nom)) {
+            $conditions[] = '(e.nom LIKE :nom )';
+            $parameters['nom'] = '%' . $nom . '%';
+        }
+
+        if (!empty($status)) {
+            $conditions[] = '(e.status LIKE :status )';
+            $parameters['status'] = '%' . $status . '%';
+        }
+
+        $qb->select('e')
+            ->from('App\Entity\EntrepriseProfile', 'e')
+            ->leftJoin('e.secteurs', 's')
             ->where(implode(' AND ', $conditions))
             ->setParameters($parameters);
         

@@ -1,26 +1,3 @@
-{% extends 'dashboard/base.html.twig' %}
-
-{% block body %}
-<div class="container mt-5">
-    <h2>Gestion des candidats</h2>
-        {{ form_start(form, {'attr': {'class': 'form-group my-4'}}) }}
-        <div class="row">
-            <div class="input-group">
-                    <div class="col">
-                        {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
-                    </div>
-                    <div class="col">
-                        {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
-                    </div>
-                    <div class="col">
-                        {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
-                    </div>
-                <div class="input-group-append">
-                    <button type="submit" class="btn btn-primary"><i class="h5 bi mx-2 bi-search"></i></button>
-                </div>
-            </div>
-        </div>
-        {{ form_end(form) }}
     <table class="table table-responsive">
         <thead>
             <tr>
@@ -60,7 +37,4 @@
     <div class="navigation">
         {{ knp_pagination_render(candidats, 'parts/_pagination.html.twig') }}
     </div>
-</div>
-
-{% endblock %}
 

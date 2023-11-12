@@ -27,6 +27,7 @@ class ProfileManager
     {
         $company = new EntrepriseProfile();
         $company->setEntreprise($user);
+        $company->setStatus(EntrepriseProfile::STATUS_PENDING);
 
         return $company;
     }

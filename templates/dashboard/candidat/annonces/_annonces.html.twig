@@ -1,45 +1,51 @@
+<div class="container mt-4">
+    <p class="mx-2">
+        Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
+    </p>
+    <div class="navigation">
+        {{ knp_pagination_render(annonces, 'parts/_pagination.html.twig') }}
+    </div>
 
-
-
-<p class="mx-2">
-Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
-</p>
-<div class="navigation">
-    {{ knp_pagination_render(annonces, 'parts/_pagination.html.twig') }}
-</div>
-<table class="table">
-    <thead>
-        <tr>
-            <th class="col-3">Titre</th>
-            <th class="col-1">Contrat</th>
-            <th class="col-4">Competences</th>
-            <th class="col-1">Lieu</th>
-            <th class="col-1">Début</th>
-            <th class="col-1">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for annonce in annonces %}
-        <tr>
-            <td>{{ annonce.titre }}</td>
-            <td>{{ annonce.typeContrat }}</td>
-            <td>
-                {% if annonce.competences|length > 0 %}
-                    {% for skill in annonce.competences %}
-                    <span class="badge text-bg-dark">{{ skill.nom }}</span>
-                    {% endfor %}
-                {% endif %}
-            </td>
-            <td>{{ annonce.lieu }}</td>
-            <td>{{ annonce.dateExpiration|date('d/m/Y') }}</td>
-            <td>
-                <a href="{{ path('app_dashboard_candidat_annonce_show', {'jobId': annonce.jobId}) }}">voir</a>
-            </td>
-        </tr>
+    {% if annonces|length > 0 %}
+        <div class="list-group">
+            {% for annonce in annonces %}
+                <div class="list-group-item mb-3">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ annonce.titre }}</h5>
+                                <small><i class="bi bi-eye"></i> Nombre de vues : {{ annonce.annonceVues|length }}</small>
+                            </div>
+                            <p class="mb-1">{{ annonce.description|length > 300 ? annonce.description|slice(0, 297) ~ '...' : annonce.description }}</p>
+                            <small><i class="bi bi-briefcase-fill"></i> {{ annonce.typeContrat }}</small>
+                            <div>
+                                {% if annonce.competences|length > 0 %}
+                                    {% for skill in annonce.competences %}
+                                        <span class="badge bg-primary">{{ skill.nom }}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="d-flex w-100 justify-content-between">
+                                <small><i class="bi bi-geo-alt-fill"></i> {{ annonce.lieu }} - {{ annonce.dateExpiration|date('d/m/Y') }}</small>
+                                <a href="{{ path('app_dashboard_candidat_annonce_show', {'jobId': annonce.jobId}) }}" class="btn btn-primary mt-2">Voir plus</a>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="mb-2">
+                                <!-- Ici, ajoutez les avatars des personnes ayant réagi à l'annonce -->
+                                {% for application in annonce.applications %}
+                                    <img src="{{vich_uploader_asset(application.candidat, 'file')}}" class="rounded-circle" width="30" height="30" alt="Avatar">
+                                {% endfor %}
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm"><i class="bi bi-heart"></i> J'aime</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
-        <tr>
-            <td colspan="7">Aucune annonces trouvées</td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
+        <div class="alert alert-warning" role="alert">
+            Aucune annonces trouvées.
+        </div>
+    {% endif %}
+</div>
