@@ -9,22 +9,25 @@ use App\Manager\CandidatManager;
 use App\Entity\EntrepriseProfile;
 use App\Service\User\UserService;
 use App\Manager\EntrepriseManager;
+use App\Manager\ModerateurManager;
 use App\Form\Entreprise\AnnonceType;
 use App\Form\Profile\EntrepriseType;
 use App\Entity\Entreprise\JobListing;
 use App\Service\Mailer\MailerService;
 use App\Form\Profile\EditEntrepriseType;
-use App\Manager\ModerateurManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\CandidateProfileRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Form\Search\EntrepriseAnnonceSearchType;
 use App\Repository\Moderateur\MettingRepository;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\Entreprise\JobListingRepository;
 use App\Repository\Candidate\ApplicationsRepository;
+use App\Repository\Moderateur\TypeContratRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,6 +43,9 @@ class EntrepriseController extends AbstractController
         private ModerateurManager $moderateurManager,
         private EntrepriseManager $entrepriseManager,
         private RequestStack $requestStack,
+        private ApplicationsRepository $applicationRepository,
+        private TypeContratRepository $typeContratRepository,
+        private MettingRepository $mettingRepository,
         private UrlGeneratorInterface $urlGenerator,
     ) {
     }
@@ -63,6 +69,9 @@ class EntrepriseController extends AbstractController
         if ($redirection !== null) {
             return $redirection; 
         }
+
+        return $this->redirectToRoute('app_dashboard_entreprise_annonces');
+
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
         $entreprise = $user->getEntrepriseProfile();
@@ -75,19 +84,60 @@ class EntrepriseController extends AbstractController
     }
 
     #[Route('/annonces', name: 'app_dashboard_entreprise_annonces')]
-    public function annonces(JobListingRepository $jobListingRepository): Response
+    public function annonces(Request $request, PaginatorInterface $paginatorInterface, JobListingRepository $jobListingRepository): Response
     {
         $redirection = $this->checkEntreprise();
         if ($redirection !== null) {
             return $redirection; 
         }
+
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
         $entreprise = $user->getEntrepriseProfile();
+        $typesContrat = $this->typeContratRepository->findAll();
         $job_listings = $jobListingRepository->findBy(['entreprise' => $entreprise]);
+        $form = $this->createForm(EntrepriseAnnonceSearchType::class, null, [
+            'types_contrat' => $typesContrat,
+        ]);
+        $form->handleRequest($request);
+        $data = $this->entrepriseManager->findAllAnnonces();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $titre = $form->get('titre')->getData();
+            $status = $form->get('status')->getData();
+            $typeContratObjet = $form->get('typeContrat')->getData();
+            $typeContrat = $typeContratObjet ? $typeContratObjet->getNom() : null; 
+            $salaire = $form->get('salaire')->getData();
+            $data = $this->entrepriseManager->findAllAnnonces($titre, $status, $typeContrat, $salaire);
+            if ($request->isXmlHttpRequest()) {
+                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
+                return new JsonResponse([
+                    'content' => $this->renderView('dashboard/entreprise/annonce/_annonces.html.twig', [
+                        'annonces' => $paginatorInterface->paginate(
+                            $data,
+                            $request->query->getInt('page', 1),
+                            10
+                        ),
+                        'job_listings' => $jobListingRepository->findBy(['entreprise' => $entreprise]),
+                        'applications' => $this->applicationRepository->findBy(['jobListing' => $entreprise]),
+                        'meetings' => $this->mettingRepository->findBy(['entreprise' => $entreprise]),
+                        'result' => $data
+                    ])
+                ]);
+            }
+        }
+
 
         return $this->render('dashboard/entreprise/annonce/annonces.html.twig', [
-            'job_listings' => $job_listings,
+            'job_listings' => $jobListingRepository->findBy(['entreprise' => $entreprise]),
+            'annonces' => $paginatorInterface->paginate(
+                $data,
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'result' => $data,
+            'applications' => $this->applicationRepository->findBy(['jobListing' => $entreprise]),
+            'meetings' => $this->mettingRepository->findBy(['entreprise' => $entreprise]),
+            'form' => $form->createView()
         ]);
     }
 

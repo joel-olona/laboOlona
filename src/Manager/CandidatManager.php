@@ -3,13 +3,15 @@
 namespace App\Manager;
 
 use App\Entity\CandidateProfile;
-use App\Entity\Entreprise\JobListing;
-use App\Repository\CandidateProfileRepository;
-use App\Repository\Entreprise\JobListingRepository;
-use App\Repository\EntrepriseProfileRepository;
 use App\Service\User\UserService;
+use App\Entity\Entreprise\JobListing;
+use App\Entity\Candidate\Applications;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\CandidateProfileRepository;
+use App\Repository\EntrepriseProfileRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
+use App\Repository\Entreprise\JobListingRepository;
+use App\Repository\Candidate\ApplicationsRepository;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class CandidatManager
@@ -21,6 +23,7 @@ class CandidatManager
         private EntrepriseProfileRepository $entrepriseProfileRepository,
         private CandidateProfileRepository $candidateProfileRepository,
         private JobListingRepository $jobListingRepository,
+        private ApplicationsRepository $applicationsRepository,
         private UserService $userService
     ){}
 
@@ -138,6 +141,38 @@ class CandidatManager
             ->setParameters($parameters);
         
         return $qb->getQuery()->getResult();
+    }
+
+    public function getPendingApplications(CandidateProfile $candidat): array
+    {
+        return $this->applicationsRepository->findBy([
+            'candidat' => $candidat,
+            'status' => Applications::STATUS_PENDING
+        ]);
+    }
+
+    public function getAcceptedApplications(CandidateProfile $candidat): array
+    {
+        return $this->applicationsRepository->findBy([
+            'candidat' => $candidat,
+            'status' => Applications::STATUS_ACCEPTED
+        ]);
+    }
+
+    public function getRefusedApplications(CandidateProfile $candidat): array
+    {
+        return $this->applicationsRepository->findBy([
+            'candidat' => $candidat,
+            'status' => Applications::STATUS_REJECTED
+        ]);
+    }
+
+    public function getArchivedApplications(CandidateProfile $candidat): array
+    {
+        return $this->applicationsRepository->findBy([
+            'candidat' => $candidat,
+            'status' => Applications::STATUS_ARCHIVED
+        ]);
     }
 
 }
