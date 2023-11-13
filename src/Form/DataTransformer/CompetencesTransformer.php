@@ -28,8 +28,8 @@ class CompetencesTransformer implements DataTransformerInterface
             return '';
         }
         
-        // Convertir en tableau si c'est une ArrayCollection
-        if ($competences instanceof \Doctrine\Common\Collections\ArrayCollection ) {
+        // Convertir en tableau si c'est une ArrayCollection ou une PersistentCollection
+        if ($competences instanceof \Doctrine\Common\Collections\Collection) {
             $competences = $competences->toArray();
         }
 
