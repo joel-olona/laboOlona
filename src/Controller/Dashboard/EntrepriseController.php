@@ -22,6 +22,7 @@ use App\Repository\CandidateProfileRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\Search\EntrepriseAnnonceSearchType;
+use App\Form\Search\EntrepriseCandidatSearchType;
 use App\Repository\Moderateur\MettingRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -266,6 +267,63 @@ class EntrepriseController extends AbstractController
         ]);
     }
 
+    #[Route('/recherche-candidats', name: 'app_dashboard_entreprise_recherche_candidats')]
+    public function rechercheCandidats(Request $request, CandidateProfileRepository $candidatRepository, PaginatorInterface $paginatorInterface): Response
+    {
+        $redirection = $this->checkEntreprise();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
+        $form = $this->createForm(EntrepriseCandidatSearchType::class);
+        $form->handleRequest($request);
+        
+        $data = $this->entrepriseManager->findValidCandidats();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $titre = $form->get('titre')->getData();
+            $status = $form->get('status')->getData();
+            $typeContratObjet = $form->get('typeContrat')->getData();
+            $typeContrat = $typeContratObjet ? $typeContratObjet->getNom() : null; 
+            $salaire = $form->get('salaire')->getData();
+            $data = $this->entrepriseManager->findAllCandidats($titre, $status, $typeContrat, $salaire);
+            if ($request->isXmlHttpRequest()) {
+                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
+                return new JsonResponse([
+                    'content' => $this->renderView('dashboard/entreprise/annonce/_annonces.html.twig', [
+                        'annonces' => $paginatorInterface->paginate(
+                            $data,
+                            $request->query->getInt('page', 1),
+                            10
+                        ),
+                        'result' => $data
+                    ])
+                ]);
+            }
+        }
+
+
+        return $this->render('dashboard/entreprise/candidat/index.html.twig', [
+            'candidats' => $data,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/details-candidat/{id}', name: 'app_dashboard_entreprise_details_candidat')]
+    public function detailsCandidat(Request $request, CandidateProfile $candidateProfile): Response
+    {
+        $redirection = $this->checkEntreprise();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+        /** @var User $user */
+        $user = $this->userService->getCurrentUser();
+        $entreprise = $user->getEntrepriseProfile();
+
+        return $this->render('dashboard/entreprise/candidat/show.html.twig', [
+            'candidat' => $candidateProfile,
+        ]);
+    }
+
     #[Route('/candidatures', name: 'app_dashboard_entreprise_candidatures')]
     public function candidatures(): Response
     {
@@ -308,43 +366,6 @@ class EntrepriseController extends AbstractController
 
         return $this->render('dashboard/entreprise/metting/index.html.twig', [
             'rendez_vous' => $entreprise->getMettings(),
-        ]);
-    }
-
-    #[Route('/recherche-candidats', name: 'app_dashboard_entreprise_recherche_candidats')]
-    public function rechercheCandidats(Request $request, CandidateProfileRepository $candidatRepository): Response
-    {
-        $redirection = $this->checkEntreprise();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-        $searchTerm = $request->query->get('q');
-
-        if ($searchTerm) {
-            $candidats = $candidatRepository->search($searchTerm);
-        } else {
-            $candidats = [];
-        }
-
-        return $this->render('dashboard/entreprise/candidat/index.html.twig', [
-            'candidats' => $candidatRepository->findAll(),
-            'searchTerm' => $searchTerm,
-        ]);
-    }
-
-    #[Route('/details-candidat/{id}', name: 'app_dashboard_entreprise_details_candidat')]
-    public function detailsCandidat(Request $request, CandidateProfile $candidateProfile): Response
-    {
-        $redirection = $this->checkEntreprise();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-        /** @var User $user */
-        $user = $this->userService->getCurrentUser();
-        $entreprise = $user->getEntrepriseProfile();
-
-        return $this->render('dashboard/entreprise/candidat/show.html.twig', [
-            'candidat' => $candidateProfile,
         ]);
     }
 

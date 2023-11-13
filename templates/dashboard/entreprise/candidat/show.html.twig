@@ -3,10 +3,50 @@
 {% block title %}Chercher un profil{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4">Profil de {{ candidat.candidat.prenom }} {{ candidat.candidat.nom|slice(0, 1)|upper }}. </h1>
-            {{ dump(candidat)}}
-        <div class="row">
+<div class="container mt-5">
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        Profil Candidat : {{ candidat.titre }}
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h5 class="card-title">Informations Générales</h5>
+                <p>ID : <span class="text-muted">{{ candidat.id }}</span></p>
+                <p>Date de création : <span class="text-muted">{{ candidat.createdAt|date('d/m/Y') }}</span></p>
+                <p>Dernière mise à jour : <span class="text-muted">{{ candidat.updatedAt|date('d/m/Y') }}</span></p>
+                <p>Localisation : <span class="text-muted">{{ candidat.localisation }}</span></p>
+                <p>Date de naissance : <span class="text-muted">{{ candidat.birthday|date('d/m/Y') }}</span></p>
+            </div>
+            <div class="col-md-6">
+                <h5 class="card-title">Détails Professionnels</h5>
+                <p>Résumé : <span class="text-muted">{{ candidat.resume }}</span></p>
+                <p>Titre : <span class="text-muted">{{ candidat.titre }}</span></p>
+                <p><img src="{{vich_uploader_asset(candidat, 'file')}}" class="card-img-top w-25" style="border-radius:50%;" alt="avatar">
+                </p>
+                <p>Statut : <span class="badge bg-success">{{ candidat.status }}</span></p>
+                <p>Validité du profil : <span class="badge {{ candidat.isValid ? 'bg-success' : 'bg-danger' }}">{{ candidat.isValid ? 'Oui' : 'Non' }}</span></p>
+            </div>
         </div>
+
+        <h5 class="card-title">Compétences</h5>
+        <ul class="list-group list-group-flush mb-4">
+            {% for competence in candidat.competences %}
+                <li class="list-group-item">{{ competence.nom }}</li>
+            {% endfor %}
+        </ul>
+
+        {# Sections pour expériences, applications, secteurs, langues, etc. #}
+
+        <h5 class="card-title">Réseaux sociaux</h5>
+        {% if candidat.social is defined %}
+            {# Afficher les détails des réseaux sociaux #}
+        {% endif %}
+    </div>
+    </div>
+</div>
+
+<a href="javascript:history.back()" class="btn btn-secondary rounded-pill">Retour</a>
+
     </div>
 {% endblock %}

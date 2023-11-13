@@ -8,29 +8,45 @@
         <table class="table table-responsive" id="candidatsTable">
             <thead>
                 <tr>
-                    <th scope="col">ID</th>
+                    {# <th scope="col">ID</th> #}
+                    <th scope="col">Titre</th>    
                     <th scope="col">Nom</th>
-                    <th scope="col">Candidatures</th>
-                    <th scope="col">Cand. en attente</th>
-                    <th scope="col">Cand. acceptée</th>
-                    <th scope="col">Cand. réfusée</th>
+                    <th scope="col">Voir profil</th>
+                    {# <th scope="col">Candidatures</th> #}
+                    {# <th scope="col">Cand. en attente</th> #}
+                    <th scope="col">Missions réalisées</th>
+                    {# <th scope="col">Cand. réfusée</th> #}
                     <th scope="col">Compétences</th>
                     <th scope="col">Expériences</th>
-                    <th scope="col">Profil</th>
+                    <th scope="col">Langues</th>
+                    
                 </tr>
             </thead>
             <tbody>
                 {% for candidat in candidats %}
                     <tr>
-                        <td>{{ candidat.id }}</td>
+                        <td>{{ candidat.titre }}</td>   
                         <td>{{ candidat.candidat.nom }} {{ candidat.candidat.prenom }}</td>
-                        <td><span class="badge bg-primary"><a href="{{ path('app_dashboard_moderateur_candidat_applications', {'id': candidat.id}) }}" class="text-decoration-none text-white">{{ candidat.applications|length }}</a></span></td>
-                        <td><span class="badge bg-warning text-dark"><a href="{{ path('app_dashboard_moderateur_candidat_applications_en_attente', {'id': candidat.id}) }}" class="text-decoration-none">{{ candidat.applications|filter(app => app.status == 'PENDING')|length }}</a></span></td>
-                        <td><span class="badge bg-success"><a href="{{ path('app_dashboard_moderateur_candidat_applications_acceptees', {'id': candidat.id}) }}" class="text-decoration-none text-white">{{ candidat.applications|filter(app => app.status == 'ACCEPTED')|length }}</a></span></td>
-                        <td><span class="badge bg-danger"><a href="{{ path('app_dashboard_moderateur_candidat_applications_refusees', {'id': candidat.id}) }}" class="text-decoration-none text-white">{{ candidat.applications|filter(app => app.status == 'REFUSED')|length }}</a></span></td>
-                        <td><span class="badge bg-info"><a href="{{ path('app_dashboard_moderateur_candidat_competences', {'id': candidat.id}) }}" class="text-decoration-none text-white">{{ candidat.competences|length }}</a></span></td>
+                        <td><a href="{{ path('app_dashboard_entreprise_details_candidat', {'id': candidat.id}) }}" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Voir</a></td>
+                        <td>
+                            <span class="badge bg-success">
+                                {{ candidat.applications|filter(app => app.status == 'ACCEPTED')|length }}
+                            </span>
+                        </td>
+                        <td>
+                            {% for skill in candidat.competences %}
+                            <span class="badge bg-info">
+                                    {{ skill.nom }}
+                                </span>
+                            {% endfor %}
+                        </td>
                         <td><span class="badge bg-secondary"><a href="{{ path('app_dashboard_moderateur_candidat_experiences', {'id': candidat.id}) }}" class="text-decoration-none text-white">{{ candidat.experiences|length }}</a></span></td>
-                        <td><a href="{{ path('app_dashboard_moderateur_candidat_view', {'id': candidat.id}) }}" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Voir</a></td>
+                        <td>
+                            {% for langue in candidat.langages %}
+                                {{ isoToEmoji(langue.langue.code) }}
+                            {% endfor %}
+                        </td>
+                        
                     </tr>
                     {% else %}
                         <tr>
@@ -40,6 +56,7 @@
             </tbody>
         </table>
 
+    <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3">Retour</a>
         <div class="row">
         </div>
     </div>
