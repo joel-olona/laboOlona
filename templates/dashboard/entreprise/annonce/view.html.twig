@@ -4,8 +4,9 @@
 
 {% block body %}
 <div class="container mt-4">
+    <a class="my-3 btn btn-sm btn-warning rounded-pill" href="{{ path('app_dashboard_entreprise_edit_annonce', {'id': annonce.id}) }}"><i class="bi bi-pencil"></i> Editer</a>  
     <div class="card border-primary">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-primary h3 text-white">
             {{ annonce.titre }}
         </div>
                 <div class="card-body">
