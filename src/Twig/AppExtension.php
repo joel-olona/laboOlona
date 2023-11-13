@@ -6,6 +6,7 @@ use DateTime;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use App\Entity\Application;
+use App\Entity\Candidate\Applications;
 use App\Entity\Entreprise\JobListing;
 use App\Entity\EntrepriseProfile;
 use App\Entity\Posting;
@@ -31,6 +32,7 @@ class AppExtension extends AbstractExtension
         return [
             new TwigFilter('status_label', [$this, 'statusLabel']),
             new TwigFilter('posting_status_Label', [$this, 'postingStatusLabel']),
+            new TwigFilter('candidature_status_Label', [$this, 'candidatureStatusLabel']),
         ];
     }
 
@@ -111,6 +113,18 @@ class AppExtension extends AbstractExtension
             JobListing::STATUS_DELETED  => 'Effacée',
             JobListing::STATUS_FEATURED  => 'Mis en avant',
             JobListing::STATUS_RESERVED  => 'Réservée',
+        ];
+
+        return $labels[$status];
+    }
+
+    public function candidatureStatusLabel(string $status)
+    {
+        $labels = [
+            Applications::STATUS_PENDING  => 'En cours',
+            Applications::STATUS_REJECTED  => 'Non retenues',
+            Applications::STATUS_ACCEPTED  => 'Acceptée',
+            Applications::STATUS_ARCHIVED  => 'Archivée',
         ];
 
         return $labels[$status];

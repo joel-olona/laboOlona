@@ -9,6 +9,7 @@ use Symfony\Component\Form\Form;
 use App\Service\User\UserService;
 use App\Repository\SecteurRepository;
 use App\Entity\Moderateur\TypeContrat;
+use App\Repository\Candidate\ApplicationsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\CandidateProfileRepository;
 use App\Repository\EntrepriseProfileRepository;
@@ -30,6 +31,7 @@ class ModerateurManager
         private EntrepriseProfileRepository $entrepriseProfileRepository,
         private CandidateProfileRepository $candidateProfileRepository,
         private ModerateurProfileRepository $moderateurProfileRepository,
+        private ApplicationsRepository $applicationsRepository,
         private UserService $userService
     ){}
 
@@ -316,6 +318,41 @@ class ModerateurManager
 
         $qb->select('e')
             ->from('App\Entity\EntrepriseProfile', 'e')
+            ->leftJoin('e.secteurs', 's')
+            ->where(implode(' AND ', $conditions))
+            ->setParameters($parameters);
+        
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findAllCandidatures(?string $nom = null, ?string $secteur = null, ?string $status = null): array
+    {
+        $qb = $this->em->createQueryBuilder();
+
+        $parameters = [];
+        $conditions = [];
+
+        if($nom == null && $secteur == null && $status == null){
+            return $this->applicationsRepository->findAll();
+        }
+
+        if (!empty($secteur)) {
+            $conditions[] = '(s.nom LIKE :secteur )';
+            $parameters['secteur'] = '%' . $secteur . '%';
+        }
+
+        if (!empty($nom)) {
+            $conditions[] = '(e.nom LIKE :nom )';
+            $parameters['nom'] = '%' . $nom . '%';
+        }
+
+        if (!empty($status)) {
+            $conditions[] = '(e.status LIKE :status )';
+            $parameters['status'] = '%' . $status . '%';
+        }
+
+        $qb->select('e')
+            ->from('App\Entity\Entreprise\Applications', 'e')
             ->leftJoin('e.secteurs', 's')
             ->where(implode(' AND ', $conditions))
             ->setParameters($parameters);

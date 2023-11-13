@@ -31,11 +31,13 @@
                 <h5>Nombre de vues</h5>
                 <p><i class="bi bi-eye"></i> {{ annonce.annonceVues|length }}</p>
             </div>
-
-            <div class="d-flex justify-content-between align-items-center">
-                <button class="btn btn-primary">Postuler</button>
-                <button class="btn btn-outline-primary"><i class="bi bi-heart"></i> J'aime</button>
-            </div>
+{{ form_start(form)}}
+{{ form_widget(form)}}
+<div class="d-flex justify-content-between align-items-center">
+<button class="btn btn-primary">Postuler</button>
+<button class="btn btn-outline-primary"><i class="bi bi-heart"></i> J'aime</button>
+</div>
+{{ form_end(form)}}
         </div>
     </div>
 </div>

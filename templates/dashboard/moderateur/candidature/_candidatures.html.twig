@@ -1,0 +1,22 @@
+    
+    <p class="mx-2">
+    Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
+    </p>
+    <div class="navigation">
+    {{ knp_pagination_render(candidatures, 'parts/_pagination.html.twig') }}
+    </div>
+<table class="table table-responsive">
+    <thead>
+        <tr>
+            <th class="col-1">ID</th>
+            <th class="col-3">Titre</th>
+            <th class="col-3">Entreprise</th>
+            <th class="col-2">Status</th>
+            <th class="col-2">Candidature</th>
+            <th class="col-3">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
