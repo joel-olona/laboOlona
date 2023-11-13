@@ -86,20 +86,6 @@ class AppExtension extends AbstractExtension
         return $statuses[$status];
     }
 
-    public function statusLabel(string $status = NULL): string
-    {
-        switch ($status) {
-            case Application::STATUS_ACCEPTED :
-                return '<i class="h6 bi mx-2 bi-circle-fill small text-green"></i>';
-            case Application::STATUS_FINISHED :
-                return '<i class="h6 bi mx-2 bi-circle-fill small text-primary"></i>';
-            case Application::STATUS_PENDING :
-                return '<i class="h6 bi mx-2 bi-circle-fill small text-warning"></i>';
-            default:
-                return '<i class="h6 bi mx-2 bi-circle-fill small text-warning"></i>';
-        }
-    }
-
     public function accountLabel(string $account): string
     {
         switch ($account) {
@@ -112,21 +98,22 @@ class AppExtension extends AbstractExtension
         }
     }
 
-
-    public function postingStatusLabel(string $status = NULL): string
+    public function statusLabel(string $status)
     {
-        switch ($status) {
-            case Posting::STATUS_PUBLISHED :
-                return '<i class="h6 bi mx-2 bi-circle-fill small text-green"></i>';
-            case Posting::STATUS_ARCHIVED :
-                return '<i class="h6 bi mx-2 bi-circle-fill small text-primary"></i>';
-            case Posting::STATUS_DRAFT :
-                return '<i class="h6 bi mx-2 bi-circle-fill small text-warning"></i>';
-            case Posting::STATUS_UNPUBLISHED :
-                return '<i class="h6 bi mx-2 bi-circle-fill small text-danger"></i>';
-            default:
-                return '<i class="h6 bi mx-2 bi-circle-fill small text-warning"></i>';
-        }
+        $labels = [
+            JobListing::STATUS_DRAFT  => 'Bruillon',
+            JobListing::STATUS_PUBLISHED  => 'Publiée',
+            JobListing::STATUS_PENDING  => 'En attente',
+            JobListing::STATUS_REJECTED  => 'Rejetée',
+            JobListing::STATUS_EXPIRED  => 'Expirée',
+            JobListing::STATUS_ARCHIVED  => 'Archivée',
+            JobListing::STATUS_UNPUBLISHED  => 'Non publiée',
+            JobListing::STATUS_DELETED  => 'Effacée',
+            JobListing::STATUS_FEATURED  => 'Mis en avant',
+            JobListing::STATUS_RESERVED  => 'Réservée',
+        ];
+
+        return $labels[$status];
     }
 
     public function metaTitle(): string
