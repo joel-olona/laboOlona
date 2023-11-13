@@ -184,7 +184,7 @@ class EntrepriseController extends AbstractController
                 [
                     'user' => $entreprise,
                     'details_annonce' => $jobListing,
-                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_moderateur_annonce_view', ['id' => $jobListing->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_entreprise_view_annonce', ['id' => $jobListing->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
                 ]
             );
             $this->addFlash('success', 'Annonce créée avec succès.');
