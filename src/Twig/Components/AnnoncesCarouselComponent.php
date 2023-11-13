@@ -17,8 +17,9 @@ class AnnoncesCarouselComponent
 
     public function getAnnonces(): array
     {
-        return $this->jobListingRepository->findBy([
-            'status' => JobListing::STATUS_PUBLISHED
-        ]);
+        return $this->jobListingRepository->findBy(
+           [ 'status' => JobListing::STATUS_PUBLISHED],
+           [ 'id' => 'DESC'],
+        );
     }
 }

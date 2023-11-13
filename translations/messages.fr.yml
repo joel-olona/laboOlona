@@ -604,6 +604,10 @@ app_dashboard_entreprise_rendez_vous:
     title: Mes rendez-vous
     dashboard_title: Mes rendez-vous
 
+app_dashboard_entreprise_view_annonce:
+    title: Détails annonces
+    dashboard_title: Détails annonces
+
 app_dashboard_entreprise_posting_all:
     title: "Mes annonces"
     dashboard_title: "Mes annonces - %company_name%"

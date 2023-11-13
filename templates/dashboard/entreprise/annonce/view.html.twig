@@ -32,7 +32,7 @@
                 <div class="col-md-12">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">Date d'expiration: <span class="text-danger">{{ annonce.dateExpiration|date('d/m/Y') }}</span></li>
-                        <li class="list-group-item">Statut: <span class="badge bg-success">{{ annonce.status }}</span></li>
+                        <li class="list-group-item">Statut: <span class="badge bg-success">{{ annonce.status|status_label }}</span></li>
                         <li class="list-group-item">Nombre de postes: {{ annonce.nombrePoste ?: 'Non spécifié' }}</li>
                     </ul>
                 </div>
