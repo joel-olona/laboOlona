@@ -5,21 +5,21 @@
 {% block body %}
     <div class="container mt-5">
         <h1 class="mb-4">Chercher un profil</h1>
+
+        <p class="text-muted">
+            <i class="fa fa-search"></i> Utilisez ce tableau pour trouver des profils candidats correspondant à vos besoins. Cliquez sur "Voir profil" pour plus de détails ou pour entrer en contact avec le candidat.
+        </p>
+
         <table class="table table-responsive" id="candidatsTable">
             <thead>
                 <tr>
-                    {# <th scope="col">ID</th> #}
                     <th scope="col">Titre</th>    
                     <th scope="col">Nom</th>
                     <th scope="col">Voir profil</th>
-                    {# <th scope="col">Candidatures</th> #}
-                    {# <th scope="col">Cand. en attente</th> #}
                     <th scope="col">Missions réalisées</th>
-                    {# <th scope="col">Cand. réfusée</th> #}
                     <th scope="col">Compétences</th>
                     <th scope="col">Expériences</th>
                     <th scope="col">Langues</th>
-                    
                 </tr>
             </thead>
             <tbody>
@@ -36,8 +36,8 @@
                         <td>
                             {% for skill in candidat.competences %}
                             <span class="badge bg-info">
-                                    {{ skill.nom }}
-                                </span>
+                                {{ skill.nom }}
+                            </span>
                             {% endfor %}
                         </td>
                         <td><span class="badge bg-secondary"><a href="{{ path('app_dashboard_moderateur_candidat_experiences', {'id': candidat.id}) }}" class="text-decoration-none text-white">{{ candidat.experiences|length }}</a></span></td>
@@ -46,18 +46,15 @@
                                 {{ isoToEmoji(langue.langue.code) }}
                             {% endfor %}
                         </td>
-                        
                     </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="9">Aucun candidat trouvé.</td>
-                        </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="9">Aucun candidat trouvé.</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
 
-    <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3">Retour</a>
-        <div class="row">
-        </div>
+        <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3">Retour</a>
     </div>
 {% endblock %}

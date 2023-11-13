@@ -296,7 +296,7 @@ class EntrepriseController extends AbstractController
                             10
                         ),
                         'result' => $data
-                    ])
+                    ]),
                 ]);
             }
         }
