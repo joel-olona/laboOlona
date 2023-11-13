@@ -1,0 +1,48 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2>Gestion des candidatures</h2>
+        {{ form_start(form, {'attr': {'class': 'form-group my-4', 'id':'moderateur-candidature-search-form'}}) }}
+        <div class="row">
+            <div class="input-group">
+                    <div class="col">
+                        {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col">
+                        {{ form_widget(form.entreprise, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col">
+                        {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+            </div>
+        </div>
+        {{ form_end(form) }}
+        <div id="candidature-container">
+            {% include 'dashboard/moderateur/candidature/_candidatures.html.twig' %}
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        function searchAnnonces() {
+            var formData = $('#moderateur-candidature-search-form').serialize();
+    
+            $.ajax({
+                url: '{{ path('app_dashboard_moderateur_annonces') }}',
+                type: 'GET',
+                data: formData,
+                success: function(data) {
+                    $('#candidature-container').html(data.content);
+                }
+            });
+        }
+        $('#moderateur-candidature-search-form input, #moderateur-candidature-search-form select').on('keyup change', function() {
+            searchAnnonces();
+        });
+    });
+    </script>
+</div>
+{% endblock %}
+
