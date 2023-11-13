@@ -9,11 +9,77 @@
         </p>
         
         <hr>
-        <div id="annonces-container">
-            {# {% include 'dashboard/candidat/annonces/_annonces.html.twig' %} #}
-        </div>
+            <!-- Onglets -->
+            <ul class="nav nav-tabs justify-content-center nav-underline">
+                <li class="nav-item">
+                    <a class="nav-link active" id="pending-tab" data-bs-toggle="tab" href="#pending">En cours</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="accepted-tab" data-bs-toggle="tab" href="#accepted">Acceptées</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="refused-tab" data-bs-toggle="tab" href="#refused">Non retenues</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="archived-tab" data-bs-toggle="tab" href="#archived">Archivées</a>
+                </li>
+            </ul>
+        
+            <!-- Contenu des onglets -->
+            <div class="tab-content mt-3">
+                <div class="tab-pane fade show active" id="pending">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if pendings|length > 0 %}
+                                {% for application in pendings %}
+
+                                {% endfor %}
+                            {% else %}
+                                <i class=" h1 text-center bi bi-archive"></i>
+                                <p class="text-center">Vous n’avez aucune candidature en cours.</p>
+                            {% endif %}
+                            <a href="#" class="btn btn-primary">Retour</a>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="tab-pane fade" id="accepted">
+                    {% if pendings|length > 0 %}
+                        {% for application in accepteds %}
+
+                        {% endfor %}
+                    {% else %}
+                        <i class=" h1 text-center bi bi-archive"></i>
+                        <p class="text-center">Vous n’avez aucune candidature acceptée.</p>
+                    {% endif %}
+                    <a href="#" class="btn btn-primary">Retour</a>
+                </div>
+        
+                <div class="tab-pane fade" id="refused">
+                    {% if pendings|length > 0 %}
+                        {% for application in refuseds %}
+
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center">Vous n’avez aucune candidature refusée.</p>
+                    {% endif %}
+                        <i class=" h1 text-center bi bi-archive"></i>
+                    <a href="#" class="btn btn-primary">Retour</a>
+                </div>
+        
+                <div class="tab-pane fade" id="archived">
+                    {% if pendings|length > 0 %}
+                        {% for application in archiveds %}
+
+                        {% endfor %}
+                    {% else %}
+                        <i class=" h1 text-center bi bi-archive"></i>
+                        <p class="text-center">Vous n’avez aucune candidature archivées.</p>
+                    {% endif %}
+                    <a href="#" class="btn btn-primary">Retour</a>
+                </div>
+            </div>
     </div>
 </div>
 
-{{ dump(applications) }}
 {% endblock %}
