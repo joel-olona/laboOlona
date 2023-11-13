@@ -32,6 +32,7 @@ use App\Repository\EntrepriseProfileRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\Search\ModerateurAnnonceSearchType;
 use App\Form\Search\ModerateurCandidatSearchType;
+use App\Form\Search\ModerateurCandidatureSearchType;
 use App\Repository\Moderateur\MettingRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -915,6 +916,64 @@ class ModerateurController extends AbstractController
         }
 
         return $this->redirectToRoute('app_dashboard_moderateur_mettings');
+    }
+
+
+    #[Route('/candidatures', name: 'app_dashboard_moderateur_candidatures')]
+    public function candidatures(Request $request, PaginatorInterface $paginatorInterface, ApplicationsRepository $applicationsRepository): Response
+    {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
+        $form = $this->createForm(ModerateurCandidatureSearchType::class);
+        $form->handleRequest($request);
+        $data = $this->moderateurManager->findAllCandidatures();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $titre = $form->get('titre')->getData();
+            $entreprise = $form->get('entreprise')->getData();
+            $candidat = $form->get('candidat')->getData();
+            $status = $form->get('status')->getData();
+            $data = $this->moderateurManager->findAllCandidatures($titre, $entreprise, $candidat, $status);
+            if ($request->isXmlHttpRequest()) {
+                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
+                return new JsonResponse([
+                    'content' => $this->renderView('dashboard/moderateur/candidature/_candidatures.html.twig', [
+                        'candidatures' => $paginatorInterface->paginate(
+                            $data,
+                            $request->query->getInt('page', 1),
+                            10
+                        ),
+                        'result' => $data
+                    ])
+                ]);
+            }
+        }
+        
+        return $this->render('dashboard/moderateur/candidature/index.html.twig', [
+            'candidatures' => $paginatorInterface->paginate(
+                $data,
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'result' => $data,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/candidature/{id}/job/{jobId}', name: 'app_dashboard_moderateur_candidature_view')]
+    public function candidature(Request $request, Applications $applications, JobListing $annonce): Response
+    {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+        
+        return $this->render('dashboard/moderateur/candidature/view.html.twig', [
+            'application' => $applications,
+            'jobListing' => $annonce,
+        ]);
     }
 
     #[Route('/notifications', name: 'app_dashboard_moderateur_notifications')]

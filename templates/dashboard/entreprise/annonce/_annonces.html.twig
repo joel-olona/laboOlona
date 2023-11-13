@@ -22,7 +22,12 @@
                 {% for annonce in annonces %}
                     <tr>
                         <td>{{ annonce.titre }}</td>
-                        <td>{{ (annonce.status|status_label) }}</td>
+                        <td>
+                            <div class="annonce {{ 'status-' ~ annonce.status|lower }}">                                    
+                                <span class="status-label">{{ (annonce.status|status_label) }}</span>
+                                <!-- Autres détails de l'annonce -->
+                            </div>
+                        </td>
                         <td>{{ annonce.typeContrat }}</td>
                         <td>{{ annonce.salaire }}</td>
                         <td>{{ annonce.dateExpiration|date('d M Y') }}</td>

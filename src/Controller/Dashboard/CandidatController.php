@@ -6,31 +6,34 @@ use DateTime;
 use App\Entity\User;
 use App\Manager\ProfileManager;
 use App\Entity\CandidateProfile;
+use App\Entity\Vues\AnnonceVues;
 use App\Manager\CandidatManager;
 use App\Service\User\UserService;
 use App\Entity\Entreprise\JobListing;
 use App\Service\Mailer\MailerService;
+use App\Entity\Candidate\Applications;
 use App\Entity\Moderateur\TypeContrat;
-use App\Entity\Vues\AnnonceVues;
 use App\Form\Search\AnnonceSearchType;
+use App\Form\Candidat\ApplicationsType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Form\Profile\Candidat\StepOneType;
 use App\Form\Profile\Candidat\StepTwoType;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Form\Profile\Candidat\StepThreeType;
 use Symfony\Component\HttpFoundation\Request;
+use App\Form\Search\CandidatAnnonceSearchType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\Entreprise\JobListingRepository;
+use App\Repository\Moderateur\TypeContratRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Form\Profile\Candidat\Edit\StepOneType as EditStepOneType;
 use App\Form\Profile\Candidat\Edit\StepTwoType as EditStepTwoType;
 use App\Form\Profile\Candidat\Edit\StepThreeType as EditStepThreeType;
-use App\Form\Search\CandidatAnnonceSearchType;
-use App\Repository\Moderateur\TypeContratRepository;
+use App\Manager\ModerateurManager;
 
 #[Route('/dashboard/candidat')]
 class CandidatController extends AbstractController
@@ -44,6 +47,7 @@ class CandidatController extends AbstractController
         private JobListingRepository $jobListingRepository,
         private TypeContratRepository $typeContratRepository,
         private RequestStack $requestStack,
+        private ModerateurManager $moderateurManager,
         private UrlGeneratorInterface $urlGenerator,
     ) {
     }
@@ -226,6 +230,38 @@ class CandidatController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $candidat = $user->getCandidateProfile();
 
+        $application = new Applications();
+        $application->setDateCandidature(new DateTime());
+        $application->setAnnonce($annonce);
+        $application->setCandidat($candidat);
+        $application->setStatus(Applications::STATUS_PENDING);
+        $form = $this->createForm(ApplicationsType::class, $application);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->em->persist($application);
+            $this->em->flush();
+    
+            /** Envoi email moderateur */
+            $this->mailerService->sendMultiple(
+                $this->moderateurManager->getModerateurEmails(),
+                "Une nouvelle candidature sur Olona Talents",
+                "moderateur/notification_candidature.html.twig",
+                [
+                    'user' => $candidat->getCandidat(),
+                    'candidature' => $application,
+                    'objet' => "mise à jour",
+                    'details_annonce' => $annonce,
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_moderateur_candidature_view', ['id' => $application->getId(), 'jobId' => $annonce->getJobId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
+
+            $this->addFlash('success', "Candidature envoyé ");
+
+
+            return $this->redirectToRoute('app_dashboard_candidat_annonce');
+        }
+
         if ($annonce) {
             $ipAddress = $request->getClientIp();
             $viewRepository = $this->em->getRepository(AnnonceVues::class);
@@ -247,6 +283,7 @@ class CandidatController extends AbstractController
 
         return $this->render('dashboard/candidat/annonces/show.html.twig', [
             'annonce' => $annonce,
+            'form' => $form->createView(),
         ]);
     }
 

@@ -12,6 +12,7 @@
                 <th class="col-3">Titre</th>
                 <th class="col-3">Entreprise</th>
                 <th class="col-2">Status</th>
+                <th class="col-2">Candidature</th>
                 <th class="col-3">Actions</th>
             </tr>
         </thead>
@@ -34,6 +35,7 @@
                             </select>
                         </form>
                     </td>
+                    <td>{{ annonce.applications|length }}</td>
                     <td class="actions-col">
                         <a href="{{path('app_dashboard_moderateur_annonce_view', { 'id': annonce.id}) }}" class="btn btn-sm btn-info">Voir</a>
                         <a href="{{path('delete_annonce', { 'id': annonce.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?');">Supprimer</a>

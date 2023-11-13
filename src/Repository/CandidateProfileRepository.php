@@ -56,6 +56,14 @@ class CandidateProfileRepository extends ServiceEntityRepository
          ;
 
      }
+     
+     public function findAllOrderedByIdDesc()
+     {
+         return $this->createQueryBuilder('j')
+             ->orderBy('j.id', 'DESC')
+             ->getQuery()
+             ->getResult();
+     }
 
 //    public function findOneBySomeField($value): ?CandidateProfile
 //    {
