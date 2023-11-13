@@ -3,89 +3,91 @@
 {% block title %}Tableau de bord{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4">Créer une annonce</h1>
+<div class="container mt-5">
+    <h1 class="mb-4" style="color: #007BFF;">Créer une annonce</h1>
 
-        <div class="row">
-            <div class="col">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        {{ form_start(form) }}
-                        <div class="row">
-                            <div class="col">
-                                {{ form_label(form.titre) }}
-                                {{ form_widget(form.titre, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
+    <div class="row">
+        <div class="col">
+            <div class="card mb-3">
+                <div class="card-body">
+                    {{ form_start(form) }}
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label><i class="fa fa-heading" style="color: #333;"></i> {{ form_label(form.titre) }}</label>
+                            {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
                         </div>
-                        <div class="row">
-                            <div class="col">
-                                {{ form_label(form.secteur) }}
-                                {{ form_widget(form.secteur, {'attr': {'class': 'mb-4'}}) }}
-                            </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label><i class="fa fa-industry" style="color: #333;"></i> {{ form_label(form.secteur) }}</label>
+                            {{ form_widget(form.secteur, {'attr': {'class': 'form-select'}}) }}
                         </div>
-                        <div class="row">
-                            <div class="col">
-                                {{ form_label(form.typeContrat) }}
-                                {{ form_widget(form.typeContrat, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
-                            <div class="col">
-                                {{ form_label(form.lieu) }}
-                                {{ form_widget(form.lieu, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label><i class="fa fa-file-contract" style="color: #333;"></i> {{ form_label(form.typeContrat) }}</label>
+                            {{ form_widget(form.typeContrat, {'attr': {'class': 'form-control'}}) }}
                         </div>
-                        <div class="row">
-                            <div class="col">
-                                {{ form_label(form.dateExpiration) }}
-                                {{ form_widget(form.dateExpiration, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
-                            <div class="col">
-                                {{ form_label(form.salaire) }}
-                                {{ form_widget(form.salaire, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
+                        <div class="col">
+                            <label><i class="fa fa-map-marker-alt" style="color: #333;"></i> {{ form_label(form.lieu) }}</label>
+                            {{ form_widget(form.lieu, {'attr': {'class': 'form-control'}}) }}
                         </div>
-                        <div class="row">
-                            <div class="col">
-                                {{ form_label(form.nombrePoste) }}
-                                {{ form_widget(form.nombrePoste, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
-                            <div class="col">
-                                {{ form_label(form.competences) }}
-                                {{ form_widget(form.competences, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label><i class="fa fa-calendar-alt" style="color: #333;"></i> {{ form_label(form.dateExpiration) }}</label>
+                            {{ form_widget(form.dateExpiration, {'attr': {'class': 'form-control'}}) }}
                         </div>
-                        <div class="row">
-                            <div class="col">
-                                {{ form_label(form.description) }}
-                                {{ form_widget(form.description, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
+                        <div class="col">
+                            <label><i class="fa fa-dollar-sign" style="color: #333;"></i> {{ form_label(form.salaire) }}</label>
+                            {{ form_widget(form.salaire, {'attr': {'class': 'form-control'}}) }}
                         </div>
-                        <div style="display:none">
-                            {{ form_widget(form) }}
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label><i class="fa fa-users" style="color: #333;"></i> {{ form_label(form.nombrePoste) }}</label>
+                            {{ form_widget(form.nombrePoste, {'attr': {'class': 'form-control'}}) }}
                         </div>
-                        <button type="button" data-bs-toggle="modal" id="previewButton" data-bs-target="#previewModal" class="px-3 btn btn-dark rounded-pill">Prévisualiser</button>
+                        <div class="col">
+                            <label><i class="fa fa-chart-bar" style="color: #333;"></i> {{ form_label(form.competences) }}</label>
+                            {{ form_widget(form.competences, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label><i class="fa fa-align-left" style="color: #333;"></i> {{ form_label(form.description) }}</label>
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div style="display:none">
+                        {{ form_widget(form) }}
+                    </div>
+                    <div class="text-end">
+                        <button type="button" data-bs-toggle="modal" id="previewButton" data-bs-target="#previewModal" class="btn btn-outline-dark rounded-pill">Prévisualiser</button>
                         <button type="submit" class="btn btn-primary rounded-pill">Publier</button>
                         <button type="reset" class="btn btn-outline-dark rounded-pill">Annuler</button>
-                        <!-- Modal -->
-                        <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
-                          <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h2 class="modal-title fs-2" id="previewModalLabel">Prévisualisation de votre annonce</h2>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                              </div>
-                              <div class="modal-body">
-                                ...
-                              </div>
-                              <div class="modal-footer">
-                                <button type="submit" class="px-3 btn btn-dark">Publier</button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        {{ form_end(form) }}
                     </div>
+                    <!-- Modal -->
+                    <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h2 class="modal-title fs-2" id="previewModalLabel">Prévisualisation de votre annonce</h2>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Contenu de la prévisualisation -->
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary rounded-pill">Publier</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{ form_end(form) }}
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

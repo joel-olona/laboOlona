@@ -3,61 +3,63 @@
 {% block title %}Tableau de bord{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4">Modifier une annonce</h1>
+<div class="container mt-5">
+    <h1 class="mb-4" style="color: #007BFF;">Modifier une annonce</h1> <!-- Titre avec couleur d'accentuation -->
 
-        <div class="row">
-            <div class="col">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        {{ form_start(form) }}
-                        <div class="row">
-                            <div class="col">
-                                {{ form_label(form.titre) }}
-                                {{ form_widget(form.titre, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
+    <div class="row">
+        <div class="col">
+            <div class="card mb-3">
+                <div class="card-body">
+                    {{ form_start(form) }}
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label><i class="fa fa-heading" style="color: #333;"></i> {{ form_label(form.titre) }}</label>
+                            {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
                         </div>
-                        <div class="row">
-                            <div class="col">
-                                {{ form_label(form.secteur) }}
-                                {{ form_widget(form.secteur, {'attr': {'class': 'mb-4'}}) }}
-                            </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label><i class="fa fa-industry" style="color: #333;"></i> {{ form_label(form.secteur) }}</label>
+                            {{ form_widget(form.secteur, {'attr': {'class': 'form-select'}}) }}
                         </div>
-                        <div class="row">
-                            <div class="col">
-                                {{ form_label(form.typeContrat) }}
-                                {{ form_widget(form.typeContrat, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
-                            <div class="col">
-                                {{ form_label(form.lieu) }}
-                                {{ form_widget(form.lieu, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label><i class="fa fa-file-contract" style="color: #333;"></i> {{ form_label(form.typeContrat) }}</label>
+                            {{ form_widget(form.typeContrat, {'attr': {'class': 'form-control'}}) }}
                         </div>
-                        <div class="row">
-                            <div class="col">
-                                {{ form_label(form.dateExpiration) }}
-                                {{ form_widget(form.dateExpiration, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
-                            <div class="col">
-                                {{ form_label(form.salaire) }}
-                                {{ form_widget(form.salaire, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
+                        <div class="col">
+                            <label><i class="fa fa-map-marker-alt" style="color: #333;"></i> {{ form_label(form.lieu) }}</label>
+                            {{ form_widget(form.lieu, {'attr': {'class': 'form-control'}}) }}
                         </div>
-                        <div class="row">
-                            <div class="col">
-                                {{ form_label(form.description) }}
-                                {{ form_widget(form.description, {'attr': {'class': 'form-control mb-4'}}) }}
-                            </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label><i class="fa fa-calendar-alt" style="color: #333;"></i> {{ form_label(form.dateExpiration) }}</label>
+                            {{ form_widget(form.dateExpiration, {'attr': {'class': 'form-control'}}) }}
                         </div>
-                        <div style="display:none">
-                            {{ form_widget(form) }}
+                        <div class="col">
+                            <label><i class="fa fa-dollar-sign" style="color: #333;"></i> {{ form_label(form.salaire) }}</label>
+                            {{ form_widget(form.salaire, {'attr': {'class': 'form-control'}}) }}
                         </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label><i class="fa fa-align-left" style="color: #333;"></i> {{ form_label(form.description) }}</label>
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                    <div style="display:none">
+                        {{ form_widget(form) }}
+                    </div>
+                    <div class="text-end">
                         <button type="submit" class="btn btn-primary rounded-pill">Mettre à jour</button>
                         <a href="javascript:history.back()" class="btn btn-secondary rounded-pill">Retour</a>
-                        {{ form_end(form) }}
                     </div>
+                    {{ form_end(form) }}
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
