@@ -251,7 +251,7 @@ class CandidatController extends AbstractController
     }
 
     #[Route('/all/annonces', name: 'app_dashboard_candidat_annonces')]
-    public function allAnnonces(): Response
+    public function allAnnonces(Request $request, PaginatorInterface $paginatorInterface): Response
     {
         $redirection = $this->checkCandidat();
         if ($redirection !== null) {
@@ -262,8 +262,26 @@ class CandidatController extends AbstractController
         $candidat = $user->getCandidateProfile();
 
         return $this->render('dashboard/candidat/annonces/all.html.twig', [
-            'controller_name' => 'GuidesController',
-            'applications' => $candidat->getApplications(),
+            'pendings' => $paginatorInterface->paginate(
+                $this->candidatManager->getPendingApplications($candidat),
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'accepteds' => $paginatorInterface->paginate(
+                $this->candidatManager->getAcceptedApplications($candidat),
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'refuseds' => $paginatorInterface->paginate(
+                $this->candidatManager->getRefusedApplications($candidat),
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'archiveds' => $paginatorInterface->paginate(
+                $this->candidatManager->getArchivedApplications($candidat),
+                $request->query->getInt('page', 1),
+                10
+            ),
         ]);
     }
 

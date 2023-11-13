@@ -12,6 +12,21 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ApplicationsRepository::class)]
 class Applications
 {
+    const STATUS_PENDING = 'PENDING';
+    const STATUS_REJECTED = 'REJECTED';
+    const STATUS_ARCHIVED = 'ARCHIVED';
+    const STATUS_ACCEPTED = 'ACCEPTED';
+
+
+    public static function getStatuses() {
+        return [
+            'En cours' => self::STATUS_PENDING ,
+            'Non retenues' => self::STATUS_REJECTED ,
+            'Archivée' => self::STATUS_ARCHIVED ,
+            'Acceptée' => self::STATUS_ACCEPTED ,
+        ];
+    }
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
