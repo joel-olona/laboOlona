@@ -43,9 +43,10 @@ class EntrepriseManager
         $conditions = [];
 
         if($titre == null && $status == null && $typeContrat == null && $salaire == null){
-            return $this->jobListingRepository->findBy([
-                'entreprise' => $user->getEntrepriseProfile(),
-            ]);
+            return $this->jobListingRepository->findBy(
+                ['entreprise' => $user->getEntrepriseProfile()],
+                ['id' => 'DESC']
+            );
         }
 
         if (!empty($titre)) {
@@ -72,6 +73,7 @@ class EntrepriseManager
             ->from('App\Entity\Entreprise\JobListing', 'j')
             ->where(implode(' AND ', $conditions))
             ->andWhere('j.entreprise = :entreprise')
+            ->orderBy('j.id', 'DESC')
             ->setParameters($parameters);
         
         return $qb->getQuery()->getResult();

@@ -49,6 +49,13 @@
         </a>
       </li>
       <li>
+        <a href="{{ path('app_dashboard_moderateur_candidatures')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_moderateur_candidatures' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-person-bounding-box"></i>
+            Candidatures  
+        </a>
+      </li>
+      <li>
         <a href="{{ path('app_dashboard_moderateur_mettings')}}" 
             class="nav-link {{ current_route == 'app_dashboard_moderateur_mettings' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-calendar3"></i>
