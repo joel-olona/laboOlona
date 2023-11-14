@@ -252,7 +252,21 @@ class CandidatController extends AbstractController
                     'candidature' => $application,
                     'objet' => "mise à jour",
                     'details_annonce' => $annonce,
-                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_moderateur_candidature_view', ['id' => $application->getId(), 'jobId' => $annonce->getJobId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_moderateur_candidature_view', ['id' => $application->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
+    
+            /** Envoi email candidat */
+            $this->mailerService->send(
+                $user->getEmail(),
+                "Votre candidature a été prise en compte sur Olona Talents",
+                "candidat/notification_candidature.html.twig",
+                [
+                    'user' => $candidat->getCandidat(),
+                    'candidature' => $application,
+                    'objet' => "mise à jour",
+                    'details_annonce' => $annonce,
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_candidat_annonces', ['id' => $application->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
                 ]
             );
 
@@ -299,7 +313,7 @@ class CandidatController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $candidat = $user->getCandidateProfile();
 
-        return $this->render('dashboard/candidat/annonces/all.html.twig', [
+        return $this->render('dashboard/candidat/candidature/index.html.twig', [
             'pendings' => $paginatorInterface->paginate(
                 $this->candidatManager->getPendingApplications($candidat),
                 $request->query->getInt('page', 1),
