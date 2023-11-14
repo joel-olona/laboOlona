@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Search;
+namespace App\Form\Search\Annonce;
 
 use App\Entity\Entreprise\JobListing;
 use Symfony\Component\Form\AbstractType;
@@ -9,38 +9,30 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
-class EntrepriseCandidatSearchType extends AbstractType
+class ModerateurAnnonceSearchType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('nom', TextType::class, [
-                'required' => false,
-                'label' => false,
-                'attr' => [
-                    'placeholder' => 'Nom, prénom(s) ou email ...',
-                ]
-            ])
             ->add('titre', TextType::class, [
                 'required' => false,
                 'label' => false,
                 'attr' => [
-                    'placeholder' => 'Poste occupé ...',
+                    'placeholder' => 'Titre de l\'annonce ...',
                 ]
             ])
-            ->add('competences', TextType::class, [
+            ->add('entreprise', TextType::class, [
                 'required' => false,
                 'label' => false,
                 'attr' => [
-                    'placeholder' => 'Compétences ...',
+                    'placeholder' => 'Entreprise ...',
                 ]
             ])
-            ->add('langues', TextType::class, [
+            ->add('status', ChoiceType::class, [
+                'choices' => JobListing::getStatuses(),
                 'required' => false,
                 'label' => false,
-                'attr' => [
-                    'placeholder' => 'Langues ...',
-                ]
+                'placeholder' => 'Status ...',
             ])
         ;
     }
@@ -50,7 +42,6 @@ class EntrepriseCandidatSearchType extends AbstractType
         $resolver->setDefaults([
             'method' => 'GET',
             'csrf_protection' => false,
-            'types_contrat' => [],
         ]);
     }
 }
