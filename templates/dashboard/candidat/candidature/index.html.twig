@@ -1,0 +1,93 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+
+<div class="container mt-3">
+    <div class="row text-dark">
+        <p>
+            Retrouvez à tout moment vos candidatures en cours, le suivi de leur statut, ainsi que l’historique des offres auxquelles vous avez postulées. Les candidatures archivées regroupent vos candidatures sur des offres expirées.
+        </p>
+        
+        <hr>
+            <!-- Onglets -->
+            <ul class="nav nav-tabs justify-content-center nav-underline">
+                <li class="nav-item">
+                    <a class="nav-link active" id="pending-tab" data-bs-toggle="tab" href="#pending">En cours</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="accepted-tab" data-bs-toggle="tab" href="#accepted">Acceptées</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="refused-tab" data-bs-toggle="tab" href="#refused">Non retenues</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="archived-tab" data-bs-toggle="tab" href="#archived">Archivées</a>
+                </li>
+            </ul>
+        
+            <!-- Contenu des onglets -->
+            <div class="tab-content mt-3">
+                <div class="tab-pane fade show active" id="pending">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if pendings|length > 0 %}
+                            
+                            {% include 'dashboard/candidat/candidature/_pending.html.twig' %}
+                          
+                            {% else %}
+                            <div class="text-center col-6 mx-auto">
+                                <i class=" h1 mx-auto my-5 bi bi-archive"></i>
+                                <p class="text-center">Vous n'avez aucune candidature en cours.</p>
+                            </div>
+                            {% endif %}
+                            <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="tab-pane fade" id="accepted">
+                    {% if accepteds|length > 0 %}
+                            
+                    {% include 'dashboard/candidat/candidature/_accepted.html.twig' %}
+                  
+                    {% else %}
+                    <div class="text-center col-6 mx-auto">
+                        <i class=" h1 mx-auto my-5 bi bi-archive"></i>
+                        <p class="my-5">Vous n’avez aucune candidature acceptées.</p>
+                    </div>
+                    {% endif %}
+                <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
+                </div>
+        
+                <div class="tab-pane fade" id="refused">
+                    {% if refuseds|length > 0 %}
+                            
+                    {% include 'dashboard/candidat/candidature/_refused.html.twig' %}
+                  
+                    {% else %}
+                    <div class="text-center col-6 mx-auto">
+                        <i class=" h1 mx-auto my-5 bi bi-archive"></i>
+                        <p class="my-5">Vous n’avez aucune candidature refusées.</p>
+                    </div>
+                    {% endif %}
+                <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
+                </div>
+        
+                <div class="tab-pane fade" id="archived">
+                    {% if archiveds|length > 0 %}
+                            
+                    {% include 'dashboard/candidat/candidature/_archived.html.twig' %}
+                  
+                    {% else %}
+                    <div class="text-center col-6 mx-auto">
+                        <i class=" h1 mx-auto my-5 bi bi-archive"></i>
+                        <p class="my-5">Vous n’avez aucune candidature archivées.</p>
+                    </div>
+                    {% endif %}
+                    <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
+                </div>
+            </div>
+    </div>
+</div>
+
+{% endblock %}

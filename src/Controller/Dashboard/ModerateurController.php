@@ -736,10 +736,47 @@ class ModerateurController extends AbstractController
         }
 
         $status = $request->request->get('status');
-        if ($status && in_array($status, ['ACCEPTED', 'REFUSED', 'PENDING'])) {
+        if ($status && in_array($status, Applications::getArrayStatuses())) {
             $application->setStatus($status);
             $entityManager->flush();
+            
             $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
+
+            /** Envoi mail candidat */
+            $this->mailerService->send(
+                $application->getCandidat()->getCandidat()->getEmail(),
+                "Statut de votre candidature sur Olona Talents",
+                "candidat/status_candidature.html.twig",
+                [
+                    'user' => $application->getCandidat()->getCandidat(),
+                    'details_annonce' => $application->getAnnonce(),
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_candidat_annonces', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
+
+            /** Envoi mail entreprise */
+            $this->mailerService->send(
+                $application->getAnnonce()->getEntreprise()->getEntreprise()->getEmail(),
+                "Une candidature a été déposée sur votre annonce sur Olona Talents",
+                "entreprise/status_candidature.html.twig",
+                [
+                    'user' => $application->getAnnonce()->getEntreprise()->getEntreprise(),
+                    'details_annonce' => $application->getAnnonce(),
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_entreprise_candidatures', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
+
+            /** Envoi mail moderateurs */
+            $this->mailerService->sendMultiple(
+                $this->moderateurManager->getModerateurEmails(),
+                "Une nouvelle candidature a été déposée pour une annonce sur Olona Talents",
+                "moderateur/status_candidature.html.twig",
+                [
+                    'details_annonce' => $application->getAnnonce(),
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_moderateur_candidature_view', ['id' => $application->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
+
         } else {
             $this->addFlash('error', 'Statut invalide.');
         }
@@ -962,8 +999,8 @@ class ModerateurController extends AbstractController
         ]);
     }
 
-    #[Route('/candidature/{id}/job/{jobId}', name: 'app_dashboard_moderateur_candidature_view')]
-    public function candidature(Request $request, Applications $applications, JobListing $annonce): Response
+    #[Route('/candidature/{id}', name: 'app_dashboard_moderateur_candidature_view')]
+    public function candidature(Request $request, Applications $applications): Response
     {
         $redirection = $this->checkModerateur();
         if ($redirection !== null) {
@@ -972,7 +1009,6 @@ class ModerateurController extends AbstractController
         
         return $this->render('dashboard/moderateur/candidature/view.html.twig', [
             'application' => $applications,
-            'jobListing' => $annonce,
         ]);
     }
 
@@ -990,12 +1026,13 @@ class ModerateurController extends AbstractController
             $this->em->persist($applications);
             $this->em->flush();
             /** Envoi mail */
+
             $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
         } else {
             $this->addFlash('error', 'Statut invalide.');
         }
 
-        return $this->redirectToRoute('app_dashboard_moderateur_candidat_applications', ['id' => $application->getCandidat()->getId()]);
+        return $this->redirectToRoute('app_dashboard_moderateur_candidat_applications', ['id' => $applications->getCandidat()->getId()]);
         
         return $this->render('dashboard/moderateur/notifications.html.twig', [
             'sectors' => $notificationRepository->findAll(),
