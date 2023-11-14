@@ -283,6 +283,7 @@ class CandidatController extends AbstractController
 
         return $this->render('dashboard/candidat/annonces/show.html.twig', [
             'annonce' => $annonce,
+            'candidat' => $candidat,
             'form' => $form->createView(),
         ]);
     }

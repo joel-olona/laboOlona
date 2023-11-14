@@ -13,6 +13,9 @@
                         {{ form_widget(form.entreprise, {'attr': {'class': 'form-control'}}) }}
                     </div>
                     <div class="col">
+                        {{ form_widget(form.candidat, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col">
                         {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
                     </div>
             </div>
@@ -30,7 +33,7 @@
             var formData = $('#moderateur-candidature-search-form').serialize();
     
             $.ajax({
-                url: '{{ path('app_dashboard_moderateur_annonces') }}',
+                url: '{{ path('app_dashboard_moderateur_candidatures') }}',
                 type: 'GET',
                 data: formData,
                 success: function(data) {
