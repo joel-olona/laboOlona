@@ -1,10 +1,10 @@
 {% extends 'dashboard/base.html.twig' %}
 
-{% block title %}Mes rendez-vous{% endblock %}
+{% block title %}Candidatures{% endblock %}
 
 {% block body %}
     <div class="container mt-3">
-        <h1 class="mb-4">Mes rendez-vous</h1>
+        <h1 class="mb-4">Candidatures</h1>
         <hr>
         <div class="row">
             <div class="col-md-4">
@@ -31,7 +31,7 @@
                 <a href="{{ path('app_dashboard_entreprise_rendez_vous') }}" class="text-decoration-none">
                     <div class="card text-white bg-warning mb-3">
                         <div class="card-body">
-                            <h2 class="card-title">{{ mettings|length }}</h2>
+                            <h2 class="card-title">{{ meetings|length }}</h2>
                             <p class="card-text">Rendez-vous programmés</p>
                         </div>
                     </div>
@@ -45,8 +45,45 @@
                 </p>
             </div>
         </div>
-        
+        {{ form_start(form, {'attr': {'class': 'form-group', 'id':'entreprise-candidature-search-form'}}) }}
+        <div class="row">
+            <div class="input-group">
+                    <div class="col">
+                        {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col">
+                        {{ form_widget(form.candidat, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="col">
+                        {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+            </div>
+        </div>
+        {{ form_end(form) }}
 
-        
+        <div id="candidatures-container">
+            {% include 'dashboard/entreprise/candidature/_candidatures.html.twig' %}
+        </div>
     </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    function searchAnnonces() {
+        var formData = $('#entreprise-candidature-search-form').serialize();
+
+        $.ajax({
+            url: '{{ path('app_dashboard_entreprise_candidatures') }}',
+            type: 'GET',
+            data: formData,
+            success: function(data) {
+                $('#candidatures-container').html(data.content);
+            }
+        });
+    }
+    $('#entreprise-candidature-search-form input, #entreprise-candidature-search-form select').on('keyup change', function() {
+        searchAnnonces();
+    });
+});
+</script>
 {% endblock %}

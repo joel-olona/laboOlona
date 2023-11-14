@@ -30,7 +30,7 @@
                         <strong>Nombre d'Expériences:</strong> {{ candidat.experiences|length }}<br>
                         <strong>Nombre d'Applications:</strong> {{ candidat.applications|length }}
                     </p> 
-                    <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="btn btn-primary">Retour aux candidats</a>
+                <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
                 </div>
             </div>
         </div>
@@ -54,7 +54,7 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="btn btn-primary">Retour aux candidats</a>
+        <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
         </div>
 
         <div class="tab-pane fade" id="experiences">
@@ -76,7 +76,7 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <a href="{{ path('app_dashboard_moderateur_candidats') }}" class="btn btn-primary">Retour aux candidats</a>
+        <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
         </div>
     </div>
 </div>

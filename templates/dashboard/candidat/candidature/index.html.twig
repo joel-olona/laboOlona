@@ -30,45 +30,14 @@
                 <div class="tab-pane fade show active" id="pending">
                     <div class="card">
                         <div class="card-body">
-                            {% if pendings|length > 0 %}<table class="table">
-                            <thead>
-                              <tr>
-                                <th scope="col" class="col-5"></th>
-                                <th scope="col" class="col-5"></th>
-                                <th scope="col" class="col-2"></th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {% for application in pendings %}
-                                <tr>
-                                  <!-- Colonne de gauche (Détails de l'offre) -->
-                                  <td>
-                                    <small class="text-white px-2 bg-dark rounded">{{ application.annonce.typeContrat }}</small> <!-- Type de contrat -->
-                                    <h5>{{ application.annonce.titre }}</h5> <!-- Titre du job -->
-                                    <a href="{{ path('app_dashboard_candidat_annonce_show', {'jobId': application.annonce.jobId}) }}" class="btn btn-link">Voir l'offre</a>
-                                    
-                                  </td>
-                                  <td>
-                                  <small class="">{{ application.annonce.description|length > 150 ? application.annonce.description|slice(0, 147) ~ '...' : application.annonce.description }}</small> <!-- Type de contrat -->
-                                  </td>
-                          
-                                  <!-- Colonne de droite (Informations du Candidat) -->
-                                  <td>
-                                    <ul class="list-unstyled">
-                                      <li><i class="bi bi-geo-alt"></i> {{ application.annonce.lieu }}</li> <!-- Nom du candidat -->
-                                      <li><i class="bi bi-calendar-event"></i> {{ application.dateCandidature|date('d/m/Y') }}</li> <!-- Date de candidature -->
-                                      <li><i class="bi bi-cash-stack"></i> {{ application.pretentionSalariale }}</li> <!-- Prétention salariale -->
-                                    </ul>
-                                  </td>
-                                </tr>
-                              {% endfor %}
-                            </tbody>
-                          </table>
+                            {% if pendings|length > 0 %}
+                            
+                            {% include 'dashboard/candidat/candidature/_pending.html.twig' %}
                           
                             {% else %}
                             <div class="text-center col-6 mx-auto">
                                 <i class=" h1 mx-auto my-5 bi bi-archive"></i>
-                                <p class="text-center">Vous n’avez aucune candidature en cours.</p>
+                                <p class="text-center">Vous n'avez aucune candidature en cours.</p>
                             </div>
                             {% endif %}
                             <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
@@ -78,11 +47,9 @@
         
                 <div class="tab-pane fade" id="accepted">
                     {% if accepteds|length > 0 %}
-                        {% for application in accepteds %}
-
-                        {{ dump(application) }}
-
-                        {% endfor %}
+                            
+                    {% include 'dashboard/candidat/candidature/_accepted.html.twig' %}
+                  
                     {% else %}
                     <div class="text-center col-6 mx-auto">
                         <i class=" h1 mx-auto my-5 bi bi-archive"></i>
@@ -94,11 +61,9 @@
         
                 <div class="tab-pane fade" id="refused">
                     {% if refuseds|length > 0 %}
-                        {% for application in refuseds %}
-
-                        {{ dump(application) }}
-
-                        {% endfor %}
+                            
+                    {% include 'dashboard/candidat/candidature/_refused.html.twig' %}
+                  
                     {% else %}
                     <div class="text-center col-6 mx-auto">
                         <i class=" h1 mx-auto my-5 bi bi-archive"></i>
@@ -110,11 +75,9 @@
         
                 <div class="tab-pane fade" id="archived">
                     {% if archiveds|length > 0 %}
-                        {% for application in archiveds %}
-
-                        {{ dump(application) }}
-
-                        {% endfor %}
+                            
+                    {% include 'dashboard/candidat/candidature/_archived.html.twig' %}
+                  
                     {% else %}
                     <div class="text-center col-6 mx-auto">
                         <i class=" h1 mx-auto my-5 bi bi-archive"></i>
