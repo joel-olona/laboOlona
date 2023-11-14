@@ -2,7 +2,10 @@
 
 namespace App\Entity\Moderateur;
 
+use App\Entity\Entreprise\JobListing;
 use App\Repository\Moderateur\TypeContratRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -22,6 +25,19 @@ class TypeContrat
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
+
+    #[ORM\OneToMany(mappedBy: 'typeContrat', targetEntity: JobListing::class)]
+    private Collection $jobListings;
+
+    public function __toString()
+    {
+        return $this->nom;
+    }
+
+    public function __construct()
+    {
+        $this->jobListings = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -60,6 +76,36 @@ class TypeContrat
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, JobListing>
+     */
+    public function getJobListings(): Collection
+    {
+        return $this->jobListings;
+    }
+
+    public function addJobListing(JobListing $jobListing): static
+    {
+        if (!$this->jobListings->contains($jobListing)) {
+            $this->jobListings->add($jobListing);
+            $jobListing->setTypeContrat($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJobListing(JobListing $jobListing): static
+    {
+        if ($this->jobListings->removeElement($jobListing)) {
+            // set the owning side to null (unless already changed)
+            if ($jobListing->getTypeContrat() === $this) {
+                $jobListing->setTypeContrat(null);
+            }
+        }
 
         return $this;
     }

@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Form\Search;
+namespace App\Form\Search\Annonce;
 
-use App\Entity\Entreprise\JobListing;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
-class EntrepriseAnnonceSearchType extends AbstractType
+class CandidatAnnonceSearchType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -18,14 +17,22 @@ class EntrepriseAnnonceSearchType extends AbstractType
                 'required' => false,
                 'label' => false,
                 'attr' => [
-                    'placeholder' => 'Titre de l\'annonce ...',
+                    'placeholder' => 'Titre du poste',
                 ]
             ])
-            ->add('status', ChoiceType::class, [
-                'choices' => JobListing::getStatuses(),
+            ->add('lieu', TextType::class, [
                 'required' => false,
                 'label' => false,
-                'placeholder' => 'Status ...',
+                'attr' => [
+                    'placeholder' => 'Lieu',
+                ]
+            ])
+            ->add('competences', TextType::class, [
+                'required' => false,
+                'label' => false,
+                'attr' => [
+                    'placeholder' => 'Compétences',
+                ]
             ])
             ->add('typeContrat', ChoiceType::class, [
                 'choices' => $options['types_contrat'],
@@ -35,13 +42,6 @@ class EntrepriseAnnonceSearchType extends AbstractType
                 'label' => false,
                 'required' => false,
                 'placeholder' => 'Contrat',
-            ])
-            ->add('salaire', TextType::class, [
-                'required' => false,
-                'label' => false,
-                'attr' => [
-                    'placeholder' => 'Salaire ...',
-                ]
             ])
         ;
     }
