@@ -21,7 +21,7 @@ use App\Form\Profile\Candidat\StepTwoType;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Form\Profile\Candidat\StepThreeType;
 use Symfony\Component\HttpFoundation\Request;
-use App\Form\Search\CandidatAnnonceSearchType;
+use App\Form\Search\Annonce\CandidatAnnonceSearchType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;

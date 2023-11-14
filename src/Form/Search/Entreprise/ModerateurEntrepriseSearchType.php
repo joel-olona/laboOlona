@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Form\Search;
+namespace App\Form\Search\Entreprise;
 
-use App\Entity\Entreprise\JobListing;
 use App\Entity\EntrepriseProfile;
 use App\Manager\ModerateurManager;
 use Symfony\Component\Form\AbstractType;

@@ -5,8 +5,8 @@ namespace App\Entity\Entreprise;
 use App\Entity\Candidate\Applications;
 use App\Entity\Candidate\Competences;
 use App\Entity\EntrepriseProfile;
-use App\Entity\Enum\TypeContrat;
 use App\Entity\Langue;
+use App\Entity\Moderateur\TypeContrat;
 use App\Entity\Secteur;
 use App\Entity\Vues\AnnonceVues;
 use App\Repository\Entreprise\JobListingRepository;
@@ -90,9 +90,6 @@ class JobListing
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $lieu = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $typeContrat = null;
-
     #[ORM\OneToMany(mappedBy: 'annonce', targetEntity: Applications::class)]
     private Collection $applications;
 
@@ -113,6 +110,9 @@ class JobListing
 
     #[ORM\Column(nullable: true)]
     private ?int $nombrePoste = null;
+
+    #[ORM\ManyToOne(inversedBy: 'jobListings')]
+    private ?TypeContrat $typeContrat = null;
 
     public function __construct()
     {
@@ -219,18 +219,6 @@ class JobListing
     public function setLieu(?string $lieu): static
     {
         $this->lieu = $lieu;
-
-        return $this;
-    }
-
-    public function getTypeContrat(): ?string
-    {
-        return $this->typeContrat;
-    }
-
-    public function setTypeContrat(?string $typeContrat): static
-    {
-        $this->typeContrat = $typeContrat;
 
         return $this;
     }
@@ -375,6 +363,18 @@ class JobListing
     public function setNombrePoste(?int $nombrePoste): static
     {
         $this->nombrePoste = $nombrePoste;
+
+        return $this;
+    }
+
+    public function getTypeContrat(): ?TypeContrat
+    {
+        return $this->typeContrat;
+    }
+
+    public function setTypeContrat(?TypeContrat $typeContrat): static
+    {
+        $this->typeContrat = $typeContrat;
 
         return $this;
     }
