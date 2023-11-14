@@ -1,0 +1,61 @@
+
+<div class="navigation">
+{{ knp_pagination_render(refuseds, 'parts/_pagination.html.twig') }}
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col" class="col-5"></th>
+            <th scope="col" class="col-5"></th>
+            <th scope="col" class="col-2"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for application in refuseds %}
+            <tr>
+                <!-- Colonne de gauche (Détails de l'offre) -->
+                <td>
+                    <small class="text-white px-2 bg-dark rounded">
+                        {{ application.annonce.typeContrat }}
+                    </small>
+                    <!-- Type de contrat -->
+                    <h5>
+                        {{ application.annonce.titre }}
+                    </h5>
+                    <!-- Titre du job -->
+                    <a href="{{ path('app_dashboard_candidat_annonce_show', {'jobId': application.annonce.jobId}) }}" class="btn btn-link">
+                        Voir l'offre
+                    </a>
+
+                </td>
+                <td>
+                    <small class="">
+                        {{ application.annonce.description|length > 150 ? application.annonce.description|slice(0, 147) ~ '...' : application.annonce.description }}
+                    </small>
+                <!-- Type de contrat -->
+                </td>
+
+                <!-- Colonne de droite (Informations du Candidat) -->
+                <td>
+                    <ul class="list-unstyled">
+                        <li>
+                            <i class="bi bi-geo-alt"></i>
+                            {{ application.annonce.lieu }}
+                        </li>
+                        <!-- Nom du candidat -->
+                        <li>
+                            <i class="bi bi-calendar-event"></i>
+                            {{ application.dateCandidature|date('d/m/Y') }}
+                        </li>
+                        <!-- Date de candidature -->
+                        <li>
+                            <i class="bi bi-cash-stack"></i>
+                            {{ application.pretentionSalariale }}
+                        </li>
+                    <!-- Prétention salariale -->
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

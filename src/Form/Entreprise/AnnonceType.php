@@ -5,6 +5,7 @@ namespace App\Form\Entreprise;
 use App\Entity\Candidate\Competences;
 use App\Entity\Secteur;
 use App\Entity\Entreprise\JobListing;
+use App\Entity\Moderateur\TypeContrat;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Doctrine\ORM\EntityManagerInterface;
@@ -45,14 +46,10 @@ class AnnonceType extends AbstractType
                 'widget' => 'single_text',  
                 'format' => 'yyyy-MM-dd',   
             ])
-            ->add('typeContrat', ChoiceType::class, [
-                'choices' => [
-                    'CDI' => 'CDI',
-                    'CDD' => 'CDD',
-                    'Stage' => 'Stage',
-                    'Alternance' => 'Alternance',
-                ],
-                'label' => 'app_dashboard_entreprise_posting_new.type'
+            ->add('typeContrat', EntityType::class, [
+                'class' => TypeContrat::class,
+                'label' => 'app_dashboard_entreprise_posting_new.type',
+                'attr' => []
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'app_dashboard_entreprise_posting_new.desc_form',

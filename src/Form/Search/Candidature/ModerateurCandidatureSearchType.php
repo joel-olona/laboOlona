@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Form\Search;
+namespace App\Form\Search\Candidature;
 
-use App\Entity\Entreprise\JobListing;
-use App\Entity\Moderateur\TypeContrat;
+use App\Entity\Candidate\Applications;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
-class CandidatAnnonceSearchType extends AbstractType
+class ModerateurCandidatureSearchType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -20,31 +18,28 @@ class CandidatAnnonceSearchType extends AbstractType
                 'required' => false,
                 'label' => false,
                 'attr' => [
-                    'placeholder' => 'Titre du poste',
+                    'placeholder' => 'Titre de l\'annonce ...',
                 ]
             ])
-            ->add('lieu', TextType::class, [
+            ->add('entreprise', TextType::class, [
                 'required' => false,
                 'label' => false,
                 'attr' => [
-                    'placeholder' => 'Lieu',
+                    'placeholder' => 'Entreprise ...',
                 ]
             ])
-            ->add('competences', TextType::class, [
+            ->add('candidat', TextType::class, [
                 'required' => false,
                 'label' => false,
                 'attr' => [
-                    'placeholder' => 'Compétences',
+                    'placeholder' => 'Candidat ...',
                 ]
             ])
-            ->add('typeContrat', ChoiceType::class, [
-                'choices' => $options['types_contrat'],
-                'choice_label' => function($typeContrat) {
-                    return $typeContrat->getNom(); // Assurez-vous que getNom() est une méthode valide dans votre entité TypeContrat
-                },
-                'label' => false,
+            ->add('status', ChoiceType::class, [
+                'choices' => Applications::getStatuses(),
                 'required' => false,
-                'placeholder' => 'Contrat',
+                'label' => false,
+                'placeholder' => 'Status ...',
             ])
         ;
     }
@@ -54,7 +49,6 @@ class CandidatAnnonceSearchType extends AbstractType
         $resolver->setDefaults([
             'method' => 'GET',
             'csrf_protection' => false,
-            'types_contrat' => [],
         ]);
     }
 }

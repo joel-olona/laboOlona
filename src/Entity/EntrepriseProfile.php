@@ -258,4 +258,18 @@ class EntrepriseProfile
 
         return $this;
     }
+    
+    /**
+     * Récupère toutes les candidatures pour les annonces d'emploi de cette entreprise.
+     * @return array
+     */
+    public function getAllApplications() {
+        $allApplications = [];
+        foreach ($this->jobListings as $jobListing) {
+            foreach ($jobListing->getApplications() as $application) {
+                $allApplications[] = $application;
+            }
+        }
+        return $allApplications;
+    }
 }

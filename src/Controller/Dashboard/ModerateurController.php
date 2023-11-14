@@ -19,10 +19,10 @@ use App\Entity\Candidate\Applications;
 use App\Entity\Moderateur\TypeContrat;
 use App\Entity\Notification;
 use App\Form\Moderateur\NotificationType;
-use App\Form\Search\SecteurSearchType;
+use App\Form\Search\Secteur\SecteurSearchType;
 use App\Form\Moderateur\TypeContratType;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Form\Search\TypeContratSearchType;
+use App\Form\Search\TypeContrat\TypeContratSearchType;
 use App\Repository\NotificationRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,13 +30,13 @@ use App\Repository\CandidateProfileRepository;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\EntrepriseProfileRepository;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Form\Search\ModerateurAnnonceSearchType;
-use App\Form\Search\ModerateurCandidatSearchType;
-use App\Form\Search\ModerateurCandidatureSearchType;
+use App\Form\Search\Annonce\ModerateurAnnonceSearchType;
+use App\Form\Search\Candidat\ModerateurCandidatSearchType;
+use App\Form\Search\Candidature\ModerateurCandidatureSearchType;
 use App\Repository\Moderateur\MettingRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use App\Form\Search\ModerateurEntrepriseSearchType;
+use App\Form\Search\Entreprise\ModerateurEntrepriseSearchType;
 use App\Manager\CandidatManager;
 use App\Repository\Entreprise\JobListingRepository;
 use App\Repository\Candidate\ApplicationsRepository;
@@ -736,10 +736,47 @@ class ModerateurController extends AbstractController
         }
 
         $status = $request->request->get('status');
-        if ($status && in_array($status, ['ACCEPTED', 'REFUSED', 'PENDING'])) {
+        if ($status && in_array($status, Applications::getArrayStatuses())) {
             $application->setStatus($status);
             $entityManager->flush();
+            
             $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
+
+            /** Envoi mail candidat */
+            $this->mailerService->send(
+                $application->getCandidat()->getCandidat()->getEmail(),
+                "Statut de votre candidature sur Olona Talents",
+                "candidat/status_candidature.html.twig",
+                [
+                    'user' => $application->getCandidat()->getCandidat(),
+                    'details_annonce' => $application->getAnnonce(),
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_candidat_annonces', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
+
+            /** Envoi mail entreprise */
+            $this->mailerService->send(
+                $application->getAnnonce()->getEntreprise()->getEntreprise()->getEmail(),
+                "Une candidature a été déposée sur votre annonce sur Olona Talents",
+                "entreprise/status_candidature.html.twig",
+                [
+                    'user' => $application->getAnnonce()->getEntreprise()->getEntreprise(),
+                    'details_annonce' => $application->getAnnonce(),
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_entreprise_candidatures', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
+
+            /** Envoi mail moderateurs */
+            $this->mailerService->sendMultiple(
+                $this->moderateurManager->getModerateurEmails(),
+                "Une nouvelle candidature a été déposée pour une annonce sur Olona Talents",
+                "moderateur/status_candidature.html.twig",
+                [
+                    'details_annonce' => $application->getAnnonce(),
+                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_moderateur_candidature_view', ['id' => $application->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
+
         } else {
             $this->addFlash('error', 'Statut invalide.');
         }
@@ -962,8 +999,8 @@ class ModerateurController extends AbstractController
         ]);
     }
 
-    #[Route('/candidature/{id}/job/{jobId}', name: 'app_dashboard_moderateur_candidature_view')]
-    public function candidature(Request $request, Applications $applications, JobListing $annonce): Response
+    #[Route('/candidature/{id}', name: 'app_dashboard_moderateur_candidature_view')]
+    public function candidature(Request $request, Applications $applications): Response
     {
         $redirection = $this->checkModerateur();
         if ($redirection !== null) {
@@ -972,7 +1009,33 @@ class ModerateurController extends AbstractController
         
         return $this->render('dashboard/moderateur/candidature/view.html.twig', [
             'application' => $applications,
-            'jobListing' => $annonce,
+        ]);
+    }
+
+    #[Route('/candidature/{id}/status', name: 'app_dashboard_moderateur_candidature_status')]
+    public function statusCandidature(Request $request, Applications $applications, NotificationRepository $notificationRepository): Response
+    {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
+        $status = $request->request->get('status');
+        if ($status && in_array($status, Applications::getArrayStatuses())) {
+            $applications->setStatus($status);
+            $this->em->persist($applications);
+            $this->em->flush();
+            /** Envoi mail */
+
+            $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
+        } else {
+            $this->addFlash('error', 'Statut invalide.');
+        }
+
+        return $this->redirectToRoute('app_dashboard_moderateur_candidat_applications', ['id' => $applications->getCandidat()->getId()]);
+        
+        return $this->render('dashboard/moderateur/notifications.html.twig', [
+            'sectors' => $notificationRepository->findAll(),
         ]);
     }
 

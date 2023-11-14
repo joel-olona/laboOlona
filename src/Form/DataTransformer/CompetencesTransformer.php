@@ -62,7 +62,7 @@ class CompetencesTransformer implements DataTransformerInterface
                     $competence = new Competences();
                     $competence
                         ->setNom($competenceId)
-                        ->setSlug($this->sluggerInterface->slug($competenceId))
+                        ->setSlug($this->sluggerInterface->slug(strtolower($competenceId)))
                     ; 
                     // ou toute autre opération pour initialiser l'entité
                     $this->entityManager->persist($competence);

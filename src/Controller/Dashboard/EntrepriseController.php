@@ -11,9 +11,9 @@ use App\Service\User\UserService;
 use App\Manager\EntrepriseManager;
 use App\Manager\ModerateurManager;
 use App\Form\Entreprise\AnnonceType;
-use App\Form\Profile\EntrepriseType;
 use App\Entity\Entreprise\JobListing;
 use App\Service\Mailer\MailerService;
+use App\Entity\Candidate\Applications;
 use App\Form\Profile\EditEntrepriseType;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -21,16 +21,16 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\CandidateProfileRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Form\Search\EntrepriseAnnonceSearchType;
-use App\Form\Search\EntrepriseCandidatSearchType;
+use App\Form\Search\Annonce\EntrepriseAnnonceSearchType;
 use App\Repository\Moderateur\MettingRepository;
+use App\Form\Search\Candidat\EntrepriseCandidatSearchType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\Entreprise\JobListingRepository;
 use App\Repository\Candidate\ApplicationsRepository;
 use App\Repository\Moderateur\TypeContratRepository;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use App\Form\Search\Candidature\EntrepriseCandidatureSearchType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/dashboard/entreprise')]
@@ -128,7 +128,7 @@ class EntrepriseController extends AbstractController
         }
 
 
-        return $this->render('dashboard/entreprise/annonce/annonces.html.twig', [
+        return $this->render('dashboard/entreprise/annonce/index.html.twig', [
             'job_listings' => $jobListingRepository->findBy(['entreprise' => $entreprise]),
             'annonces' => $paginatorInterface->paginate(
                 $data,
@@ -136,7 +136,7 @@ class EntrepriseController extends AbstractController
                 10
             ),
             'result' => $data,
-            'applications' => $this->applicationRepository->findBy(['jobListing' => $entreprise]),
+            'applications' => $entreprise->getAllApplications(),
             'meetings' => $this->mettingRepository->findBy(['entreprise' => $entreprise]),
             'form' => $form->createView()
         ]);
@@ -278,19 +278,18 @@ class EntrepriseController extends AbstractController
         $form = $this->createForm(EntrepriseCandidatSearchType::class);
         $form->handleRequest($request);
         
-        $data = $this->entrepriseManager->findValidCandidats();
+        $data = $this->entrepriseManager->findAllCandidats();
         if ($form->isSubmitted() && $form->isValid()) {
             $titre = $form->get('titre')->getData();
-            $status = $form->get('status')->getData();
-            $typeContratObjet = $form->get('typeContrat')->getData();
-            $typeContrat = $typeContratObjet ? $typeContratObjet->getNom() : null; 
-            $salaire = $form->get('salaire')->getData();
-            $data = $this->entrepriseManager->findAllCandidats($titre, $status, $typeContrat, $salaire);
+            $nom = $form->get('nom')->getData();
+            $competences = $form->get('competences')->getData();
+            $langues = $form->get('langues')->getData();
+            $data = $this->entrepriseManager->findAllCandidats($titre, $nom, $competences, $langues);
             if ($request->isXmlHttpRequest()) {
                 // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
                 return new JsonResponse([
-                    'content' => $this->renderView('dashboard/entreprise/annonce/_annonces.html.twig', [
-                        'annonces' => $paginatorInterface->paginate(
+                    'content' => $this->renderView('dashboard/entreprise/candidat/_candidats.html.twig', [
+                        'candidats' => $paginatorInterface->paginate(
                             $data,
                             $request->query->getInt('page', 1),
                             10
@@ -303,7 +302,12 @@ class EntrepriseController extends AbstractController
 
 
         return $this->render('dashboard/entreprise/candidat/index.html.twig', [
-            'candidats' => $data,
+            'candidats' => $paginatorInterface->paginate(
+                $data,
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'result' => $data,
             'form' => $form->createView(),
         ]);
     }
@@ -325,7 +329,7 @@ class EntrepriseController extends AbstractController
     }
 
     #[Route('/candidatures', name: 'app_dashboard_entreprise_candidatures')]
-    public function candidatures(): Response
+    public function candidatures(Request $request, PaginatorInterface $paginatorInterface): Response
     {
         $redirection = $this->checkEntreprise();
         if ($redirection !== null) {
@@ -334,22 +338,59 @@ class EntrepriseController extends AbstractController
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
         $entreprise = $user->getEntrepriseProfile();
-        $annonces = $entreprise->getJobListings();
-        $applications = [];
-        foreach($annonces as $annonce){
-            $annonceApplications = $annonce->getApplications();
-        
-            if ($annonceApplications instanceof \Doctrine\ORM\PersistentCollection) {
-                // Convertir la collection en un tableau
-                $annonceApplications = $annonceApplications->toArray();
+
+        $form = $this->createForm(EntrepriseCandidatureSearchType::class);
+        $form->handleRequest($request);
+
+        $data = $this->entrepriseManager->findAllCandidature();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $titre = $form->get('titre')->getData();
+            $candidat = $form->get('candidat')->getData();
+            $status = $form->get('status')->getData();
+            $data = $this->entrepriseManager->findAllCandidature($titre, $candidat, $status);
+            if ($request->isXmlHttpRequest()) {
+                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
+                return new JsonResponse([
+                    'content' => $this->renderView('dashboard/entreprise/candidature/_candidatures.html.twig', [
+                        'applications' => $paginatorInterface->paginate(
+                            $data,
+                            $request->query->getInt('page', 1),
+                            10
+                        ),
+                        'result' => $data,
+                        'meetings' => $this->mettingRepository->findBy(['entreprise' => $entreprise]),
+                    ]),
+                ]);
             }
-        
-            $applications = array_merge($applications, $annonceApplications);
         }
 
-        return $this->render('dashboard/entreprise/candidatures/index.html.twig', [
-            'annonces' => $annonces,
-            'applications' => $applications,
+        return $this->render('dashboard/entreprise/candidature/index.html.twig', [
+            'annonces' => $entreprise->getJobListings(),
+            'applications' => $paginatorInterface->paginate(
+                $data,
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'form' => $form->createView(),
+            'meetings' => $this->mettingRepository->findBy(['entreprise' => $entreprise]),
+            'result' => $data
+        ]);
+    }
+
+    #[Route('/candidature/{id}/view', name: 'app_dashboard_entreprise_view_candidature')]
+    public function candidatureView(Request $request, Applications $applications): Response
+    {
+        $redirection = $this->checkEntreprise();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
+        /** @var User $user */
+        $user = $this->userService->getCurrentUser();
+
+        return $this->render('dashboard/entreprise/candidature/view.html.twig', [
+            'application' => $applications,
+            'entreprise' => $user->getEntrepriseProfile(),
         ]);
     }
 
@@ -365,7 +406,9 @@ class EntrepriseController extends AbstractController
         $entreprise = $user->getEntrepriseProfile();
 
         return $this->render('dashboard/entreprise/metting/index.html.twig', [
-            'rendez_vous' => $entreprise->getMettings(),
+            'mettings' => $entreprise->getMettings(),
+            'annonces' => $entreprise->getJobListings(),
+            'applications' => $entreprise->getAllApplications(),
         ]);
     }
 
