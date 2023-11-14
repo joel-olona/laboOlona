@@ -976,6 +976,32 @@ class ModerateurController extends AbstractController
         ]);
     }
 
+    #[Route('/candidature/{id}/status', name: 'app_dashboard_moderateur_candidature_status')]
+    public function statusCandidature(Request $request, Applications $applications, NotificationRepository $notificationRepository): Response
+    {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
+        $status = $request->request->get('status');
+        if ($status && in_array($status, Applications::getArrayStatuses())) {
+            $applications->setStatus($status);
+            $this->em->persist($applications);
+            $this->em->flush();
+            /** Envoi mail */
+            $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
+        } else {
+            $this->addFlash('error', 'Statut invalide.');
+        }
+
+        return $this->redirectToRoute('app_dashboard_moderateur_candidat_applications', ['id' => $application->getCandidat()->getId()]);
+        
+        return $this->render('dashboard/moderateur/notifications.html.twig', [
+            'sectors' => $notificationRepository->findAll(),
+        ]);
+    }
+
     #[Route('/notifications', name: 'app_dashboard_moderateur_notifications')]
     public function notifications(Request $request, NotificationRepository $notificationRepository): Response
     {
