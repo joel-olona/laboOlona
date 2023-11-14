@@ -284,6 +284,13 @@ app_home:
             message: Entrez votre message
             number: Entez numéro de téléphone
 
+app_profile_account:
+    menu: "Trouver un profil"
+    title: "Découvrez nos Experts - Top 1 Plateforme d'Emploi et Freelance Francophone & Malagache"
+    description: "Explorez notre communauté d'experts qualifiés prêts à collaborer sur votre projet. Trouvez le professionnel idéal dans notre réseau de talents francophones et malgaches."
+    keywords: "experts, professionnels, freelance, talents, Madagascar, francophone"
+    see_all: "Tout voir"
+
 app_home_experts:
     menu: "Trouver un profil"
     title: "Découvrez nos Experts - Top 1 Plateforme d'Emploi et Freelance Francophone & Malagache"
@@ -703,6 +710,10 @@ app_dashboard_candidat_annonces:
         accepted: Acceptée
         finished: Terminée
         negociate: En cours de négociation
+
+app_dashboard_candidat_annonce_show:
+    title: "Tableau de bord"
+    dashboard_title: Détail de l'annonce
 
 app_dashboard_candidat_formation:
     title: "Tableau de bord"
