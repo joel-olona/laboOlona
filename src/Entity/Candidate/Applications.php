@@ -26,6 +26,15 @@ class Applications
             'Acceptée' => self::STATUS_ACCEPTED ,
         ];
     }
+
+    public static function getArrayStatuses() {
+        return [
+             self::STATUS_PENDING ,
+             self::STATUS_REJECTED ,
+             self::STATUS_ARCHIVED ,
+             self::STATUS_ACCEPTED ,
+        ];
+    }
     
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -143,5 +152,17 @@ class Applications
         $this->pretentionSalariale = $pretentionSalariale;
 
         return $this;
+    }
+    
+    /**
+    * Vérifie si cette application a été soumise par un candidat spécifique.
+    *
+    * @param CandidateProfile $candidateProfile Le profil de candidat à vérifier.
+    * @return bool Retourne true si l'application a été soumise par le candidat, false sinon.
+    */
+    public function isApplyByCandidate(CandidateProfile $candidateProfile): bool
+    {
+        // Vérifie si le candidat associé à cette application correspond au candidat fourni
+        return $this->candidat && $this->candidat->getId() === $candidateProfile->getId();
     }
 }

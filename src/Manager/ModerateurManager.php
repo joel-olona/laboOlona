@@ -325,35 +325,43 @@ class ModerateurManager
         return $qb->getQuery()->getResult();
     }
 
-    public function findAllCandidatures(?string $nom = null, ?string $secteur = null, ?string $status = null): array
+    public function findAllCandidatures(?string $titre = null, ?string $entreprise = null, ?string $candidat = null, ?string $status = null): array
     {
         $qb = $this->em->createQueryBuilder();
 
         $parameters = [];
         $conditions = [];
 
-        if($nom == null && $secteur == null && $status == null){
+        if($titre == null && $entreprise == null && $candidat == null && $status == null){
             return $this->applicationsRepository->findAll();
         }
 
-        if (!empty($secteur)) {
-            $conditions[] = '(s.nom LIKE :secteur )';
-            $parameters['secteur'] = '%' . $secteur . '%';
+        if (!empty($entreprise)) {
+            $conditions[] = '(e.nom LIKE :entreprise )';
+            $parameters['entreprise'] = '%' . $entreprise . '%';
         }
 
-        if (!empty($nom)) {
-            $conditions[] = '(e.nom LIKE :nom )';
-            $parameters['nom'] = '%' . $nom . '%';
+        if (!empty($titre)) {
+            $conditions[] = '(p.titre LIKE :titre )';
+            $parameters['titre'] = '%' . $titre . '%';
         }
 
         if (!empty($status)) {
-            $conditions[] = '(e.status LIKE :status )';
+            $conditions[] = '(a.status LIKE :status )';
             $parameters['status'] = '%' . $status . '%';
         }
 
-        $qb->select('e')
-            ->from('App\Entity\Entreprise\Applications', 'e')
-            ->leftJoin('e.secteurs', 's')
+        if (!empty($candidat)) {
+            $conditions[] = '(u.nom LIKE :candidat )';
+            $parameters['candidat'] = '%' . $candidat . '%';
+        }
+
+        $qb->select('a')
+            ->from('App\Entity\Candidate\Applications', 'a')
+            ->leftJoin('a.annonce', 'p')
+            ->leftJoin('a.candidat', 'c')
+            ->leftJoin('c.candidat', 'u')
+            ->leftJoin('p.entreprise', 'e')
             ->where(implode(' AND ', $conditions))
             ->setParameters($parameters);
         

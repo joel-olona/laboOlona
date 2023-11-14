@@ -16,7 +16,7 @@
         <dd>{{ annonce.status }}</dd>
         <!-- ... Ajoutez d'autres champs si nécessaire ... -->
     </dl>
-    <a href="{{ path('app_dashboard_moderateur_entreprises_annonces', {'id': entreprise.id}) }}" class="btn btn-secondary">Retour</a>
+<a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
 
 </div>
 {% endblock %}
