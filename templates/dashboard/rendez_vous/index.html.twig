@@ -1,0 +1,41 @@
+{% extends 'dashboard/base.html.twig' %}
+
+
+{% block title %}Liste des Rendez-vous{% endblock %}
+
+{% block body %}
+<div class="container mt-3">
+<h1 class="mb-4">Liste des Rendez-vous</h1>
+    <hr>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date et Heure</th>
+                <th>Lieu</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rendezvous in rendezvousList %}
+            <tr>
+                <td>{{ rendezvous.dateRendezVous|date('d/m/Y H:i') }}</td>
+                <td>{{ rendezvous.lieu }}</td>
+                <td>
+                    <a href="{{ path('rendezvous_show', {'id': rendezvous.id}) }}" class="btn btn-info">Détails</a>
+                    <a href="{{ path('rendezvous_edit', {'id': rendezvous.id}) }}" class="btn btn-primary">Modifier</a>
+                    {% if app.user.type is same as(constant('App\\Entity\\User::ACCOUNT_MODERATEUR')) %}
+                        <a href="{{ path('rendezvous_reschedule', {'id': rendezvous.id}) }}" class="btn btn-warning">Reprogrammer</a>
+                        <a href="{{ path('rendezvous_send_invitation', {'id': rendezvous.id}) }}" class="btn btn-success">Envoyer Invitation</a>
+                        <a href="{{ path('rendezvous_send_reminder', {'id': rendezvous.id}) }}" class="btn btn-secondary">Envoyer Rappel</a>
+                        <a href="{{ path('rendezvous_sync_calendar', {'id': rendezvous.id}) }}" class="btn btn-dark">Synchroniser Calendrier</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+</div>
+
+{% endblock %}
