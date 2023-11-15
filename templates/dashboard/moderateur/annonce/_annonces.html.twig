@@ -12,6 +12,7 @@
                 <th class="col-3">Titre</th>
                 <th class="col-3">Entreprise</th>
                 <th class="col-2">Status</th>
+                <th class="col-2">Nb de vue</th>
                 <th class="col-2">Candidature</th>
                 <th class="col-3">Actions</th>
             </tr>
@@ -35,10 +36,15 @@
                             </select>
                         </form>
                     </td>
-                    <td>{{ annonce.applications|length }}</td>
+                    <td>{{ annonce.annonceVues|length }}</td>
+                    <td>
+                        <a href="{{path('app_dashboard_moderateur_annonce_candidature_view', { 'id': annonce.id}) }}" class="btn btn-sm btn-secondary">
+                            {{ annonce.applications|length }}
+                        </a>
+                    </td>
                     <td class="actions-col">
-                        <a href="{{path('app_dashboard_moderateur_annonce_view', { 'id': annonce.id}) }}" class="btn btn-sm btn-info">Voir</a>
-                        <a href="{{path('delete_annonce', { 'id': annonce.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?');">Supprimer</a>
+                        <a href="{{path('app_dashboard_moderateur_annonce_view', { 'id': annonce.id}) }}" class="btn btn-sm btn-info rounded-pill"><i class="bi mx-1 bi-eye"></i></a>
+                        <a href="{{path('delete_annonce', { 'id': annonce.id}) }}" class="btn btn-sm btn-danger rounded-pill" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?');"><i class="bi mx-1 bi-trash"></i></a>
                     </td>
                 </tr>
             {% endfor %}

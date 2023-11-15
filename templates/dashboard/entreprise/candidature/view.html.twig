@@ -12,27 +12,21 @@
             </div>
             <div class="card-body">
 
-                <h5 class="card-title text-secondary">
+                {# <h5 class="card-title text-secondary">
                     Resumé du candidature
-                </h5>
+                </h5> #}
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="col-md-4 mx-auto">
+                        <div class="col-md-4">
                             <img src="{{vich_uploader_asset(application.candidat, 'file')}}" class="card-img-top" alt="avatar">
                         </div>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item">
+                            {# <li class="list-group-item">
                                 Pretention : 
                                 <span class="text-success">
                                     {{ application.pretentionSalariale }}
                                 </span>
-                            </li>
-                            <li class="list-group-item">
-                                Date candidature: 
-                                <span class="text-danger">
-                                    {{ application.dateCandidature|date('d/m/Y') }}
-                                </span>
-                            </li>
+                            </li> #}
                         </ul>
                     </div>
                     <div class="col-md-6">
@@ -44,12 +38,12 @@
                                     {{ application.candidat.candidat.prenom }}
                                 </span>
                             </li>
-                            <li class="list-group-item">
+                            {# <li class="list-group-item">
                                 Email : 
                                 <span class="text-success">
                                     {{ application.candidat.candidat.email }}
                                 </span>
-                            </li>
+                            </li> #}
                             <li class="list-group-item">
                                 Titre : 
                                 <span class="text-info">
@@ -66,6 +60,12 @@
                                 Competences : 
                                 <span class="text-info">
                                     {{ application.candidat.competences|length }}
+                                </span>
+                            </li>
+                            <li class="list-group-item">
+                                Date candidature: 
+                                <span class="text-danger">
+                                    {{ application.dateCandidature|date('d/m/Y') }}
                                 </span>
                             </li>
                         </ul>

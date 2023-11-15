@@ -302,6 +302,23 @@ class CandidatController extends AbstractController
         ]);
     }
 
+    #[Route('/annonce/{jobId}/details', name: 'app_dashboard_candidat_annonce_details')]
+    public function detailsAnnonce(Request $request, JobListing $annonce): Response
+    {
+        $redirection = $this->checkCandidat();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+        /** @var User $user */
+        $user = $this->userService->getCurrentUser();
+        $candidat = $user->getCandidateProfile();
+
+        return $this->render('dashboard/candidat/annonces/details.html.twig', [
+            'annonce' => $annonce,
+            'candidat' => $candidat,
+        ]);
+    }
+
     #[Route('/all/annonces', name: 'app_dashboard_candidat_annonces')]
     public function allAnnonces(Request $request, PaginatorInterface $paginatorInterface): Response
     {
