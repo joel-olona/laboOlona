@@ -13,6 +13,38 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: MettingRepository::class)]
 class Metting
 {
+
+    const STATUS_PENDING = 'PENDING';
+    const STATUS_CONFIRMED = 'CONFIRMED';
+    const STATUS_RESCHEDULED = 'RESCHEDULED';
+    const STATUS_CANCELLED = 'CANCELLED';
+    const STATUS_COMPLETED = 'COMPLETED';
+    const STATUS_NOSHOW = 'NOSHOW';
+
+
+    public static function getStatuses() {
+        return [
+            'En attente' => self::STATUS_PENDING ,
+            'Confirmé' => self::STATUS_CONFIRMED ,
+            'Reprogrammé' => self::STATUS_RESCHEDULED ,
+            'Annulé' => self::STATUS_CANCELLED ,
+            'Complété' => self::STATUS_COMPLETED ,
+            'Non présentation' => self::STATUS_NOSHOW ,
+        ];
+    }
+
+    public static function getArrayStatuses() {
+        return [
+             self::STATUS_PENDING ,
+             self::STATUS_CONFIRMED ,
+             self::STATUS_RESCHEDULED ,
+             self::STATUS_CANCELLED ,
+             self::STATUS_COMPLETED ,
+             self::STATUS_NOSHOW ,
+        ];
+    }
+
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -38,6 +70,15 @@ class Metting
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $commentaire = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $link = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $title = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $creeLe = null;
 
     public function getId(): ?int
     {
@@ -124,6 +165,42 @@ class Metting
     public function setCommentaire(?string $commentaire): static
     {
         $this->commentaire = $commentaire;
+
+        return $this;
+    }
+
+    public function getLink(): ?string
+    {
+        return $this->link;
+    }
+
+    public function setLink(?string $link): static
+    {
+        $this->link = $link;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): static
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getCreeLe(): ?\DateTimeInterface
+    {
+        return $this->creeLe;
+    }
+
+    public function setCreeLe(\DateTimeInterface $creeLe): static
+    {
+        $this->creeLe = $creeLe;
 
         return $this;
     }

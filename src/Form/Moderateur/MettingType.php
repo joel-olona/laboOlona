@@ -21,6 +21,14 @@ class MettingType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('title', TextType::class, [
+                'label' => 'Titre',
+                'required' => false 
+            ])
+            ->add('link', TextType::class, [
+                'label' => 'Lien',
+                'required' => false 
+            ])
             ->add('entreprise', EntityType::class, [
                 'class' => EntrepriseProfile::class,
                 'label' => 'Entreprise',
@@ -33,7 +41,10 @@ class MettingType extends AbstractType
             ])
             ->add('dateRendezVous', DateTimeType::class, [
                 'widget' => 'single_text',
-                'label' => 'Date du Rendez-vous'
+                'label' => 'Date du Rendez-vous',
+                'attr' => [
+                    'class' => 'form-control datetime-picker'
+                ]
             ])
             ->add('lieu', TextType::class, [
                 'label' => 'Lieu',
