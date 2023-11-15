@@ -1,0 +1,25 @@
+{% extends 'dashboard/base.html.twig' %}
+
+
+{% block title %}Modifier un rendez-vous {% endblock %}
+
+{% block body %}
+<div class="container mt-3 col-md-6">
+<h1 class="mb-4 h2">Modifier un rendez-vous</h1>
+    <hr>
+        {{ form_start(form) }}
+            <div class="form-group">
+                {{ form_label(form) }}
+                {{ form_widget(form) }}
+                {{ form_errors(form) }}
+            </div>
+        
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Enregistrer les Modifications</button>
+                <a href="{{ path('rendezvous_index') }}" class="btn btn-secondary">Annuler</a>
+            </div>
+        {{ form_end(form) }}
+    
+</div>
+
+{% endblock %}
