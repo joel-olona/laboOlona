@@ -12,7 +12,10 @@
             <!-- Onglets -->
             <ul class="nav nav-tabs justify-content-center nav-underline">
                 <li class="nav-item">
-                    <a class="nav-link active" id="pending-tab" data-bs-toggle="tab" href="#pending">En cours</a>
+                    <a class="nav-link active" id="pending-tab" data-bs-toggle="tab" href="#pending">En attente</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="metting-tab" data-bs-toggle="tab" href="#metting">Rendez-vous</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="accepted-tab" data-bs-toggle="tab" href="#accepted">Acceptées</a>
@@ -28,6 +31,24 @@
             <!-- Contenu des onglets -->
             <div class="tab-content mt-3">
                 <div class="tab-pane fade show active" id="pending">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if pendings|length > 0 %}
+                            
+                            {% include 'dashboard/candidat/candidature/_pending.html.twig' %}
+                          
+                            {% else %}
+                            <div class="text-center col-6 mx-auto">
+                                <i class=" h1 mx-auto my-5 bi bi-archive"></i>
+                                <p class="text-center">Vous n'avez aucune candidature en cours.</p>
+                            </div>
+                            {% endif %}
+                            <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade show" id="metting">
                     <div class="card">
                         <div class="card-body">
                             {% if pendings|length > 0 %}

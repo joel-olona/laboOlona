@@ -515,9 +515,17 @@ app_dashboard_moderateur_secteur:
     title: Modération
     dashboard_title: Secteurs d'activité
 
+app_dashboard_moderateur_edit_secteur:
+    title: Modération
+    dashboard_title: Modifier un secteurs d'activité
+
 app_dashboard_moderateur_type_contrat:
     title: Modération
     dashboard_title: Type de contrat
+
+app_dashboard_moderateur_edit_type_contrat:
+    title: Modération
+    dashboard_title: Modifier untype de contrat
 
 app_dashboard_moderateur_annonces:
     title: Modération
@@ -527,6 +535,10 @@ app_dashboard_moderateur_annonce_view:
     title: Modération
     dashboard_title: Détails de l'Annonce
 
+app_dashboard_moderateur_annonce_candidature_view:
+    title: Modération
+    dashboard_title: Candidatures de l'Annonce
+
 app_dashboard_moderateur_annonce_notifier:
     title: Modération
     dashboard_title: Signaler une annonce
@@ -535,9 +547,21 @@ app_dashboard_moderateur_entreprises:
     title: Modération
     dashboard_title: Entreprises
 
+app_dashboard_moderateur_entreprises_annonces:
+    title: Modération
+    dashboard_title: Annonces entreprises
+
 app_dashboard_moderateur_candidats:
     title: Modération
     dashboard_title: Candidats
+
+app_dashboard_moderateur_candidat_view:
+    title: Modération
+    dashboard_title: Détails ud candidat
+
+app_dashboard_moderateur_candidature_view:
+    title: Modération
+    dashboard_title: Candidature
 
 app_dashboard_moderateur_mettings:
     title: Modération
