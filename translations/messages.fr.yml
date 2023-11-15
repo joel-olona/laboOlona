@@ -547,6 +547,10 @@ app_dashboard_moderateur_entreprises:
     title: Modération
     dashboard_title: Entreprises
 
+app_dashboard_moderateur_entreprises_annonces:
+    title: Modération
+    dashboard_title: Annonces entreprises
+
 app_dashboard_moderateur_candidats:
     title: Modération
     dashboard_title: Candidats
