@@ -372,6 +372,20 @@ class ModerateurController extends AbstractController
         ]);
     }
 
+    #[Route('/annonce/{id}/candidature', name: 'app_dashboard_moderateur_annonce_candidature_view', methods: ['GET'])]
+    public function viewCandidatureAnnonce(JobListing $annonce): Response
+    {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
+        return $this->render('dashboard/moderateur/annonce/candidature.html.twig', [
+            'annonce' => $annonce,
+            'candidatures' => $annonce->getApplications(),
+        ]);
+    }
+
     #[Route('/notifier/{annonce}/entreprise/{entreprise}', name: 'app_dashboard_moderateur_annonce_notifier')]
     public function notifierAnnonce(Request $request, JobListing $annonce, EntrepriseProfile $entreprise): Response
     {
