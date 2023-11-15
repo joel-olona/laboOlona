@@ -21,6 +21,7 @@ use App\Entity\Notification;
 use App\Form\Moderateur\NotificationType;
 use App\Form\Search\Secteur\SecteurSearchType;
 use App\Form\Moderateur\TypeContratType;
+use App\Form\Search\Annonce\ModerateurAnnonceEntrepriseSearchType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Form\Search\TypeContrat\TypeContratSearchType;
 use App\Repository\NotificationRepository;
@@ -574,18 +575,48 @@ class ModerateurController extends AbstractController
     }
 
     #[Route('/entreprises/{id}/annonces', name: 'app_dashboard_moderateur_entreprises_annonces')]
-    public function entreprisesAnnonces(EntrepriseProfile $entreprise, JobListingRepository $jobListingRepository): Response
+    public function entreprisesAnnonces(Request $request, PaginatorInterface $paginatorInterface, EntrepriseProfile $entreprise, JobListingRepository $jobListingRepository): Response
     {
         $redirection = $this->checkModerateur();
         if ($redirection !== null) {
             return $redirection; 
         }
 
+        /** Formulaire de recherche entreprise */
+        $form = $this->createForm(ModerateurAnnonceEntrepriseSearchType::class);
+        $form->handleRequest($request);
+        $data = $this->moderateurManager->findAllAnnonceByEntreprise($entreprise);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $nom = $form->get('nom')->getData();
+            $status = $form->get('status')->getData();
+            $secteur = $form->get('secteur')->getData();
+            $data = $this->moderateurManager->findAllAnnonceEntreprise($entreprise, $nom, $secteur, $status);
+            if ($request->isXmlHttpRequest()) {
+                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
+                return new JsonResponse([
+                    'content' => $this->renderView('dashboard/moderateur/entreprise/_annonces.html.twig', [
+                        'annonces' => $paginatorInterface->paginate(
+                            $data,
+                            $request->query->getInt('page', 1),
+                            10
+                        ),
+                        'result' => $data
+                    ])
+                ]);
+            }
+        }
+
         $annonces = $jobListingRepository->findBy(['entreprise' => $entreprise]);
 
-        return $this->render('dashboard/moderateur/entreprises_annonces.html.twig', [
+        return $this->render('dashboard/moderateur/entreprise/annonces.html.twig', [
+            'annonces' => $paginatorInterface->paginate(
+                $data,
+                $request->query->getInt('page', 1),
+                10
+            ),
+            'result' => $data,
             'entreprise' => $entreprise,
-            'annonces' => $annonces,
+            'form' => $form->createView(),
         ]);
     }
 

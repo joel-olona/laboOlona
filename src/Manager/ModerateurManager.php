@@ -2,6 +2,7 @@
 
 namespace App\Manager;
 
+use App\Entity\EntrepriseProfile;
 use DateTime;
 use App\Entity\Langue;
 use App\Entity\Secteur;
@@ -154,6 +155,14 @@ class ModerateurManager
         return $this->entrepriseProfileRepository->findAll();
     }
 
+    public function findAllAnnonceByEntreprise(EntrepriseProfile $entreprise): array
+    {
+        return $this->jobListingRepository->findBy(
+            ['entreprise' => $entreprise],
+            ['id' => 'DESC'],
+        );
+    }
+
     public function findAllCandidat(): array
     {
         return $this->candidateProfileRepository->findAll();
@@ -285,6 +294,46 @@ class ModerateurManager
             ->from('App\Entity\CandidateProfile', 'c')
             ->leftJoin('c.candidat', 'u')
             ->where(implode(' AND ', $conditions))
+            ->setParameters($parameters);
+        
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findAllAnnonceEntreprise(EntrepriseProfile $entreprise, ?string $nom = null, ?string $secteur = null, ?string $status = null): array
+    {
+        $qb = $this->em->createQueryBuilder();
+
+        $parameters = [
+            'entreprise' => $entreprise,
+        ];
+
+        $conditions = [];
+
+        if($nom == null && $secteur == null && $status == null){
+            return $this->findAllAnnonceByEntreprise($entreprise);
+        }
+
+        if (!empty($nom)) {
+            $conditions[] = '(j.titre LIKE :nom )';
+            $parameters['nom'] = '%' . $nom . '%';
+        }
+
+        if (!empty($secteur)) {
+            $conditions[] = '(s.nom LIKE :secteur )';
+            $parameters['secteur'] = '%' . $secteur . '%';
+        }
+
+        if (!empty($status)) {
+            $conditions[] = '(j.status LIKE :status )';
+            $parameters['status'] = '%' . $status . '%';
+        }
+
+        $qb->select('j')
+            ->from('App\Entity\Entreprise\JobListing', 'j')
+            ->leftJoin('j.secteur', 's')
+            ->where(implode(' AND ', $conditions))
+            ->andWhere('j.entreprise = :entreprise')
+            ->orderBy('j.id', 'DESC')
             ->setParameters($parameters);
         
         return $qb->getQuery()->getResult();
