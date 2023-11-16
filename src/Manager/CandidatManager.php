@@ -100,7 +100,11 @@ class CandidatManager
     
     public function getAll(): array
     {
-        return $this->candidateProfileRepository->findAll();
+        $queryBuilder = $this->candidateProfileRepository->createQueryBuilder('m')
+            ->orderBy('m.id', 'DESC')
+            ->getQuery();
+            
+        return $queryBuilder->getResult();
     }
 
     public function searchAnnonce(?string $titre = null, ?string $lieu = null, ?string $typeContrat = null, ?string $competences = null): array

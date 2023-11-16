@@ -9,12 +9,49 @@
     <hr>
         {{ form_start(form) }}
             <div class="form-group">
+                {{ form_label(form.title) }}
+                {{ form_widget(form.title) }}
+                {{ form_errors(form.title) }}
+            </div>
+            <div class="form-group">
+                {{ form_label(form.dateRendezVous) }}
+                {{ form_widget(form.dateRendezVous) }}
+                {{ form_errors(form.dateRendezVous) }}
+            </div>
+            {% if app.user.type is same as(constant('App\\Entity\\User::ACCOUNT_MODERATEUR')) %}
+                <div class="form-group">
+                    {{ form_label(form.candidat) }}
+                    {{ form_widget(form.candidat) }}
+                    {{ form_errors(form.candidat) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.entreprise) }}
+                    {{ form_widget(form.entreprise) }}
+                    {{ form_errors(form.entreprise) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.link) }}
+                    {{ form_widget(form.link) }}
+                    {{ form_errors(form.link) }}
+                </div>
+            {% endif %}
+            <div class="form-group">
+                {{ form_label(form.lieu) }}
+                {{ form_widget(form.lieu) }}
+                {{ form_errors(form.lieu) }}
+            </div>
+            <div class="form-group">
+                {{ form_label(form.commentaire) }}
+                {{ form_widget(form.commentaire) }}
+                {{ form_errors(form.commentaire) }}
+            </div>
+            <div style="display:none;">
                 {{ form_label(form) }}
                 {{ form_widget(form) }}
                 {{ form_errors(form) }}
             </div>
         
-            <div class="form-group">
+            <div class="form-group my-3">
                 <button type="submit" class="btn btn-primary">Enregistrer les Modifications</button>
                 <a href="{{ path('rendezvous_index') }}" class="btn btn-secondary">Annuler</a>
             </div>
@@ -22,4 +59,5 @@
     
 </div>
 
+<a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
 {% endblock %}
