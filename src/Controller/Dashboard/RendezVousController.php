@@ -2,6 +2,7 @@
 
 namespace App\Controller\Dashboard;
 
+use DateTime;
 use App\Entity\User;
 use App\Form\MettingType;
 use App\Entity\Notification;
@@ -11,12 +12,15 @@ use App\Entity\Moderateur\Metting;
 use App\Manager\ModerateurManager;
 use App\Manager\RendezVousManager;
 use App\Service\Mailer\MailerService;
+use App\Entity\Candidate\Applications;
+use App\Entity\ModerateurProfile;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\Moderateur\MettingRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
+use App\Repository\Candidate\ApplicationsRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -31,6 +35,7 @@ class RendezVousController extends AbstractController
         private CandidatManager $candidatManager,
         private RendezVousManager $rendezVousManager,
         private MettingRepository $mettingRepository,
+        private ApplicationsRepository $applicationsRepository,
         private RequestStack $requestStack,
         private UrlGeneratorInterface $urlGenerator,
     ) {
@@ -52,12 +57,57 @@ class RendezVousController extends AbstractController
     #[Route('/create', name: 'rendezvous_create')]
     public function create(Request $request): Response
     {
-        $rendezvous = new Metting();
+        /** @var User $user */
+        $user = $this->userService->getCurrentUser();
+        $candidature = $this->applicationsRepository->find($request->query->get('candidature', ''));
+
+        if($candidature instanceof Applications){
+            $rendezvous = $this->rendezVousManager->createRendezVous($user->getModerateurProfile(), $candidature->getCandidat(), $candidature->getAnnonce()->getEntreprise());
+        }else{
+            $rendezVous = new Metting();
+            $rendezVous->setModerateur($user->getModerateurProfile());
+            $rendezVous->setCreeLe(new DateTime());
+            $rendezVous->setStatus(Metting::STATUS_PENDING);
+        }
+
         $form = $this->createForm(MettingType::class, $rendezvous);
         $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $rendezVous = $form->getData();
+            $this->em->persist($rendezVous);
+            $this->em->flush();
+
+            /** Envoi mail candidat */
+            $this->mailerService->send(
+                $rendezVous->getCandidat()->getCandidat()->getEmail(),
+                "Vous avez un rendez-vous pour un entretien sur Olona Talents",
+                "candidat/notification_rendezvous.html.twig",
+                [
+                    'user' => $rendezVous->getCandidat()->getCandidat(),
+                    'rendezvous' => $rendezVous,
+                    'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
+
+            /** Envoi mail entreprise */
+            $this->mailerService->send(
+                $rendezVous->getEntreprise()->getEntreprise()->getEmail(),
+                "Vous avez un rendez-vous pour un entretien sur Olona Talents",
+                "entreprise/notification_rendezvous.html.twig",
+                [
+                    'user' => $rendezVous->getEntreprise()->getEntreprise(),
+                    'rendezvous' => $rendezVous,
+                    'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
+
+            $this->addFlash('success', 'Rendez-vous sauvegarder');
+
+            return  $this->redirectToRoute('rendezvous_index', []);
+        }
 
         return $this->render('dashboard/rendez_vous/create.html.twig', [
-            'rendezvousList' => $this->mettingRepository->findAll(),
+            'rendezvousList' => $this->moderateurManager->findAllOrderDesc($this->mettingRepository),
             'form' => $form->createView(),
         ]);
     }
@@ -75,6 +125,57 @@ class RendezVousController extends AbstractController
     {
         $form = $this->createForm(MettingType::class, $rendezvous);
         $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $rendezVous = $form->getData();
+            /** @var User $user */
+            $user = $this->userService->getCurrentUser();
+            $role = $this->rendezVousManager->getUserRole($user);
+            if($role instanceof ModerateurProfile){
+                /** Seuls les moderateurs peuvent mettre à jour */
+                $this->em->persist($rendezVous);
+                $this->em->flush();
+                /** Envoi mail candidat & entrepise */
+                $this->mailerService->send(
+                    $rendezVous->getEntreprise()->getEntreprise()->getEmail(),
+                    "Reprogrammation rendez-vous",
+                    "moderateur/modification_rendezvous.html.twig",
+                    [
+                        'user' => $rendezVous->getEntreprise()->getEntreprise(),
+                        'rendezvous' => $rendezVous,
+                        'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                    ]
+                );
+                $this->mailerService->send(
+                    $rendezVous->getCandidat()->getCandidat()->getEmail(),
+                    "Reprogrammation rendez-vous",
+                    "moderateur/modification_rendezvous.html.twig",
+                    [
+                        'user' => $rendezVous->getCandidat()->getCandidat(),
+                        'rendezvous' => $rendezVous,
+                        'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                    ]
+                );
+
+                $this->addFlash('success', 'Cangement de rendez-vous envoyée au candidat et à l\'entreprise');
+            }else{
+                /** Envoi mail aux modérateurs */
+                $this->mailerService->sendMultiple(
+                    $this->moderateurManager->getModerateurEmails(),
+                    "Demande de reprogrammation rendez-vous par un ".$this->rendezVousManager->getUserTypeByRole($role),
+                    "moderateur/reprogrammation_rendezvous.html.twig",
+                    [
+                        'user' => $role,
+                        'rendezvous' => $rendezVous,
+                        'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                    ]
+                );
+
+                $this->addFlash('success', 'Demande de changement de rendez-vous envoyée aux modérateur');
+
+            }
+
+            return  $this->redirectToRoute('rendezvous_index', []);
+        }
 
         return $this->render('dashboard/rendez_vous/edit.html.twig', [
             'rendezvous' => $rendezvous,
@@ -108,16 +209,37 @@ class RendezVousController extends AbstractController
     public function sync(): Response
     {
         return $this->render('dashboard/rendez_vous/index.html.twig', [
-            'rendezvousList' => $this->mettingRepository->findAll(),
+            'rendezvousList' => $this->moderateurManager->findAllOrderDesc($this->mettingRepository),
         ]);
     }
     
     #[Route('/{id}/send-reminder', name: 'rendezvous_send_reminder')]
-    public function sendReminder(Request $request, Metting $rendezvous): Response
+    public function sendReminder(Request $request, Metting $rendezVous): Response
     {
-        return $this->render('dashboard/rendez_vous/reminder.html.twig', [
-            'rendezvous' => $rendezvous,
-        ]);
+        /** Envoi mail candidat & entrepise */
+        $this->mailerService->send(
+            $rendezVous->getEntreprise()->getEntreprise()->getEmail(),
+            "Rappel de votre Entretien",
+            "entreprise/rappel_rendezvous.html.twig",
+            [
+                'user' => $rendezVous->getEntreprise()->getEntreprise(),
+                'rendezvous' => $rendezVous,
+                'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+            ]
+        );
+        $this->mailerService->send(
+            $rendezVous->getCandidat()->getCandidat()->getEmail(),
+            "Rappel de votre Entretien",
+            "candidat/rappel_rendezvous.html.twig",
+            [
+                'user' => $rendezVous->getCandidat()->getCandidat(),
+                'rendezvous' => $rendezVous,
+                'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+            ]
+        );
+
+        $this->addFlash('success', 'Un emal de rappel a été envoyé');
+        return  $this->redirectToRoute('rendezvous_index', []);
     }
     
     #[Route('/{id}/reschedule', name: 'rendezvous_reschedule')]
@@ -125,6 +247,57 @@ class RendezVousController extends AbstractController
     {
         $form = $this->createForm(MettingType::class, $rendezvous);
         $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $rendezVous = $form->getData();
+            /** @var User $user */
+            $user = $this->userService->getCurrentUser();
+            $role = $this->rendezVousManager->getUserRole($user);
+            if($role instanceof ModerateurProfile){
+                /** Seuls les moderateurs peuvent mettre à jour */
+                $this->em->persist($rendezVous);
+                $this->em->flush();
+                /** Envoi mail candidat & entrepise */
+                $this->mailerService->send(
+                    $rendezVous->getEntreprise()->getEntreprise()->getEmail(),
+                    "Reprogrammation rendez-vous",
+                    "moderateur/modification_rendezvous.html.twig",
+                    [
+                        'user' => $rendezVous->getEntreprise()->getEntreprise(),
+                        'rendezvous' => $rendezVous,
+                        'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                    ]
+                );
+                $this->mailerService->send(
+                    $rendezVous->getCandidat()->getCandidat()->getEmail(),
+                    "Reprogrammation rendez-vous",
+                    "moderateur/modification_rendezvous.html.twig",
+                    [
+                        'user' => $rendezVous->getCandidat()->getCandidat(),
+                        'rendezvous' => $rendezVous,
+                        'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                    ]
+                );
+
+                $this->addFlash('success', 'Cangement de rendez-vous envoyée au candidat et à l\'entreprise');
+            }else{
+                /** Envoi mail aux modérateurs */
+                $this->mailerService->sendMultiple(
+                    $this->moderateurManager->getModerateurEmails(),
+                    "Demande de reprogrammation rendez-vous par un ".$this->rendezVousManager->getUserTypeByRole($role),
+                    "moderateur/reprogrammation_rendezvous.html.twig",
+                    [
+                        'user' => $role,
+                        'rendezvous' => $rendezVous,
+                        'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                    ]
+                );
+
+                $this->addFlash('success', 'Demande de changement de rendez-vous envoyée aux modérateur');
+
+            }
+
+            return  $this->redirectToRoute('rendezvous_index', []);
+        }
 
         return $this->render('dashboard/rendez_vous/reschedule.html.twig', [
             'rendezvous' => $rendezvous,
