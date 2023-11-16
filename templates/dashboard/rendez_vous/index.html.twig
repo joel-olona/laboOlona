@@ -28,7 +28,7 @@
                         <a href="{{ path('rendezvous_reschedule', {'id': rendezvous.id}) }}" class="btn btn-warning">Reprogrammer</a>
                         <a href="{{ path('rendezvous_send_invitation', {'id': rendezvous.id}) }}" class="btn btn-success">Envoyer Invitation</a>
                         <a href="{{ path('rendezvous_send_reminder', {'id': rendezvous.id}) }}" class="btn btn-secondary">Envoyer Rappel</a>
-                        <a href="{{ path('rendezvous_sync_calendar', {'id': rendezvous.id}) }}" class="btn btn-dark">Synchroniser Calendrier</a>
+                        {# <a href="{{ path('rendezvous_sync_calendar', {'id': rendezvous.id}) }}" class="btn btn-dark">Synchroniser Calendrier</a> #}
                     {% endif %}
                 </td>
             </tr>
