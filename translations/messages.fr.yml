@@ -861,3 +861,28 @@ app_guides_reseautage:
     title: Le réseautage
     description: Ne sous-estimez pas le pouvoir du réseautage. Rejoignez des groupes professionnels ou des forums en ligne pour elargir votre réseau et découvrir de nouvelles opportunités
     keywords: lettre, motivation, guide, reseautage
+
+
+rendezvous_index:
+    title: Rendez-vous sur Olona Talents
+    dashboard_title: Tout les rendez-vous
+
+rendezvous_show:
+    title: Rendez-vous sur Olona Talents
+    dashboard_title: Détails d'un rendez-vous
+
+rendezvous_create:
+    title: Rendez-vous sur Olona Talents
+    dashboard_title: Programmer un rendez-vous
+
+rendezvous_edit:
+    title: Rendez-vous sur Olona Talents
+    dashboard_title: Modifier un rendez-vous
+
+rendezvous_send_invitation:
+    title: Rendez-vous sur Olona Talents
+    dashboard_title: Invitation à un rendez-vous
+
+rendezvous_reschedule:
+    title: Rendez-vous sur Olona Talents
+    dashboard_title: Reprogrammer un rendez-vous
