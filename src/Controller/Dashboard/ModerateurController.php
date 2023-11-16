@@ -91,15 +91,15 @@ class ModerateurController extends AbstractController
         }
 
         return $this->render('dashboard/moderateur/index.html.twig', [
-            'secteurs' => $this->secteurRepository->findAll(),
-            'typeContrats' => $this->typeContratRepository->findAll(),
-            'annonces' => $this->jobListingRepository->findAll(),
-            'annonces_pending' => $this->jobListingRepository->findBy(['status' => JobListing::STATUS_PENDING]),
-            'entreprises' => $this->entrepriseProfileRepository->findAll(),
-            'candidats' => $this->candidateProfileRepository->findAll(),
-            'candidats_pending' => $this->candidateProfileRepository->findBy(['status' => CandidateProfile::STATUS_PENDING]),
-            'mettings' => $this->mettingRepository->findAll(),
-            'notifications' => $this->notificationRepository->findAll(),
+            'secteurs' => $this->moderateurManager->findAllOrderDesc($this->secteurRepository),
+            'typeContrats' => $this->moderateurManager->findAllOrderDesc($this->typeContratRepository),
+            'annonces' => $this->moderateurManager->findAllOrderDesc($this->jobListingRepository),
+            'annonces_pending' => $this->jobListingRepository->findBy(['status' => JobListing::STATUS_PENDING], ['id' => 'DESC']),
+            'entreprises' => $this->moderateurManager->findAllOrderDesc($this->entrepriseProfileRepository),
+            'candidats' => $this->moderateurManager->findAllOrderDesc($this->candidateProfileRepository),
+            'candidats_pending' => $this->candidateProfileRepository->findBy(['status' => CandidateProfile::STATUS_PENDING], ['id' => 'DESC']),
+            'mettings' => $this->moderateurManager->findAllOrderDesc($this->mettingRepository),
+            'notifications' => $this->moderateurManager->findAllOrderDesc($this->notificationRepository),
         ]);
     }
 

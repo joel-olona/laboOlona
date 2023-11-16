@@ -112,6 +112,14 @@ class ModerateurManager
 
     }
 
+    public function findAllOrderDesc($repository)
+    {
+        return $repository->createQueryBuilder('entity')
+            ->orderBy('entity.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function deleteSector(Secteur $secteur): void
     {
 		$this->em->remove($secteur);
@@ -152,7 +160,11 @@ class ModerateurManager
 
     public function findAllEntreprise(): array
     {
-        return $this->entrepriseProfileRepository->findAll();
+        $queryBuilder = $this->entrepriseProfileRepository->createQueryBuilder('m')
+            ->orderBy('m.id', 'DESC')
+            ->getQuery();
+
+        return $queryBuilder->getResult();
     }
 
     public function findAllAnnonceByEntreprise(EntrepriseProfile $entreprise): array
@@ -165,7 +177,11 @@ class ModerateurManager
 
     public function findAllCandidat(): array
     {
-        return $this->candidateProfileRepository->findAll();
+        $queryBuilder = $this->candidateProfileRepository->createQueryBuilder('m')
+            ->orderBy('m.id', 'DESC')
+            ->getQuery();
+
+        return $queryBuilder->getResult();
     }
 
     public function getSecteurChoice(): array
@@ -382,7 +398,11 @@ class ModerateurManager
         $conditions = [];
 
         if($titre == null && $entreprise == null && $candidat == null && $status == null){
-            return $this->applicationsRepository->findAll();
+            $queryBuilder = $this->applicationsRepository->createQueryBuilder('a')
+                ->orderBy('a.id', 'DESC')
+                ->getQuery();
+
+            return $queryBuilder->getResult();;
         }
 
         if (!empty($entreprise)) {
