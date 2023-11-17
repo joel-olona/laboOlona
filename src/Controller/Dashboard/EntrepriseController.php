@@ -3,6 +3,7 @@
 namespace App\Controller\Dashboard;
 
 use App\Entity\User;
+use App\Entity\Notification;
 use Symfony\Component\Uid\Uuid;
 use App\Entity\CandidateProfile;
 use App\Manager\CandidatManager;
@@ -11,6 +12,7 @@ use App\Service\User\UserService;
 use App\Manager\EntrepriseManager;
 use App\Manager\ModerateurManager;
 use App\Form\Entreprise\AnnonceType;
+use App\Manager\NotificationManager;
 use App\Entity\Entreprise\JobListing;
 use App\Service\Mailer\MailerService;
 use App\Entity\Candidate\Applications;
@@ -21,14 +23,14 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\CandidateProfileRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Form\Search\Annonce\EntrepriseAnnonceSearchType;
 use App\Repository\Moderateur\MettingRepository;
-use App\Form\Search\Candidat\EntrepriseCandidatSearchType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\Entreprise\JobListingRepository;
 use App\Repository\Candidate\ApplicationsRepository;
 use App\Repository\Moderateur\TypeContratRepository;
+use App\Form\Search\Annonce\EntrepriseAnnonceSearchType;
+use App\Form\Search\Candidat\EntrepriseCandidatSearchType;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use App\Form\Search\Candidature\EntrepriseCandidatureSearchType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -43,6 +45,7 @@ class EntrepriseController extends AbstractController
         private CandidatManager $candidatManager,
         private ModerateurManager $moderateurManager,
         private EntrepriseManager $entrepriseManager,
+        private NotificationManager $notificationManager,
         private RequestStack $requestStack,
         private ApplicationsRepository $applicationRepository,
         private TypeContratRepository $typeContratRepository,
@@ -187,6 +190,16 @@ class EntrepriseController extends AbstractController
                     'dashboard_url' => $this->urlGenerator->generate('app_dashboard_entreprise_view_annonce', ['id' => $jobListing->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
                 ]
             );
+
+            /** Notification candidat */
+            $notification = $this->notificationManager->init();
+            $notification->setDestinataire($entreprise->getEntreprise());
+            $notification->setContenu("Le dépôt de votre annonce " . $jobListing->getTitre() . " a été pris en compte et en cours d'examen.");
+            $notification->setTitre("Depôt annonce pris en compte et en cours d'examen.");
+            $notification->setStatus(Notification::TYPE_ANNONCE);
+            $this->em->persist($notification);
+            $this->em->flush();
+
             $this->addFlash('success', 'Annonce créée avec succès.');
 
             return $this->redirectToRoute('app_dashboard_entreprise_annonces');

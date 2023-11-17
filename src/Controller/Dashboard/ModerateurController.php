@@ -39,6 +39,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Form\Search\Entreprise\ModerateurEntrepriseSearchType;
 use App\Manager\CandidatManager;
+use App\Manager\NotificationManager;
 use App\Repository\Entreprise\JobListingRepository;
 use App\Repository\Candidate\ApplicationsRepository;
 use App\Repository\Moderateur\TypeContratRepository;
@@ -58,6 +59,7 @@ class ModerateurController extends AbstractController
         private ModerateurManager $moderateurManager,
         private CandidatManager $candidatManager,
         private ProfileManager $profileManager,
+        private NotificationManager $notificationManager,
         private SecteurRepository $secteurRepository,
         private TypeContratRepository $typeContratRepository,
         private JobListingRepository $jobListingRepository,
@@ -456,6 +458,15 @@ class ModerateurController extends AbstractController
                         'dashboard_url' => $this->urlGenerator->generate('app_dashboard_entreprise_view_annonce', ['id' => $annonce->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
                     ]
                 );
+
+                /** Notification candidat */
+                $notification = $this->notificationManager->init();
+                $notification->setDestinataire($annonce->getEntreprise()->getEntreprise());
+                $notification->setContenu("Votre annonce " . $annonce->getTitre() . " a été validée par Olona Talents.");
+                $notification->setTitre("Statut de votre annonce.");
+                $notification->setStatus(Notification::TYPE_ANNONCE);
+                $this->em->persist($notification);
+                $this->em->flush();
             }
             $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
         } else {
@@ -735,6 +746,15 @@ class ModerateurController extends AbstractController
                     ]
                 );
 
+                /** Notification candidat */
+                $notification = $this->notificationManager->init();
+                $notification->setDestinataire($candidateProfile->getCandidat());
+                $notification->setContenu("Votre profil a été validé et apparaitra sur la liste des talents");
+                $notification->setTitre("Statut de votre profil sur Olona Talents.");
+                $notification->setStatus(Notification::TYPE_PROFIL);
+                $this->em->persist($notification);
+                $this->em->flush();
+
             }
             $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
         } else {
@@ -799,6 +819,15 @@ class ModerateurController extends AbstractController
                 ]
             );
 
+            /** Notification candidat */
+            $notification = $this->notificationManager->init();
+            $notification->setDestinataire($application->getCandidat()->getCandidat());
+            $notification->setContenu("Votre candidature sur l'annonce " . $application->getAnnonce()->getTitre() . " a été validé et apparaitra sur la liste des talents");
+            $notification->setTitre("Statut de votre candidature sur Olona Talents.");
+            $notification->setStatus(Notification::TYPE_ANNONCE);
+            $this->em->persist($notification);
+            $this->em->flush();
+
             /** Envoi mail entreprise */
             $this->mailerService->send(
                 $application->getAnnonce()->getEntreprise()->getEntreprise()->getEmail(),
@@ -810,6 +839,15 @@ class ModerateurController extends AbstractController
                     'dashboard_url' => $this->urlGenerator->generate('app_dashboard_entreprise_candidatures', [], UrlGeneratorInterface::ABSOLUTE_URL),
                 ]
             );
+
+            /** Notification candidat */
+            $notification1 = $this->notificationManager->init();
+            $notification1->setDestinataire( $application->getAnnonce()->getEntreprise()->getEntreprise());
+            $notification1->setContenu("Une candidature a été déposée sur votre annonce " . $application->getAnnonce()->getTitre() . ".");
+            $notification1->setTitre("Une candidature a été déposée sur votre annonce.");
+            $notification1->setStatus(Notification::TYPE_PROFIL);
+            $this->em->persist($notification1);
+            $this->em->flush();
 
             /** Envoi mail moderateurs */
             $this->mailerService->sendMultiple(

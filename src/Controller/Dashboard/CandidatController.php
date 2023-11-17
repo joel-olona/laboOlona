@@ -13,6 +13,7 @@ use App\Entity\Entreprise\JobListing;
 use App\Service\Mailer\MailerService;
 use App\Entity\Candidate\Applications;
 use App\Entity\Moderateur\TypeContrat;
+use App\Entity\Notification;
 use App\Form\Search\AnnonceSearchType;
 use App\Form\Candidat\ApplicationsType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,6 +35,7 @@ use App\Form\Profile\Candidat\Edit\StepOneType as EditStepOneType;
 use App\Form\Profile\Candidat\Edit\StepTwoType as EditStepTwoType;
 use App\Form\Profile\Candidat\Edit\StepThreeType as EditStepThreeType;
 use App\Manager\ModerateurManager;
+use App\Manager\NotificationManager;
 
 #[Route('/dashboard/candidat')]
 class CandidatController extends AbstractController
@@ -44,6 +46,7 @@ class CandidatController extends AbstractController
         private MailerService $mailerService,
         private ProfileManager $profileManager,
         private CandidatManager $candidatManager,
+        private NotificationManager $notificationManager,
         private JobListingRepository $jobListingRepository,
         private TypeContratRepository $typeContratRepository,
         private RequestStack $requestStack,
@@ -270,6 +273,15 @@ class CandidatController extends AbstractController
                 ]
             );
 
+            /** Notification candidat */
+            $notification = $this->notificationManager->init();
+            $notification->setDestinataire($candidat->getCandidat());
+            $notification->setContenu("Le dépôt de votre candidature sur l'annonce " . $annonce->getTitre() . " a été pris en compte et en cours d'examen.");
+            $notification->setTitre("Depôt candidature pris en compte et en cours d'examen.");
+            $notification->setStatus(Notification::TYPE_ANNONCE);
+            $this->em->persist($notification);
+            $this->em->flush();
+
             $this->addFlash('success', "Candidature envoyé ");
 
 
@@ -351,6 +363,23 @@ class CandidatController extends AbstractController
                 $request->query->getInt('page', 1),
                 10
             ),
+        ]);
+    }
+
+    #[Route('/notifications', name: 'app_dashboard_candidat_notifications')]
+    public function notifications(Request $request): Response
+    {
+        $redirection = $this->checkCandidat();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+        /** @var User $user */
+        $user = $this->userService->getCurrentUser();
+        $candidat = $user->getCandidateProfile();
+
+
+        return $this->render('dashboard/candidat/notification/index.html.twig', [
+            'notifications' => $user->getRecus(),
         ]);
     }
 

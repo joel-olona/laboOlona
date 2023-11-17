@@ -30,21 +30,21 @@
             {{ 'app_dashboard_entreprise.metting'|trans }} 
         </a>
       </li>
-    {# <li class="nav-item">
-            <a href="{{ path('app_dashboard_candidat_formation')}}" 
-                class="nav-link {{ current_route == 'app_dashboard_candidat_formation' ? 'active' : 'text-white' }}" 
-                {{ current_route == 'app_dashboard_candidat_formation' ? 'aria-current=page' : '' }}>
-                <i class="mx-2 h5 bi bi-archive"></i>
-                {{ 'app_dashboard_candidat_formation.menu'|trans }}   
-            </a>
-          </li>
-          <li>
-            <a href="{{ path('app_dashboard_candidat_tools')}}" 
-                class="nav-link {{ current_route == 'app_dashboard_candidat_tools' ? 'active' : 'text-white' }}">
-                <i class="mx-2 h5 bi bi-tools"></i>
-                {{ 'app_dashboard_candidat_tools.menu'|trans }}  
-            </a>
-          </li> #}
+      <li class="nav-item">
+        <a href="{{ path('app_dashboard_candidat_notifications')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_candidat_notifications' ? 'active' : 'text-white' }}" 
+            {{ current_route == 'app_dashboard_candidat_notifications' ? 'aria-current=page' : '' }}>
+            <i class="mx-2 h5 bi bi-bell"></i>
+            Notifications
+        </a>
+      </li>
+      {# <li>
+        <a href="{{ path('app_dashboard_candidat_tools')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_candidat_tools' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-tools"></i>
+            {{ 'app_dashboard_candidat_tools.menu'|trans }}  
+        </a>
+      </li> #}
     </ul>
 
     <hr>

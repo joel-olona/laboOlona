@@ -14,6 +14,7 @@ use App\Manager\RendezVousManager;
 use App\Service\Mailer\MailerService;
 use App\Entity\Candidate\Applications;
 use App\Entity\ModerateurProfile;
+use App\Manager\NotificationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,6 +34,7 @@ class RendezVousController extends AbstractController
         private MailerService $mailerService,
         private ModerateurManager $moderateurManager,
         private CandidatManager $candidatManager,
+        private NotificationManager $notificationManager,
         private RendezVousManager $rendezVousManager,
         private MettingRepository $mettingRepository,
         private ApplicationsRepository $applicationsRepository,
@@ -89,6 +91,15 @@ class RendezVousController extends AbstractController
                 ]
             );
 
+            /** Notification candidat */
+            $notification = $this->notificationManager->init();
+            $notification->setDestinataire($rendezVous->getCandidat()->getCandidat());
+            $notification->setContenu("Vous avez un rendez-vous pour un entretien sur Olona Talents le " . $rendezVous->getDateRendezVous()->format('d/m/Y à H:i'));
+            $notification->setTitre("Rendez-vous pour un entretien sur Olona Talents");
+            $notification->setStatus(Notification::TYPE_ANNONCE);
+            $this->em->persist($notification);
+            $this->em->flush();
+
             /** Envoi mail entreprise */
             $this->mailerService->send(
                 $rendezVous->getEntreprise()->getEntreprise()->getEmail(),
@@ -100,6 +111,15 @@ class RendezVousController extends AbstractController
                     'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
                 ]
             );
+
+            /** Notification entreprise */
+            $notification1 = $this->notificationManager->init();
+            $notification1->setDestinataire($rendezVous->getEntreprise()->getEntreprise());
+            $notification1->setContenu("Vous avez un rendez-vous pour un entretien sur Olona Talents le " . $rendezVous->getDateRendezVous()->format('d/m/Y à H:i') );
+            $notification1->setTitre("Rendez-vous pour un entretien sur Olona Talents");
+            $notification1->setStatus(Notification::TYPE_ANNONCE);
+            $this->em->persist($notification1);
+            $this->em->flush();
 
             $this->addFlash('success', 'Rendez-vous sauvegarder');
 
@@ -145,6 +165,17 @@ class RendezVousController extends AbstractController
                         'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
                     ]
                 );
+
+
+            /** Notification entreprise */
+            $notification = $this->notificationManager->init();
+            $notification->setDestinataire($rendezVous->getEntreprise()->getEntreprise());
+            $notification->setContenu("Votre rendez-vous a été reprogrammé pour le " . $rendezVous->getDateRendezVous()->format('d/m/Y à H:i'));
+            $notification->setTitre("Reprogrammation rendez-vous");
+            $notification->setStatus(Notification::TYPE_ANNONCE);
+            $this->em->persist($notification);
+            $this->em->flush();
+
                 $this->mailerService->send(
                     $rendezVous->getCandidat()->getCandidat()->getEmail(),
                     "Reprogrammation rendez-vous",
@@ -156,7 +187,18 @@ class RendezVousController extends AbstractController
                     ]
                 );
 
-                $this->addFlash('success', 'Cangement de rendez-vous envoyée au candidat et à l\'entreprise');
+
+            /** Notification candidat */
+            $notification1 = $this->notificationManager->init();
+            $notification1->setDestinataire($rendezVous->getCandidat()->getCandidat());
+            $notification1->setContenu("Votre rendez-vous a été reprogrammé pour le " . $rendezVous->getDateRendezVous()->format('d/m/Y à H:i'));
+            $notification1->setTitre("Reprogrammation rendez-vous");
+            $notification1->setStatus(Notification::TYPE_ANNONCE);
+            $this->em->persist($notification1);
+            $this->em->flush();
+
+
+                $this->addFlash('success', 'Changement de rendez-vous envoyée au candidat et à l\'entreprise');
             }else{
                 /** Envoi mail aux modérateurs */
                 $this->mailerService->sendMultiple(
