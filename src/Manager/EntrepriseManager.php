@@ -56,7 +56,7 @@ class EntrepriseManager
         }
 
         if (!empty($typeContrat) ) {
-            $conditions[] = '(j.typeContrat LIKE :typeContrat )';
+            $conditions[] = '(t.nom LIKE :typeContrat )';
             $parameters['typeContrat'] = '%' . $typeContrat . '%';
         }
 
@@ -72,6 +72,7 @@ class EntrepriseManager
 
         $qb->select('j')
             ->from('App\Entity\Entreprise\JobListing', 'j')
+            ->leftJoin('j.typeContrat', 't')
             ->where(implode(' AND ', $conditions))
             ->andWhere('j.entreprise = :entreprise')
             ->orderBy('j.id', 'DESC')
