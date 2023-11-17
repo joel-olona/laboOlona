@@ -12,11 +12,11 @@
         <div class="row mb-4">
             <div class="col-md-6">
                 <h5 class="card-title">Informations Générales</h5>
-                <p>ID : <span class="text-muted">{{ candidat.id }}</span></p>
-                <p>Date de création : <span class="text-muted">{{ candidat.createdAt|date('d/m/Y') }}</span></p>
-                <p>Dernière mise à jour : <span class="text-muted">{{ candidat.updatedAt|date('d/m/Y') }}</span></p>
-                <p>Localisation : <span class="text-muted">{{ candidat.localisation }}</span></p>
-                <p>Date de naissance : <span class="text-muted">{{ candidat.birthday|date('d/m/Y') }}</span></p>
+                {# <p>ID : <span class="text-muted">{{ candidat.id }}</span></p> #}
+                <p>Date d'inscription : <span class="text-muted">{{ candidat.createdAt|date('d/m/Y') }}</span></p>
+                <p>Dernière mise à jour du profil : <span class="text-muted">{{ candidat.updatedAt|date('d/m/Y') }}</span></p>
+                <p>Localisation : <span class="text-muted">{{ countryName }}</span></p>
+                <p>Âge : <span class="text-muted">{{ age }}</span></p>
             </div>
             <div class="col-md-6">
                 <h5 class="card-title">Détails Professionnels</h5>
@@ -25,7 +25,7 @@
                 <p><img src="{{vich_uploader_asset(candidat, 'file')}}" class="card-img-top w-25" style="border-radius:50%;" alt="avatar">
                 </p>
                 <p>Statut : <span class="badge bg-success">{{ candidat.status }}</span></p>
-                <p>Validité du profil : <span class="badge {{ candidat.isValid ? 'bg-success' : 'bg-danger' }}">{{ candidat.isValid ? 'Oui' : 'Non' }}</span></p>
+                <p>Profil Certifié : <span class="badge {{ candidat.isValid ? 'bg-success' : 'bg-danger' }}">{{ candidat.isValid ? 'Oui' : 'Non' }}</span></p>
             </div>
         </div>
 
