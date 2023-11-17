@@ -744,6 +744,40 @@ class ModerateurController extends AbstractController
         return $this->redirectToRoute('app_dashboard_moderateur_candidats');
     }
 
+    #[Route('/candidat/{uid}/certification', name: 'change_status_certification_candidat', methods: ['POST'])]
+    public function changeCertificationCandidatStatus(Request $request, EntityManagerInterface $entityManager, CandidateProfile $candidateProfile): Response
+    {
+        $redirection = $this->checkModerateur();
+        if ($redirection !== null) {
+            return $redirection; 
+        }
+
+        $status = $request->request->get('status');
+        if ($status && in_array($status, ['OUI', 'NON'])) {
+            $candidateProfile->setStatus($status);
+            $entityManager->flush();
+            if($status === CandidateProfile::STATUS_VALID){
+                /** On envoi un mail */
+                $this->mailerService->send(
+                    $candidateProfile->getCandidat()->getEmail(),
+                    "Statut de votre profil sur Olona Talents",
+                    "validate_profile.html.twig",
+                    [
+                        'user' => $candidateProfile->getCandidat(),
+                        'dashboard_url' => $this->urlGenerator->generate('app_connect', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                    ]
+                );
+
+            }
+            $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
+        } else {
+            $this->addFlash('error', 'Statut invalide.');
+        }
+
+        return $this->redirectToRoute('app_dashboard_moderateur_candidats');
+    }
+
+
     #[Route('/candidats/{id}', name: 'app_dashboard_moderateur_candidat_view')]
     public function viewCandidat(CandidateProfile $candidat): Response
     {
