@@ -7,6 +7,7 @@ use Twig\TwigFilter;
 use Twig\TwigFunction;
 use App\Entity\Application;
 use App\Entity\Candidate\Applications;
+use App\Entity\CandidateProfile;
 use App\Entity\Entreprise\JobListing;
 use App\Entity\EntrepriseProfile;
 use App\Entity\Posting;
@@ -53,6 +54,7 @@ class AppExtension extends AbstractExtension
             new TwigFunction('status_label', [$this, 'statusLabel']),
             new TwigFunction('account_label', [$this, 'accountLabel']),
             new TwigFunction('getStatuses', [$this, 'getStatuses']),
+            new TwigFunction('getEntrepriseAnnonceByCandidat', [$this, 'getEntrepriseAnnonceByCandidat']),
         ];
     }
 
@@ -86,6 +88,30 @@ class AppExtension extends AbstractExtension
         ];
 
         return $statuses[$status];
+    }
+
+    public function getEntrepriseAnnonceByCandidat(EntrepriseProfile $entreprise, CandidateProfile $candidat): ?JobListing
+    {
+        foreach ($entreprise->getJobListings() as $jobListing) {
+            if ($this->isSuitableForCandidat($jobListing, $candidat)) {
+                return $jobListing;
+            }
+        }
+
+        return null;
+    }
+
+    private function isSuitableForCandidat(JobListing $jobListing, CandidateProfile $candidat): bool
+    {
+        // Vérifier si le candidat a déjà postulé à cette annonce
+        foreach ($candidat->getApplications() as $application) {
+            if ($application->getAnnonce() === $jobListing) {
+                // Le candidat a déjà postulé à cette annonce
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function accountLabel(string $account): string
