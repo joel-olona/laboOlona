@@ -36,11 +36,11 @@ class Notification
     private ?bool $isRead = null;
 
     #[ORM\ManyToOne(inversedBy: 'envois')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $expediteur = null;
 
     #[ORM\ManyToOne(inversedBy: 'recus')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $destinataire = null;
 
     #[ORM\Column(type: Types::TEXT)]

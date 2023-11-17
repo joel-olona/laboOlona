@@ -16,5 +16,36 @@
                 </div>
             </div>
         </div>
+
+        <div class="row">
+        {% if notifications|length > 0 %}
+
+        <table class="table">
+        <thead>
+            <tr>
+                <th>Contenu</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for notification in notifications %}
+            <tr>
+                <td>{{ notification.contenu }}</td>
+                <td>
+                    <div class="d-flex">
+                        <a class="btn btn-sm btn-warning rounded-pill" href="#"><i class="bi bi-eye"></i></a>
+                        <a class="btn btn-sm btn-warning rounded-pill" href="#"><i class="bi bi-pencil"></i></a>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+        {% else %}
+            <div class="alert alert-warning" role="alert">
+                Aucune notification.
+            </div>
+        {% endif %}
+        </div>
     </div>
 {% endblock %}
