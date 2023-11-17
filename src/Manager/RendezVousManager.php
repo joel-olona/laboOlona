@@ -6,6 +6,7 @@ use DateTime;
 use App\Entity\User;
 use Twig\Environment as Twig;
 use App\Entity\CandidateProfile;
+use App\Entity\Entreprise\JobListing;
 use Symfony\Component\Form\Form;
 use App\Entity\EntrepriseProfile;
 use App\Entity\ModerateurProfile;
@@ -28,7 +29,8 @@ class RendezVousManager
     public function createRendezVous(
         ModerateurProfile $moderateur, 
         CandidateProfile $candidat, 
-        EntrepriseProfile $entreprise
+        EntrepriseProfile $entreprise,
+        JobListing $annonce
     ) : Metting
     {
         $rendezVous = new Metting();
@@ -36,6 +38,7 @@ class RendezVousManager
         $rendezVous->setEntreprise($entreprise);
         $rendezVous->setCandidat($candidat);
         $rendezVous->setCreeLe(new DateTime());
+        $rendezVous->setTitle($annonce->getTitre());
         $rendezVous->setStatus(Metting::STATUS_PENDING);
 
         return $rendezVous;
