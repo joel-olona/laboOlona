@@ -1,10 +1,57 @@
-
-<p class="mx-2 small">
+<p class="mx-2 mt-3 small">
 Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
 </p>
+
 <div class="navigation">
 {{ knp_pagination_render(candidats, 'parts/_pagination.html.twig') }}
 </div> 
+
+<!-- Section pour les candidats recommandés -->
+<div class="row mb-5">
+    <h3 class="col-12 mb-3">Optez pour les candidat(e)s certifié(e)s Olona-talents </h3>
+        {% for candidat in candidats %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ candidat.titre }}</h5>
+                    <p class="card-text">{{ candidat.candidat.nom }} {{ candidat.candidat.prenom }}</p>
+                    <p class="card-text">
+                        Missions réalisées: <span class="badge bg-success">{{ candidat.applications|filter(app => app.status == 'ACCEPTED')|length }}</span>
+                    </p>
+                    <p class="card-text">
+                        {% for skill in candidat.competences %}
+                            <span class="badge bg-info">{{ skill.nom }}</span>
+                        {% endfor %}
+                    </p>
+                    <p class="card-text">
+                        Expériences: <span class="badge bg-secondary">{{ candidat.experiences|length }}</span>
+                    </p>
+                    <p class="card-text">
+                        Langues: 
+                        {% for langue in candidat.langages %}
+                            {{ isoToEmoji(langue.langue.code) }}
+                        {% endfor %}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ path('app_dashboard_entreprise_details_candidat', {'id': candidat.id}) }}" class="btn btn-warning btn-sm rounded-pill"><i class="bi bi-eye"></i> Voir Profil</a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12">
+            <p></p>
+            <p>Aucun candidat trouvé.</p>
+        </div>
+    {% endfor %}
+
+</div>
+
+<hr>
+
+<!-- Section pour tous les candidats -->
+<div class="row">
+    <h3 class="col-12 mb-3">Voir tous les Candidats</h3>
         <table class="table table-responsive" id="candidatsTable">
             <thead>
                 <tr>
@@ -49,3 +96,4 @@ Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
                 {% endfor %}
             </tbody>
         </table>
+</div>

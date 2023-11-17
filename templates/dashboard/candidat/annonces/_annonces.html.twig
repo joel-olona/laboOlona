@@ -7,37 +7,26 @@
     </div>
 
     {% if annonces|length > 0 %}
-        <div class="list-group">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
             {% for annonce in annonces %}
-                <div class="list-group-item mb-3">
-                    <div class="row">
-                        <div class="col-md-9">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">{{ annonce.titre }}</h5>
-                                <small><i class="bi bi-eye"></i> Nombre de vues : {{ annonce.annonceVues|length }}</small>
-                            </div>
-                            <p class="mb-1">{{ annonce.description|length > 300 ? annonce.description|slice(0, 297) ~ '...' : annonce.description }}</p>
-                            <small><i class="bi bi-briefcase-fill"></i> {{ annonce.typeContrat }}</small>
-                            <div>
-                                {% if annonce.competences|length > 0 %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ annonce.titre }}</h5>
+                            <p class="card-text">{{ annonce.description|length > 300 ? annonce.description|slice(0, 297) ~ '...' : annonce.description }}</p>
+                            <p class="card-text"><small class="text-muted">Nombre de vues : {{ annonce.annonceVues|length }}</small></p>
+                            <p><span class="badge bg-primary">{{ annonce.typeContrat }}</span></p>
+                            <p><i class="bi bi-geo-alt-fill"></i> {{ annonce.lieu }} - {{ annonce.dateExpiration|date('d/m/Y') }}</p>
+                            {% if annonce.competences|length > 0 %}
+                                <div>
                                     {% for skill in annonce.competences %}
-                                        <span class="badge bg-primary">{{ skill.nom }}</span>
+                                        <span class="badge bg-secondary">{{ skill.nom }}</span>
                                     {% endfor %}
-                                {% endif %}
-                            </div>
-                            <div class="d-flex w-100 justify-content-between">
-                                <small><i class="bi bi-geo-alt-fill"></i> {{ annonce.lieu }} - {{ annonce.dateExpiration|date('d/m/Y') }}</small>
-                                <a href="{{ path('app_dashboard_candidat_annonce_show', {'jobId': annonce.jobId}) }}" class="btn btn-primary mt-2">Voir plus</a>
-                            </div>
+                                </div>
+                            {% endif %}
                         </div>
-                        <div class="col-md-3 text-center">
-                            <div class="mb-2">
-                                <!-- Ici, ajoutez les avatars des personnes ayant réagi à l'annonce -->
-                                {# {% for application in annonce.applications %}
-                                    <img src="{{vich_uploader_asset(application.candidat, 'file')}}" class="rounded-circle" width="30" height="30" alt="Avatar">
-                                {% endfor %} #}
-                            </div>
-                            <button class="btn btn-outline-primary btn-sm"><i class="bi bi-heart"></i> J'aime</button>
+                        <div class="card-footer">
+                            <a href="{{ path('app_dashboard_candidat_annonce_show', {'jobId': annonce.jobId}) }}" class="btn btn-primary">Voir plus</a>
                         </div>
                     </div>
                 </div>
