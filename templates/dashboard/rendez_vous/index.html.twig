@@ -11,7 +11,10 @@
     <table class="table">
         <thead>
             <tr>
+                <th>Titre</th>
                 <th>Date et Heure</th>
+                <th>Entreprise</th>
+                <th>Candidat</th>
                 <th>Lieu</th>
                 <th>Actions</th>
             </tr>
@@ -19,7 +22,10 @@
         <tbody>
             {% for rendezvous in rendezvousList %}
             <tr>
+                <td>{{ dump(rendezvous.entreprise.jobListings|length) }}</td>
                 <td>{{ rendezvous.dateRendezVous|date('d/m/Y H:i') }}</td>
+                <td>{{ rendezvous.lieu }}</td>
+                <td>{{ rendezvous.lieu }}</td>
                 <td>{{ rendezvous.lieu }}</td>
                 <td>
                     <a href="{{ path('rendezvous_show', {'id': rendezvous.id}) }}" class="btn btn-info">Détails</a>
