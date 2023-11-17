@@ -164,7 +164,7 @@ class RendezVousController extends AbstractController
                     "Demande de reprogrammation rendez-vous par un ".$this->rendezVousManager->getUserTypeByRole($role),
                     "moderateur/reprogrammation_rendezvous.html.twig",
                     [
-                        'user' => $role,
+                        'user' => $this->rendezVousManager->getUserByRole($role),
                         'rendezvous' => $rendezVous,
                         'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
                     ]

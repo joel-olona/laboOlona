@@ -32,6 +32,7 @@ use App\Repository\Moderateur\TypeContratRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use App\Form\Search\Candidature\EntrepriseCandidatureSearchType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Intl\Countries;
 
 #[Route('/dashboard/entreprise')]
 class EntrepriseController extends AbstractController
@@ -323,8 +324,21 @@ class EntrepriseController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $entreprise = $user->getEntrepriseProfile();
 
+        // Calcul de l'âge
+        $now = new \DateTime();
+        $age = null;
+        if ($candidateProfile->getBirthday() !== null) {
+            $age = $now->diff($candidateProfile->getBirthday())->y;
+        }
+
+         // Convertir le code ISO en nom de pays
+        $countryName = Countries::getName($candidateProfile->getLocalisation());
+
         return $this->render('dashboard/entreprise/candidat/show.html.twig', [
             'candidat' => $candidateProfile,
+            'age' => $age,
+            'countryName' => $countryName,
+            
         ]);
     }
 
