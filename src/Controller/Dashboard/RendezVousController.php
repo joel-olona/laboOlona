@@ -62,7 +62,7 @@ class RendezVousController extends AbstractController
         $candidature = $this->applicationsRepository->find($request->query->get('candidature', ''));
 
         if($candidature instanceof Applications){
-            $rendezvous = $this->rendezVousManager->createRendezVous($user->getModerateurProfile(), $candidature->getCandidat(), $candidature->getAnnonce()->getEntreprise());
+            $rendezvous = $this->rendezVousManager->createRendezVous($user->getModerateurProfile(), $candidature->getCandidat(), $candidature->getAnnonce()->getEntreprise(), $candidature->getAnnonce());
         }else{
             $rendezVous = new Metting();
             $rendezVous->setModerateur($user->getModerateurProfile());
@@ -164,7 +164,7 @@ class RendezVousController extends AbstractController
                     "Demande de reprogrammation rendez-vous par un ".$this->rendezVousManager->getUserTypeByRole($role),
                     "moderateur/reprogrammation_rendezvous.html.twig",
                     [
-                        'user' => $role,
+                        'user' => $this->rendezVousManager->getUserByRole($role),
                         'rendezvous' => $rendezVous,
                         'confirmationLink' => $this->urlGenerator->generate('rendezvous_show', ['id' => $rendezVous->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
                     ]
