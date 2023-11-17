@@ -90,6 +90,22 @@ class RendezVousManager
 
         return null;
     }
+    public function getUserByRole($profile)
+    {
+        if ($profile instanceof CandidateProfile) {
+            return $profile->getCandidat();
+        }
+
+        if ($profile instanceof EntrepriseProfile) {
+            return $profile->getEntreprise();
+        }
+
+        if ($profile instanceof ModerateurProfile) {
+            return $profile->getModerateur();
+        }
+
+        return null;
+    }
 
     public function findMettingByRole($role) : array
     {
