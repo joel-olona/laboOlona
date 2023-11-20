@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Entity\Candidate\Langages;
 use App\Entity\Candidate\Social;
 use App\Entity\Vues\CandidatVues;
-use Serializable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Moderateur\Metting;
@@ -22,7 +21,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: CandidateProfileRepository::class)]
 #[Vich\Uploadable]
-class CandidateProfile implements Serializable
+class CandidateProfile
 {
     const STATUS_PENDING = 'PENDING';
     const STATUS_BANNISHED = 'BANNISHED';
@@ -112,6 +111,25 @@ class CandidateProfile implements Serializable
     public function __toString()
     {
         return $this->getCandidat()->getNom();
+    }
+    
+    public function __serialize(): array
+    {
+        // Retournez ici les propriétés à sérialiser
+        return [
+            'id' => $this->id,
+            'createdAt' => $this->createdAt,
+            // Ajoutez d'autres propriétés si nécessaire
+            // Notez que certaines propriétés, comme les objets et les collections d'entités, ne doivent pas être sérialisées
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        // Restaurez l'état de l'objet à partir des données sérialisées
+        $this->id = $data['id'] ?? null;
+        $this->createdAt = $data['createdAt'] ?? null;
+        // Restaurez d'autres propriétés si elles étaient sérialisées
     }
 
     public function getId(): ?int
