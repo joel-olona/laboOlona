@@ -34,6 +34,7 @@ use App\Form\Profile\Candidat\Edit\StepOneType as EditStepOneType;
 use App\Form\Profile\Candidat\Edit\StepTwoType as EditStepTwoType;
 use App\Form\Profile\Candidat\Edit\StepThreeType as EditStepThreeType;
 use App\Manager\ModerateurManager;
+use App\Repository\Candidate\ApplicationsRepository;
 
 #[Route('/dashboard/candidat')]
 class CandidatController extends AbstractController
@@ -45,6 +46,7 @@ class CandidatController extends AbstractController
         private ProfileManager $profileManager,
         private CandidatManager $candidatManager,
         private JobListingRepository $jobListingRepository,
+        private ApplicationsRepository $applicationsRepository,
         private TypeContratRepository $typeContratRepository,
         private RequestStack $requestStack,
         private ModerateurManager $moderateurManager,
@@ -229,12 +231,20 @@ class CandidatController extends AbstractController
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
         $candidat = $user->getCandidateProfile();
+        $application = $this->applicationsRepository->findOneBy([
+            'candidat' => $candidat,
+            'annonce' => $annonce
+        ]);
+        $applied = false;
 
-        $application = new Applications();
-        $application->setDateCandidature(new DateTime());
-        $application->setAnnonce($annonce);
-        $application->setCandidat($candidat);
-        $application->setStatus(Applications::STATUS_PENDING);
+        if(!$application instanceof Applications){
+            $applied = true;
+            $application = new Applications();
+            $application->setDateCandidature(new DateTime());
+            $application->setAnnonce($annonce);
+            $application->setCandidat($candidat);
+            $application->setStatus(Applications::STATUS_PENDING);
+        }
         $form = $this->createForm(ApplicationsType::class, $application);
         $form->handleRequest($request);
 
@@ -298,6 +308,7 @@ class CandidatController extends AbstractController
         return $this->render('dashboard/candidat/annonces/show.html.twig', [
             'annonce' => $annonce,
             'candidat' => $candidat,
+            'applied' => $applied,
             'form' => $form->createView(),
         ]);
     }
