@@ -3,6 +3,31 @@
 {% block title %}Mes annonces{% endblock %}
 
 {% block body %}
+<style>
+    .custom-tooltip {
+        position: relative;
+        cursor: help;
+    }
+
+    .custom-tooltip[data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #333; /* Couleur de fond */
+        color: white; /* Couleur du texte */
+        text-align: left;
+        border-radius: 4px;
+        padding: 5px 10px;
+        font-size: 12px;
+        z-index: 1;
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        width: 200px; /* Largeur fixe */
+        white-space: normal; /* Permet au texte de passer à la ligne */
+        max-width: 300px; /* Largeur maximale */
+    }
+</style>
     <div class="container mt-3">
         <h1 class="mb-4">Mes annonces</h1>
             <hr>

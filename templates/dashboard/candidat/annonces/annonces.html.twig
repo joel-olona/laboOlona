@@ -1,6 +1,22 @@
 {% extends 'dashboard/base.html.twig' %}
 
 {% block body %}
+<style>
+    .annonce-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px; /* Espace entre les annonces */
+    }
+
+    .annonce-item {
+        background: white;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px; /* Espace en dessous de chaque annonce */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre pour chaque annonce */
+    }
+</style>
+
 
 <div class="container mt-3">
     <div class="row text-dark">
