@@ -20,7 +20,7 @@ class EditEntrepriseType extends AbstractType
     {
         $builder
         ->add('nom', TextType::class, [
-            'label' => 'Nom'
+            'label' => 'Raison sociale'
         ])
             ->add('taille', ChoiceType::class, [
                 'choices' => EntrepriseProfile::CHOICE_SIZE,
@@ -39,7 +39,7 @@ class EditEntrepriseType extends AbstractType
                     'multiple' => true,
             ])
             ->add('siteWeb', TextType::class, [
-                'label' => 'Site Web'
+                'label' => 'Site Internet'
             ])
             ->add('entreprise', ContactType::class, [
                 'label' => false

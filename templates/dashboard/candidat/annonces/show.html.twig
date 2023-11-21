@@ -1,14 +1,27 @@
 {% extends 'dashboard/base.html.twig' %}
-
+{% block title %} {% endblock %}
 {% block body %}
+<style>
+    .skills-container .badge {
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+</style>
 <div class="container mt-3 px-auto">
-    <section class="text-dark"><div class="container mt-4">
-    <div class="card">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1>Détail de l'annonce pour le poste : {{ annonce.titre|upper}}</h1>
+            </div>
+        </div>
+    <section class="text-dark">
+    <div class="container mt-4">
+    <div class="card shadow">
         <div class="card-body">
-            <h3 class="card-title">{{ annonce.titre }}</h3>
-            <h5 class="text-muted">{{ annonce.typeContrat }}</h5>
+            <h4 class="text-muted">{{ annonce.typeContrat }}</h4>
             <p><i class="bi bi-geo-alt-fill"></i> {{ annonce.lieu }}</p>
-            <p><i class="bi bi-calendar"></i> Date d'expiration : {{ annonce.dateExpiration|date('d/m/Y') }}</p>
+            <p><i class="bi bi-calendar"></i> Publiée le : {{ annonce.dateCreation|date('d/m/Y') }}</p>
+            <p><i class="bi bi-calendar"></i> Expire le : {{ annonce.dateExpiration|date('d/m/Y') }}</p>
             <hr>
 
             <div class="card-text">
@@ -19,9 +32,11 @@
             <div class="mb-3">
                 <h5>Compétences requises</h5>
                 {% if annonce.competences|length > 0 %}
-                    {% for skill in annonce.competences %}
-                        <span class="badge bg-secondary">{{ skill.nom }}</span>
-                    {% endfor %}
+                    <div class="skills-container">  
+                        {% for skill in annonce.competences %}
+                            <span class="badge bg-secondary">{{ skill.nom }}</span>
+                        {% endfor %}
+                    </div>
                 {% else %}
                     <p>Aucune compétence spécifique requise.</p>
                 {% endif %}
@@ -36,8 +51,8 @@
                 {{ form_start(form) }}
                 {{ form_widget(form) }}
                 <div class="d-flex justify-content-between align-items-center">
-                    <button class="btn btn-primary">Postuler</button>
-                    <button class="btn btn-outline-primary"><i class="bi bi-heart"></i> J'aime</button>
+                    <button class="btn btn-primary">Postuler à l'annonce</button>
+                    <button class="btn btn-outline-primary"><i class="bi bi-heart"></i> Epingler l'annonce</button>
                 </div>
                 {{ form_end(form) }}
             {# {% endfor %} #}
