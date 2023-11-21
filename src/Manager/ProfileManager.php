@@ -2,16 +2,18 @@
 
 namespace App\Manager;
 
+use App\Entity\Candidate\CV;
+use Twig\Environment as Twig;
+use Symfony\Component\Uid\Uuid;
 use App\Entity\CandidateProfile;
+use Symfony\Component\Form\Form;
 use App\Entity\EntrepriseProfile;
 use App\Entity\ModerateurProfile;
-use Twig\Environment as Twig;
-use Symfony\Component\Form\Form;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Component\Uid\Uuid;
 
 class ProfileManager
 {
@@ -21,7 +23,8 @@ class ProfileManager
         private SluggerInterface $sluggerInterface,
         private RequestStack $requestStack,
         private Security $security
-    ){}
+    ) {
+    }
 
     public function createCompany($user)
     {
@@ -54,33 +57,60 @@ class ProfileManager
 
     public function saveCandidate(CandidateProfile $candidate)
     {
-		$this->em->persist($candidate);
+        $this->em->persist($candidate);
         $this->em->flush();
     }
 
     public function saveCompany(EntrepriseProfile $company)
     {
-		$this->em->persist($company);
+        $this->em->persist($company);
         $this->em->flush();
     }
 
     public function saveModerateur(ModerateurProfile $moderateur)
     {
-		$this->em->persist($moderateur);
+        $this->em->persist($moderateur);
         $this->em->flush();
     }
 
     public function saveForm(Form $form)
     {
         $profile = $form->getData();
-        if($profile instanceof EntrepriseProfile){
+        if ($profile instanceof EntrepriseProfile) {
             $this->saveCompany($profile);
         }
-        if($profile instanceof CandidateProfile){
+        if ($profile instanceof CandidateProfile) {
             $this->saveCandidate($profile);
         }
 
         return $profile;
+    }
 
+    public function saveCV(array $fileName, CandidateProfile $candidat)
+    {
+        $cv = new CV();
+        $cv
+        ->setCvLink($fileName[0])
+        ->setSafeFileName($fileName[1])
+        ->setUploadedAt(new DateTime())
+        ->setCandidat($candidat)
+        ;
+
+        $this->em->persist($cv);
+        $this->em->flush();
+    }
+
+    private function getFormattedFileName($originalFileName)
+    {
+        // On divise le nom du fichier par les tirets
+        $parts = explode('-', $originalFileName);
+    
+        // On retire l'avant-dernier élément (l'identifiant unique)
+        array_splice($parts, -2, 1);
+    
+        // On rejoint les parties restantes
+        $formattedFileName = implode('-', $parts);
+    
+        return $formattedFileName;
     }
 }

@@ -4,49 +4,54 @@
 
 {% block body %}
 <div class="container mt-5">
-<div class="card shadow">
-    <div class="card-header bg-primary text-white">
-        Profil Candidat : {{ candidat.titre }}
-    </div>
-    <div class="card-body">
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <h5 class="card-title">Informations Générales</h5>
-                {# <p>ID : <span class="text-muted">{{ candidat.id }}</span></p> #}
-                <p>Date d'inscription : <span class="text-muted">{{ candidat.createdAt|date('d/m/Y') }}</span></p>
-                <p>Dernière mise à jour du profil : <span class="text-muted">{{ candidat.updatedAt|date('d/m/Y') }}</span></p>
-                <p>Localisation : <span class="text-muted">{{ countryName }}</span></p>
-                <p>Âge : <span class="text-muted">{{ age }}</span></p>
-            </div>
-            <div class="col-md-6">
-                <h5 class="card-title">Détails Professionnels</h5>
-                <p>Résumé : <span class="text-muted">{{ candidat.resume }}</span></p>
-                <p>Titre : <span class="text-muted">{{ candidat.titre }}</span></p>
-                <p><img src="{{vich_uploader_asset(candidat, 'file')}}" class="card-img-top w-25" style="border-radius:50%;" alt="avatar">
-                </p>
-                <p>Statut : <span class="badge bg-success">{{ candidat.status }}</span></p>
-                <p>Profil Certifié : <span class="badge {{ candidat.isValid ? 'bg-success' : 'bg-danger' }}">{{ candidat.isValid ? 'Oui' : 'Non' }}</span></p>
-            </div>
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            Profil Candidat : {{ candidat.titre|upper }}
         </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-4 justify-content-left align-items-center">
+                    <img src="{{vich_uploader_asset(candidat, 'file')}}" class="card-img-top" style="width: 100%; height: auto; border-radius: 10px; object-fit: cover;" alt="avatar">
+                    <p></p>
+                    <p><strong>Statut :</strong> <span class="badge bg-success">{{ candidat.status }}</span></p>
+                    <p><strong>Profil Certifié :</strong> <span class="badge {{ candidat.isValid ? 'bg-success' : 'bg-danger' }}">{{ candidat.isValid ? 'Oui' : 'Non' }}</span></p>
+                </div>
+                <div class="col-md-8">
+                    <h5 class="card-title">Informations Générales</h5>
+                    <p><strong>Date d'inscription :</strong> <span class="text-muted">{{ candidat.createdAt|date('d/m/Y') }}</span></p>
+                    <p><strong>Dernière mise à jour du profil :</strong> <span class="text-muted">{{ candidat.updatedAt|date('d/m/Y') }}</span></p>
+                    <p><strong>Localisation :</strong> <span class="text-muted">{{ countryName }}</span></p>
+                    <p><strong>Âge :</strong> <span class="text-muted">{{ age }}</span></p>
+                    <p><strong>Résumé :</strong> <span class="text-muted">{{ candidat.resume }}</span></p>
+                    <p><strong>Titre professionnel :</strong> <span class="text-muted">{{ candidat.titre }}</span></p>
+                </div>
+            </div>
 
-        <h5 class="card-title">Compétences</h5>
-        <ul class="list-group list-group-flush mb-4">
-            {% for competence in candidat.competences %}
-                <li class="list-group-item">{{ competence.nom }}</li>
-            {% endfor %}
-        </ul>
+            <h5 class="card-title">Compétences</h5>
+            <ul class="list-group list-group-flush mb-4">
+                {% for competence in candidat.competences %}
+                    <li class="list-group-item">{{ competence.nom }} : 
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item"><span>{{ competence.description }} </span></li>
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
 
-        {# Sections pour expériences, applications, secteurs, langues, etc. #}
+            <h5 class="card-title">Expériences</h5>
+            <ul class="list-group list-group-flush mb-4">
+                {% for experiences in candidat.experiences %}
+                    <li class="list-group-item"><strong>{{ experiences.nom|upper }} </strong> : 
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item"><span>{{ experiences.dateDebut|date('d/m/Y') }} - {{ experiences.dateFin|date('d/m/Y') }}</span></li>
+                            <li class="list-group-item"><span>{{ experiences.description }} </span></li>
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
 
-        <h5 class="card-title">Réseaux sociaux</h5>
-        {% if candidat.social is defined %}
-            {# Afficher les détails des réseaux sociaux #}
-        {% endif %}
+        </div>
     </div>
-    </div>
+    <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
 </div>
-
-<a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
-
-    </div>
 {% endblock %}
