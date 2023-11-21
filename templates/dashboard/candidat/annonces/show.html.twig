@@ -1,14 +1,27 @@
 {% extends 'dashboard/base.html.twig' %}
-
+{% block title %} {% endblock %}
 {% block body %}
+<style>
+    .skills-container .badge {
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+</style>
 <div class="container mt-3 px-auto">
-    <section class="text-dark"><div class="container mt-4">
-    <div class="card">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1>Détail de l'annonce pour le poste : {{ annonce.titre|upper}}</h1>
+            </div>
+        </div>
+    <section class="text-dark">
+    <div class="container mt-4">
+    <div class="card shadow">
         <div class="card-body">
-            <h3 class="card-title">{{ annonce.titre }}</h3>
-            <h5 class="text-muted">{{ annonce.typeContrat }}</h5>
+            <h4 class="text-muted">{{ annonce.typeContrat }}</h4>
             <p><i class="bi bi-geo-alt-fill"></i> {{ annonce.lieu }}</p>
-            <p><i class="bi bi-calendar"></i> Date d'expiration : {{ annonce.dateExpiration|date('d/m/Y') }}</p>
+            <p><i class="bi bi-calendar"></i> Publiée le : {{ annonce.dateCreation|date('d/m/Y') }}</p>
+            <p><i class="bi bi-calendar"></i> Expire le : {{ annonce.dateExpiration|date('d/m/Y') }}</p>
             <hr>
 
             <div class="card-text">
@@ -19,9 +32,11 @@
             <div class="mb-3">
                 <h5>Compétences requises</h5>
                 {% if annonce.competences|length > 0 %}
-                    {% for skill in annonce.competences %}
-                        <span class="badge bg-secondary">{{ skill.nom }}</span>
-                    {% endfor %}
+                    <div class="skills-container">  
+                        {% for skill in annonce.competences %}
+                            <span class="badge bg-secondary">{{ skill.nom }}</span>
+                        {% endfor %}
+                    </div>
                 {% else %}
                     <p>Aucune compétence spécifique requise.</p>
                 {% endif %}
@@ -32,21 +47,76 @@
                 <p><i class="bi bi-eye"></i> {{ annonce.annonceVues|length }}</p>
             </div>
 
-            {# {% for application in annonce.applications %} #}
-                {{ form_start(form) }}
-                {{ form_widget(form) }}
-                <div class="d-flex justify-content-between align-items-center">
-                    <button class="btn btn-primary">Postuler</button>
-                    <button class="btn btn-outline-primary"><i class="bi bi-heart"></i> J'aime</button>
-                </div>
-                {{ form_end(form) }}
-            {# {% endfor %} #}
-
         </div>
     </div>
-</div>
 
-
+            {% if applied %}
+            <div class="row align-items-md-stretch mt-5">
+                <div class="col-md-6">
+                    <div class="h-100 p-5 bg-body-tertiary border rounded-3">
+                    <h2>Postuler à cette offre</h2>
+                        {{ form_start(form) }}
+                        {{ form_widget(form) }}
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button class="btn btn-primary">Postuler</button>
+                            <button class="btn btn-outline-primary"><i class="bi bi-pin-angle"></i> Epingler l'annonce</button>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="h-100 p-5 text-bg-dark rounded-3">
+                    <h2>Mes candidatures</h2>
+                    <p>Retrouvez à tout moment vos candidatures en cours, le suivi de leur statut, ainsi que l’historique des offres auxquelles vous avez postulées. Les candidatures archivées regroupent vos candidatures sur des offres expirées.</p>
+                    <a href="{{ path('app_dashboard_candidat_annonces')}}" class="btn btn-outline-light" type="button">Mes candidatures</a>
+                    <h2 class="mt-5">Mes documents</h2>
+                    <p>Retrouvez à tout moment vos candidatures en cours, le suivi de leur statut, ainsi que l’historique des offres auxquelles vous avez postulées. Les candidatures archivées regroupent vos candidatures sur des offres expirées.</p>
+                    <button class="btn btn-outline-light" type="button" data-bs-toggle="modal" data-bs-target="#candidatDocuments">Uploader un nouveau CV</button>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="row align-items-md-stretch mt-5">
+                <div class="col-md-6">
+                    <div class="h-100 p-5 text-bg-dark rounded-3">
+                    <h2>Vous avez déjà postulé à cette offre</h2>
+                    <p>Retrouvez à tout moment vos candidatures en cours, le suivi de leur statut, ainsi que l’historique des offres auxquelles vous avez postulées. Les candidatures archivées regroupent vos candidatures sur des offres expirées.</p>
+                    <a href="{{ path('app_dashboard_candidat_annonces')}}" class="btn btn-outline-light" type="button">Mes candidatures</a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="h-100 p-5 bg-body-tertiary border rounded-3">
+                    <h2>Add borders</h2>
+                    <p>Or, keep it light and add a border for some added definition to the boundaries of your content. Be sure to look under the hood at the source HTML here as we've adjusted the alignment and sizing of both column's content for equal-height.</p>
+                    <button class="btn btn-outline-secondary" type="button">Example button</button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </section>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).on('click', '.select-cv-btn', function() {
+        var cvId = $(this).data('cv-id');
+        var cvLink = $(this).data('cv-link');
+
+        $.ajax({
+            url: '{{ path("app_profile_candidate_select_CV", {"id": 0}) }}'.replace('/0/', '/' + cvId + '/'),
+            type: 'GET',
+            success: function(response) {
+                // Mettez à jour le champ de formulaire, affichez un message, etc.
+                $('#cv-link-field').val(cvLink);
+                console.log(response);
+                // Fermer le modal si nécessaire
+                $('#candidatDocuments').trigger('hide.bs.modal');
+            },
+            error: function() {
+                console.error('Une erreur est survenue lors de la sélection du CV.');
+            }
+        });
+    });
+</script>
 {% endblock %}

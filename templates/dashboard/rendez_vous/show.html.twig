@@ -8,7 +8,7 @@
 <h1 class="mb-4">Détails du Rendez-vous</h1>
     <hr>
 
-        <div class="card">
+        <div class="card shadow">
             <div class="card-body">
                 <h3 class="card-title">{{ rendezvous.title }}</h3>
                 <p class="card-text">
@@ -18,7 +18,7 @@
                     <strong>Lien de l'entretien virtuel :</strong> <a href="{{ rendezvous.link }}">{{ rendezvous.link }}</a><br>
                     {% endif %}
                 </p>
-                <a href="{{ path('rendezvous_edit', {'id': rendezvous.id}) }}" class="btn btn-primary">Modifier le Rendez-vous</a>
+                <a href="{{ path('rendezvous_edit', {'id': rendezvous.id}) }}" class="btn btn-primary rounded-pill">Modifier le Rendez-vous</a>
                 {# <a href="{{ path('rendezvous_reschedule', {'id': rendezvous.id}) }}" class="btn btn-warning">Reprogrammer le Rendez-vous</a> #}
             </div>
         </div>

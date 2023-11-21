@@ -2,20 +2,22 @@
 
 namespace App\Controller;
 
-use App\Entity\CandidateProfile;
 use App\Entity\User;
+use App\Entity\Candidate\CV;
 use App\Entity\Enum\TypeUser;
+use App\Service\FileUploader;
 use App\Manager\ProfileManager;
+use App\Entity\CandidateProfile;
 use App\Entity\EntrepriseProfile;
 use App\Entity\ModerateurProfile;
 use App\Form\Profile\AccountType;
-use App\Form\Profile\Candidat\StepOneType;
-use App\Form\Profile\Candidat\StepTwoType;
-use App\Form\Profile\Candidat\StepThreeType;
 use App\Service\User\UserService;
 use App\Form\Profile\EntrepriseType;
 use App\Service\Mailer\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Form\Profile\Candidat\StepOneType;
+use App\Form\Profile\Candidat\StepTwoType;
+use App\Form\Profile\Candidat\StepThreeType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,6 +34,7 @@ class ProfileController extends AbstractController
         private ProfileManager $profileManager,
         private RequestStack $requestStack,
         private UrlGeneratorInterface $urlGenerator,
+        private FileUploader $fileUploader,
     ){
     }
     
@@ -151,7 +154,13 @@ class ProfileController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $profile = $form->getData();
-            $this->profileManager->saveForm($form);
+            $cvFile = $form->get('cv')->getData();
+            if ($cvFile) {
+                $fileName = $this->fileUploader->upload($cvFile);
+                $profile->setCv($fileName[0]);
+                $this->profileManager->saveCV($fileName, $profile);
+            }
+            $this->profileManager->saveCandidate($profile);
             $reloadSamePage = false;
             foreach ($initialCounts as $field => $initialCount) {
                 if (count($form->get($field)->getData()) !== $initialCount) {
@@ -199,6 +208,25 @@ class ProfileController extends AbstractController
             'user' => $this->getUser(),
             'form' => $form->createView(),
         ]);
+    }
+
+    #[Route('/profile/cv/{id}/select', name: 'app_profile_candidate_select_CV')]
+    public function candidateSelectCV(Request $request, CV $cv)
+    {
+        /** @var $user User */
+        $user = $this->userService->getCurrentUser();
+        $candidat = $user->getCandidateProfile();
+        if ($cv instanceof CV) {
+            $candidat->setCv($cv->getCvLink());
+            $this->em->flush();
+            $message = "ok";
+        }else{
+            $message = "error: CV not found";
+        }
+
+        return $this->json([
+            'message' => $message
+        ], 200);
     }
 
     #[Route('/profile/moderateur', name: 'app_profile_moderateur')]
