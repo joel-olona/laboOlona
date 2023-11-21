@@ -59,35 +59,23 @@
             <div class="col">
                 {{ form_label(form_two.titre) }}
                 {{ form_widget(form_two.titre, {'attr': {'class': 'form-control mb-4'}}) }}
-                {% if form_two.social.linkedin.vars.value is not empty %}
                     {{ form_label(form_two.social.linkedin) }}
                     {{ form_widget(form_two.social.linkedin) }}
-                {% endif %}
 
-                {% if form_two.social.skype.vars.value is not empty %}
                     {{ form_label(form_two.social.skype) }}
                     {{ form_widget(form_two.social.skype) }}
-                {% endif %}
 
-                {% if form_two.social.slack.vars.value is not empty %}
                     {{ form_label(form_two.social.slack) }}
                     {{ form_widget(form_two.social.slack) }}
-                {% endif %}
 
-                {% if form_two.social.facebook.vars.value is not empty %}
                     {{ form_label(form_two.social.facebook) }}
                     {{ form_widget(form_two.social.facebook) }}
-                {% endif %}
 
-                {% if form_two.social.instagram.vars.value is not empty %}
                     {{ form_label(form_two.social.instagram) }}
                     {{ form_widget(form_two.social.instagram) }}
-                {% endif %}
 
-                {% if form_two.social.github.vars.value is not empty %}
                     {{ form_label(form_two.social.github) }}
                     {{ form_widget(form_two.social.github) }}
-                {% endif %}
             </div>
             <div class="col">
                 {{ form_label(form_two.resume) }}
@@ -223,7 +211,88 @@
             
             </div>
         </div>
+        <hr class="mb-4">
+        <div class="row">
+            <div class="col">
+                <h5 class=""><i class="bi bi-globe-europe-africa mx-2 h5"></i> Langues</h5>
+                {% if langages|length > 0 %}
+                    {% for langue in langages %}
+                    <p class="text-dark d-flex justify-content-between align-items-center">
+                        {{ isoToEmoji(langue.langue.code) }} {{ langue.langue.nom }} 
+                        <span class="d-flex align-items-center">
+                            <span class="mx-4 p-1 lh-1">
+                                {% for i in 1..5 %}
+                                    {% if i <= langue.niveau %}
+                                        <i class="small bi bi-star-fill text-warning"></i>
+                                    {% else %}
+                                        <i class="small bi bi-star text-dark"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </span>
+                        </span>            
+                    </p>
+                    {% endfor %}
+                {% else %}
+                <div class="alert alert-primary" role="alert">
+                    Aucune expérience renseignée.
+                </div>
+                {% endif %}
+            </div>
+            <div class="col">
+            
+                <div class="">
+                    <div {{ stimulus_controller('form-collection') }} data-form-collection-index-value="{{ form_three.langages|length > 0 ? form_three.langages|last.vars.name + 1 : 0 }}" data-form-collection-prototype-value="{{ form_widget(form_three.langages.vars.prototype)|e('html_attr') }}">
+                        <!-- Modal -->
+                        <div class="modal fade" id="langage" tabindex="-1" aria-labelledby="langageLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content text-black">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-2" id="langageLabel">
+                                            Ajouter une langue
+                                        </h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <ul {{ stimulus_target('form-collection', 'collectionContainer') }}>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-light rounded-pill small w-100" data-bs-toggle="modal" data-bs-target="#langage" type="button" {{ stimulus_action('form-collection', 'addCollectionElement') }}>
+                            <i class="h5 bi mx-1 bi-plus"></i>
+                            Ajouter une langue
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <h5 class=""><i class="mx-2 h5 bi bi-archive"></i> Mes documents</h5>
+    <div class="row">
+        <div class="col">
+        {% for cv in app.user.candidateProfile.cvs %}
+            <div class="col-md-6 my-2">
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Icône agrandie -->
+                        <i class="bi bi-file-earmark-person" style="font-size: 3rem;"></i>
+                        <p class="card-title small">{{ cv.safeFileName }}.pdf</p>
+                        <!-- Lien pour visualiser le CV dans un nouvel onglet -->
+                        <a href="{{ asset('uploads/cv/' ~ cv.cvLink) }}" class="btn btn-sm rounded-pill btn-primary" title="Ouvrir" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
+                        <a href="javascript:void(0);" data-cv-link="{{ cv.cvLink }}" data-cv-id="{{ cv.id }}" class="select-cv-btn btn btn-sm rounded-pill btn-danger" title="Sélectionner"><i class="bi bi-check2-square"></i></a>
 
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="col">
+            {{ form_label(form_three.cv) }}
+            {{ form_widget(form_three.cv) }}
+            {{ form_errors(form_three.cv) }}
+        </div>
+    </div>
+        
         <div style="display:none">
             {{ form_widget(form_three) }}
         </div>
@@ -234,4 +303,47 @@
         {{ form_end(form_three) }}
     </section>
 </div>
+{% endblock %}
+{% block modal %}
+    
+    <!-- Modal -->
+    <div class="modal fade" id="candidatDocuments" tabindex="-1" aria-labelledby="candidatDocumentsLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5 text-dark" id="candidatDocumentsLabel">Mes Documents</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-dark">
+                Le CV transmis lors d’une candidature est celui défini comme partagé.
+                    {% if app.user.candidateProfile %}
+                        <div class="row">
+                            {% for cv in app.user.candidateProfile.cvs %}
+                            <div class="col-md-6 my-2">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <!-- Icône agrandie -->
+                                        <i class="bi bi-file-earmark-person" style="font-size: 3rem;"></i>
+                                        <p class="card-title small">{{ cv.safeFileName }}</p>
+                                        <!-- Lien pour visualiser le CV dans un nouvel onglet -->
+                                        <a href="{{ asset('uploads/cv/' ~ cv.cvLink) }}" class="btn btn-sm rounded-pill btn-primary" title="Ouvrir" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
+                                        <a href="javascript:void(0);" data-cv-link="{{ cv.cvLink }}" data-cv-id="{{ cv.id }}" class="select-cv-btn btn btn-sm rounded-pill btn-danger" title="Sélectionner"><i class="bi bi-check2-square"></i></a>
+
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>Aucun document disponible.</p>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 {% endblock %}
