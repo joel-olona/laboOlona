@@ -120,3 +120,47 @@
     });
 </script>
 {% endblock %}
+
+{% block modal %}
+    
+    <!-- Modal -->
+    <div class="modal fade" id="candidatDocuments" tabindex="-1" aria-labelledby="candidatDocumentsLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5 text-dark" id="candidatDocumentsLabel">Mes Documents</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-dark">
+                Le CV transmis lors d’une candidature est celui défini comme partagé.
+                    {% if app.user.candidateProfile %}
+                        <div class="row">
+                            {% for cv in app.user.candidateProfile.cvs %}
+                            <div class="col-md-6 my-2">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <!-- Icône agrandie -->
+                                        <i class="bi bi-file-earmark-person" style="font-size: 3rem;"></i>
+                                        <p class="card-title small">{{ cv.safeFileName }}</p>
+                                        <!-- Lien pour visualiser le CV dans un nouvel onglet -->
+                                        <a href="{{ asset('uploads/cv/' ~ cv.cvLink) }}" class="btn btn-sm rounded-pill btn-primary" title="Ouvrir" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
+                                        <a href="javascript:void(0);" data-cv-link="{{ cv.cvLink }}" data-cv-id="{{ cv.id }}" class="select-cv-btn btn btn-sm rounded-pill btn-danger" title="Sélectionner"><i class="bi bi-check2-square"></i></a>
+
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>Aucun document disponible.</p>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

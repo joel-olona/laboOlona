@@ -35,6 +35,7 @@ use App\Form\Profile\Candidat\Edit\StepTwoType as EditStepTwoType;
 use App\Form\Profile\Candidat\Edit\StepThreeType as EditStepThreeType;
 use App\Manager\ModerateurManager;
 use App\Repository\Candidate\ApplicationsRepository;
+use App\Service\FileUploader;
 
 #[Route('/dashboard/candidat')]
 class CandidatController extends AbstractController
@@ -49,6 +50,7 @@ class CandidatController extends AbstractController
         private ApplicationsRepository $applicationsRepository,
         private TypeContratRepository $typeContratRepository,
         private RequestStack $requestStack,
+        private FileUploader $fileUploader,
         private ModerateurManager $moderateurManager,
         private UrlGeneratorInterface $urlGenerator,
     ) {
@@ -395,6 +397,12 @@ class CandidatController extends AbstractController
         }
 
         if ($formThree->isSubmitted() && $formThree->isValid()) {
+            $cvFile = $formThree->get('cv')->getData();
+            if ($cvFile) {
+                $fileName = $this->fileUploader->upload($cvFile);
+                $candidat->setCv($fileName[0]);
+                $this->profileManager->saveCV($fileName, $candidat);
+            }
             $this->em->persist($candidat);
             $this->em->flush();
         }
@@ -406,6 +414,7 @@ class CandidatController extends AbstractController
             'candidat' => $candidat,
             'experiences' => $candidat->getExperiences(),
             'competences' => $candidat->getCompetences(),
+            'langages' => $candidat->getLangages(),
         ]);
     }
 
