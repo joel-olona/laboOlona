@@ -14,6 +14,7 @@ class ApplicationsType extends AbstractType
     {
         $builder
             ->add('cvLink', null, [
+                'label' =>  'Mettre à jour mon CV',
                 'attr' => ['id' => 'cv-link-field']
             ])
             ->add('lettreMotivation', TextareaType::class, [
