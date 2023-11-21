@@ -52,48 +52,50 @@ Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
 <!-- Section pour tous les candidats -->
 <div class="row">
     <h3 class="col-12 mb-3">Voir tous les Candidats</h3>
-        <table class="table table-responsive" id="candidatsTable">
-            <thead>
-                <tr>
-                    <th scope="col-1">Titre</th>    
-                    <th scope="col-2">Nom</th>
-                    <th scope="col-2">Missions réalisées</th>
-                    <th scope="col-3">Compétences</th>
-                    <th scope="col-1">Expériences</th>
-                    <th scope="col-2">Langues</th>
-                    <th scope="col-1"></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for candidat in candidats %}
+        <div class="card shadow p-2">
+            <table class="table table-responsive" id="candidatsTable">
+                <thead>
                     <tr>
-                        <td>{{ candidat.titre }}</td>   
-                        <td>{{ candidat.candidat.nom }} {{ candidat.candidat.prenom }}</td>
-                        <td>
-                            <span class="badge bg-success">
-                                {{ candidat.applications|filter(app => app.status == 'ACCEPTED')|length }}
-                            </span>
-                        </td>
-                        <td>
-                            {% for skill in candidat.competences %}
-                            <span class="badge bg-info">
-                                {{ skill.nom }}
-                            </span>
-                            {% endfor %}
-                        </td>
-                        <td><span class="badge bg-secondary"><a href="{{ path('app_dashboard_moderateur_candidat_experiences', {'id': candidat.id}) }}" class="text-decoration-none text-white">{{ candidat.experiences|length }}</a></span></td>
-                        <td>
-                            {% for langue in candidat.langages %}
-                                {{ isoToEmoji(langue.langue.code) }}
-                            {% endfor %}
-                        </td>
-                        <td><a href="{{ path('app_dashboard_entreprise_details_candidat', {'id': candidat.id}) }}" class="btn btn-warning btn-sm rounded-pill"><i class="bi bi-eye"></i></a></td>
+                        <th scope="col-1">Titre</th>    
+                        <th scope="col-2">Nom</th>
+                        <th scope="col-2">Missions réalisées</th>
+                        <th scope="col-3">Compétences</th>
+                        <th scope="col-1">Expériences</th>
+                        <th scope="col-2">Langues</th>
+                        <th scope="col-1">Profil</th>
                     </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="9">Aucun candidat trouvé.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for candidat in candidats %}
+                        <tr>
+                            <td>{{ candidat.titre }}</td>   
+                            <td>{{ candidat.candidat.nom }} {{ candidat.candidat.prenom }}</td>
+                            <td>
+                                <span class="badge bg-success">
+                                    {{ candidat.applications|filter(app => app.status == 'ACCEPTED')|length }}
+                                </span>
+                            </td>
+                            <td>
+                                {% for skill in candidat.competences %}
+                                <span class="badge bg-info">
+                                    {{ skill.nom }}
+                                </span>
+                                {% endfor %}
+                            </td>
+                            <td><span class="badge bg-secondary"><a href="{{ path('app_dashboard_moderateur_candidat_experiences', {'id': candidat.id}) }}" class="text-decoration-none text-white">{{ candidat.experiences|length }}</a></span></td>
+                            <td>
+                                {% for langue in candidat.langages %}
+                                    {{ isoToEmoji(langue.langue.code) }}
+                                {% endfor %}
+                            </td>
+                            <td><a href="{{ path('app_dashboard_entreprise_details_candidat', {'id': candidat.id}) }}" class="btn btn-warning btn-sm rounded-pill"><i class="bi bi-eye"></i></a></td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="9">Aucun candidat trouvé.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 </div>
