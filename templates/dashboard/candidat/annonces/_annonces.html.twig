@@ -7,27 +7,20 @@
     </div>
 
     {% if annonces|length > 0 %}
-        <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div class="annonce-list">
             {% for annonce in annonces %}
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ annonce.titre }}</h5>
-                            <p class="card-text">{{ annonce.description|length > 300 ? annonce.description|slice(0, 297) ~ '...' : annonce.description }}</p>
-                            <p class="card-text"><small class="text-muted">Nombre de vues : {{ annonce.annonceVues|length }}</small></p>
-                            <p><span class="badge bg-primary">{{ annonce.typeContrat }}</span></p>
-                            <p><i class="bi bi-geo-alt-fill"></i> {{ annonce.lieu }} - {{ annonce.dateExpiration|date('d/m/Y') }}</p>
-                            {% if annonce.competences|length > 0 %}
-                                <div>
-                                    {% for skill in annonce.competences %}
-                                        <span class="badge bg-secondary">{{ skill.nom }}</span>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="card-footer">
-                            <a href="{{ path('app_dashboard_candidat_annonce_show', {'jobId': annonce.jobId}) }}" class="btn btn-primary">Voir plus</a>
-                        </div>
+                <div class="annonce-item shadow">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ annonce.titre|upper }}</h5>
+                    </div>
+                    <p class="mb-1">{{ annonce.description|length > 400 ? annonce.description|slice(0, 397) ~ '...' : annonce.description }}</p>
+                    <p class="mb-1"><small class="text-muted"><i class="bi bi-eye"></i> Nombre de vues : {{ annonce.annonceVues|length }}</small></p>
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <span><i class="bi bi-file-earmark-text"></i> Type de contrat : <span class="badge bg-secondary">{{ annonce.typeContrat }}</span></span>
+                        <span><i class="bi bi-geo-alt-fill"></i> {{ annonce.lieu }}</span>
+                        <span><i class="bi bi-calendar-check-fill"></i> Publiée le : {{ annonce.dateCreation|date('d/m/Y') }}</span>
+                        <span><i class="bi bi-calendar-x-fill"></i> Expire le : {{ annonce.dateExpiration|date('d/m/Y') }}</span>
+                        <a href="{{ path('app_dashboard_candidat_annonce_show', {'jobId': annonce.jobId}) }}" class="btn btn-primary">Voir l'annonce</a>
                     </div>
                 </div>
             {% endfor %}
@@ -37,4 +30,8 @@
             Aucune annonces trouvées.
         </div>
     {% endif %}
+    <div class="navigation">
+        {{ knp_pagination_render(annonces, 'parts/_pagination.html.twig') }}
+    </div>
+    <a href="javascript:history.back()" class="btn btn-secondary rounded-pill my-3"><i class="mx-2 bi bi-arrow-left"></i>Retour</a>
 </div>
