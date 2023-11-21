@@ -242,6 +242,7 @@ class CandidatController extends AbstractController
             $application = new Applications();
             $application->setDateCandidature(new DateTime());
             $application->setAnnonce($annonce);
+            $application->setCvLink($candidat->getCv());
             $application->setCandidat($candidat);
             $application->setStatus(Applications::STATUS_PENDING);
         }
