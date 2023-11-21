@@ -13,7 +13,9 @@ class ApplicationsType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('cvLink')
+            ->add('cvLink', null, [
+                'attr' => ['id' => 'cv-link-field']
+            ])
             ->add('lettreMotivation', TextareaType::class, [
                 'label' =>  'Lettre de motivation',
                 'attr' => [

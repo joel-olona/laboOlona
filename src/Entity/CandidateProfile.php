@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Candidate\CV;
 use App\Entity\Candidate\Langages;
 use App\Entity\Candidate\Social;
 use App\Entity\Vues\CandidatVues;
@@ -96,6 +97,9 @@ class CandidateProfile
     #[ORM\Column(type: 'uuid')]
     private ?Uuid $uid = null;
 
+    #[ORM\OneToMany(mappedBy: 'candidat', targetEntity: CV::class, cascade: ['persist', 'remove'])]
+    private Collection $cvs;
+
     public function __construct()
     {
         $this->competences = new ArrayCollection();
@@ -106,6 +110,7 @@ class CandidateProfile
         $this->createdAt = new DateTime();
         $this->langages = new ArrayCollection();
         $this->vues = new ArrayCollection();
+        $this->cvs = new ArrayCollection();
     }
 
     public function __toString()
@@ -531,6 +536,36 @@ class CandidateProfile
     public function setUid(Uuid $uid): static
     {
         $this->uid = $uid;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CV>
+     */
+    public function getCvs(): Collection
+    {
+        return $this->cvs;
+    }
+
+    public function addCv(CV $cv): static
+    {
+        if (!$this->cvs->contains($cv)) {
+            $this->cvs->add($cv);
+            $cv->setCandidat($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCv(CV $cv): static
+    {
+        if ($this->cvs->removeElement($cv)) {
+            // set the owning side to null (unless already changed)
+            if ($cv->getCandidat() === $this) {
+                $cv->setCandidat(null);
+            }
+        }
 
         return $this;
     }
