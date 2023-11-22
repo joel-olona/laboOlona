@@ -1,0 +1,34 @@
+    
+    <p class="mx-2">
+Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
+</p>
+<div class="navigation">
+{{ knp_pagination_render(aiTools, 'parts/_pagination.html.twig') }}
+</div>
+<table class="table table-responsive">
+    <thead>
+        <tr>
+            <th class="col-1">ID</th>
+            <th class="col-4">Titre</th>
+            <th class="col-4">Description</th>
+            <th class="col-3">Image</th>
+            <th class="col-3"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for aitool in aiTools %}
+            <tr>
+                <td class="id-column">{{ aitool.id }}</td>
+                <td>{{ aitool.nom }}</td>
+                <td>{{ (aitool.description|slice(0, 350) ~ '...')|raw }}</td>
+                {# <td>{{ (aitool.description|length > 250 ? aitool.description|slice(0, 50) ~ '...' : aitool.description)|raw }}</td> #}
+                <td><img src="{{ aitool.image }}" class="img-fluid" alt="thumbail"></td>
+                <td class="actions-col">
+                    <a href="{{path('app_dashboard_moderateur_edit_affiliate_tool', { 'slug': aitool.slug}) }}" class="btn btn-sm btn-info">Modifier</a>
+                    <a href="{{path('app_dashboard_moderateur_edit_affiliate_tool', { 'slug': aitool.slug}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce type de contrat ?');">Supprimer</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
