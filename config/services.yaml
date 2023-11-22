@@ -29,3 +29,7 @@ services:
     App\Service\FileUploader:
         arguments:
             $targetDirectory: '%kernel.project_dir%/public/uploads/cv'
+
+
+    App\Service\WooCommerce:
+        arguments: ['%env(WC_CUSTOMER_ENDPOINT)%', '%env(WC_CUSTOMER_KEY)%', '%env(WC_CUSTOMER_SECRET)%']  
