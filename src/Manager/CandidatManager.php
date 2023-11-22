@@ -6,12 +6,14 @@ use App\Entity\CandidateProfile;
 use App\Service\User\UserService;
 use App\Entity\Entreprise\JobListing;
 use App\Entity\Candidate\Applications;
+use App\Entity\Moderateur\Metting;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\CandidateProfileRepository;
 use App\Repository\EntrepriseProfileRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\Entreprise\JobListingRepository;
 use App\Repository\Candidate\ApplicationsRepository;
+use App\Repository\Moderateur\MettingRepository;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class CandidatManager
@@ -24,6 +26,7 @@ class CandidatManager
         private CandidateProfileRepository $candidateProfileRepository,
         private JobListingRepository $jobListingRepository,
         private ApplicationsRepository $applicationsRepository,
+        private MettingRepository $mettingRepository,
         private UserService $userService
     ){}
 
@@ -124,7 +127,7 @@ class CandidatManager
         }
 
         if (!empty($typeContrat) ) {
-            $conditions[] = '(j.typeContrat LIKE :typeContrat )';
+            $conditions[] = '(t.nom LIKE :typeContrat )';
             $parameters['typeContrat'] = '%' . $typeContrat . '%';
         }
 
@@ -141,6 +144,7 @@ class CandidatManager
         $qb->select('j')
             ->from('App\Entity\Entreprise\JobListing', 'j')
             ->leftJoin('j.competences', 'c')
+            ->leftJoin('j.typeContrat', 't')
             ->where(implode(' AND ', $conditions))
             ->setParameters($parameters);
         
@@ -176,6 +180,14 @@ class CandidatManager
         return $this->applicationsRepository->findBy([
             'candidat' => $candidat,
             'status' => Applications::STATUS_ARCHIVED
+        ]);
+    }
+
+    public function getMettingApplications(CandidateProfile $candidat): array
+    {
+        return $this->applicationsRepository->findBy([
+            'candidat' => $candidat,
+            'status' => Applications::STATUS_METTING
         ]);
     }
 
