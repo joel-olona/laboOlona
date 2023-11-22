@@ -151,6 +151,7 @@ class AppExtension extends AbstractExtension
             Applications::STATUS_REJECTED  => 'Non retenues',
             Applications::STATUS_ACCEPTED  => 'Acceptée',
             Applications::STATUS_ARCHIVED  => 'Archivée',
+            Applications::STATUS_METTING  => 'Rendez-vous',
         ];
 
         return $labels[$status];

@@ -1,0 +1,40 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2>Affiliate Tool</h2>
+    <a href="{{ path('app_dashboard_moderateur_new_affiliate_tool')}}" class="btn btn-secondary my-3">Nouveau</a>
+    <a href="{{ path('app_dashboard_moderateur_import_affiliate_tool')}}" class="btn btn-secondary my-3">Importer</a>
+    {{ form_start(form, {'attr': {'class': 'form-group mb-2 col-6', 'id':'moderateur-aitools-search-form'}}) }}
+    <div class="input-group">
+        {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    {{ form_end(form) }}
+    <div id="aitools-container">
+        {% include 'dashboard/moderateur/affiliate_tool/_aitools.html.twig' %}
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    function searchAnnonces() {
+        var formData = $('#moderateur-aitools-search-form').serialize();
+
+        $.ajax({
+            url: '{{ path('app_dashboard_moderateur_affiliate_tool') }}',
+            type: 'GET',
+            data: formData,
+            success: function(data) {
+                $('#aitools-container').html(data.content);
+            }
+        });
+    }
+    $('#moderateur-aitools-search-form input, #moderateur-aitools-search-form select').on('keyup change', function() {
+        searchAnnonces();
+    });
+});
+</script>
+
+</div>
+{% endblock %}
