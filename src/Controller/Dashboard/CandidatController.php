@@ -350,6 +350,11 @@ class CandidatController extends AbstractController
                 $request->query->getInt('page', 1),
                 10
             ),
+            'randezvous' => $paginatorInterface->paginate(
+                $this->candidatManager->getMettingApplications($candidat),
+                $request->query->getInt('page', 1),
+                10
+            ),
             'accepteds' => $paginatorInterface->paginate(
                 $this->candidatManager->getAcceptedApplications($candidat),
                 $request->query->getInt('page', 1),
