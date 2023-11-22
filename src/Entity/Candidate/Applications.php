@@ -16,6 +16,7 @@ class Applications
     const STATUS_REJECTED = 'REJECTED';
     const STATUS_ARCHIVED = 'ARCHIVED';
     const STATUS_ACCEPTED = 'ACCEPTED';
+    const STATUS_METTING = 'METTING';
 
 
     public static function getStatuses() {
@@ -24,6 +25,7 @@ class Applications
             'Non retenues' => self::STATUS_REJECTED ,
             'Archivée' => self::STATUS_ARCHIVED ,
             'Acceptée' => self::STATUS_ACCEPTED ,
+            'Rendez-vous' => self::STATUS_METTING ,
         ];
     }
 
@@ -33,6 +35,7 @@ class Applications
              self::STATUS_REJECTED ,
              self::STATUS_ARCHIVED ,
              self::STATUS_ACCEPTED ,
+             self::STATUS_METTING ,
         ];
     }
     
