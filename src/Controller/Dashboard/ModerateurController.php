@@ -2,7 +2,6 @@
 
 namespace App\Controller\Dashboard;
 
-use App\Entity\Secteur;
 use App\Form\MettingType;
 use App\Manager\ProfileManager;
 use App\Entity\CandidateProfile;
@@ -11,19 +10,12 @@ use App\Entity\ModerateurProfile;
 use App\Service\User\UserService;
 use App\Entity\Moderateur\Metting;
 use App\Manager\ModerateurManager;
-use App\Form\Moderateur\SecteurType;
 use App\Entity\Entreprise\JobListing;
 use App\Repository\SecteurRepository;
 use App\Service\Mailer\MailerService;
 use App\Entity\Candidate\Applications;
-use App\Entity\Moderateur\TypeContrat;
-use App\Entity\Notification;
-use App\Form\Moderateur\NotificationType;
-use App\Form\Search\Secteur\SecteurSearchType;
-use App\Form\Moderateur\TypeContratType;
 use App\Form\Search\Annonce\ModerateurAnnonceEntrepriseSearchType;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Form\Search\TypeContrat\TypeContratSearchType;
 use App\Repository\NotificationRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,9 +23,7 @@ use App\Repository\CandidateProfileRepository;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\EntrepriseProfileRepository;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Form\Search\Annonce\ModerateurAnnonceSearchType;
 use App\Form\Search\Candidat\ModerateurCandidatSearchType;
-use App\Form\Search\Candidature\ModerateurCandidatureSearchType;
 use App\Repository\Moderateur\MettingRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -42,7 +32,6 @@ use App\Manager\CandidatManager;
 use App\Repository\Entreprise\JobListingRepository;
 use App\Repository\Candidate\ApplicationsRepository;
 use App\Repository\Moderateur\TypeContratRepository;
-use DateTime;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -76,7 +65,7 @@ class ModerateurController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $moderateur = $user->getModerateurProfile();
         if (!$moderateur instanceof ModerateurProfile){ 
-            return $this->redirectToRoute('app_profile');
+            return $this->redirectToRoute('app_connect');
         }
 
         return null;
@@ -101,405 +90,6 @@ class ModerateurController extends AbstractController
             'mettings' => $this->moderateurManager->findAllOrderDesc($this->mettingRepository),
             'notifications' => $this->moderateurManager->findAllOrderDesc($this->notificationRepository),
         ]);
-    }
-
-    #[Route('/secteurs', name: 'app_dashboard_moderateur_secteur')]
-    public function sectors(Request $request, SecteurRepository $secteurRepository, PaginatorInterface $paginatorInterface): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        /** Formulaire de recherche secteur */
-        $form = $this->createForm(SecteurSearchType::class);
-        $form->handleRequest($request);
-        $data = $secteurRepository->findAll();
-        if ($form->isSubmitted() && $form->isValid()) {
-            $searchTerm = $form->get('secteur')->getData();
-            $data = $this->moderateurManager->searchSecteur($searchTerm);
-            if ($request->isXmlHttpRequest()) {
-                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
-                return new JsonResponse([
-                    'content' => $this->renderView('dashboard/moderateur/secteur/_secteurs.html.twig', [
-                        'secteurs' => $paginatorInterface->paginate(
-                            $data,
-                            $request->query->getInt('page', 1),
-                            10
-                        ),
-                        'result' => $data
-                    ])
-                ]);
-            }
-        }
-
-        return $this->render('dashboard/moderateur/secteur/index.html.twig', [
-            'secteurs' => $paginatorInterface->paginate(
-                $data,
-                $request->query->getInt('page', 1),
-                10
-            ),
-            'result' => $data,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    #[Route('/secteur/new', name: 'app_dashboard_moderateur_new_secteur')]
-    public function newSecteur(Request $request): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        /** Initialiser une instance de Secteur */
-        $secteur = $this->moderateurManager->initSector();
-        $form = $this->createForm(SecteurType::class, $secteur);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** Sauvegarder TypeContrat */
-            $secteur = $this->moderateurManager->saveSectorForm($form);
-            $this->addFlash('success', 'Secteur sauvegardé');
-
-            return $this->redirectToRoute('app_dashboard_moderateur_secteur', []);
-        }
-
-        return $this->render('dashboard/moderateur/secteur/new_edit.html.twig', [
-            'form' => $form->createView(),
-            'button_label' => 'Créer',
-        ]);
-    }
-
-    #[Route('/secteur/{slug}/edit', name: 'app_dashboard_moderateur_edit_secteur')]
-    public function editSecteur(Request $request, Secteur $secteur): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        /** @var Secteur $secteur qui vient de {slug} */
-        $form = $this->createForm(SecteurType::class, $secteur);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** Mettre à jour le Secteur */
-            $secteur = $this->moderateurManager->saveSectorForm($form);
-            $this->addFlash('success', 'Secteur mis à jour');
-
-            return $this->redirectToRoute('app_dashboard_moderateur_secteur', []);
-        }
-
-        return $this->render('dashboard/moderateur/secteur/new_edit.html.twig', [
-            'form' => $form->createView(),
-            'button_label' => 'Mettre à jour',
-        ]);
-    }
-
-    #[Route('/secteur/supprimer/{slug}', name: 'app_dashboard_moderateur_delete_secteur')]
-    public function deleteSecteur(Secteur $secteur): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        /** Supprimer le Secteur */
-        $this->moderateurManager->deleteSector($secteur);
-        $this->addFlash('success', 'Secteur supprimé avec succès.');
-
-        return $this->redirectToRoute('app_dashboard_moderateur_secteur');
-    }
-
-    #[Route('/type-contrat', name: 'app_dashboard_moderateur_type_contrat')]
-    public function typeContrat(Request $request, TypeContratRepository $typeContratRepository, PaginatorInterface $paginatorInterface): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        /** Formulaire de recherche type de contrat */
-        $form = $this->createForm(TypeContratSearchType::class);
-        $form->handleRequest($request);
-        $data = $typeContratRepository->findAll();
-        if ($form->isSubmitted() && $form->isValid()) {
-            $searchTerm = $form->get('typeContrat')->getData();
-            $data = $this->moderateurManager->searchTypeContrat($searchTerm);
-            if ($request->isXmlHttpRequest()) {
-                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
-                return new JsonResponse([
-                    'content' => $this->renderView('dashboard/moderateur/type-contrat/_type_contrats.html.twig', [
-                        'types_contrat' => $paginatorInterface->paginate(
-                            $data,
-                            $request->query->getInt('page', 1),
-                            10
-                        ),
-                        'result' => $data
-                    ])
-                ]);
-            }
-        }
-        
-        return $this->render('dashboard/moderateur/type-contrat/index.html.twig', [
-            'types_contrat' => $paginatorInterface->paginate(
-                $data,
-                $request->query->getInt('page', 1),
-                10
-            ),
-            'result' => $data,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    #[Route('/type-contrat/new', name: 'app_dashboard_moderateur_new_type_contrat')]
-    public function newTypeContrat(Request $request): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        /** Initialiser une instance de TypeContrat */
-        $typeContrat = $this->moderateurManager->initTypeContrat();
-        $form = $this->createForm(TypeContratType::class, $typeContrat);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** Sauvegarder TypeContrat */
-            $typeContrat = $this->moderateurManager->saveTypeContratForm($form);
-            $this->addFlash('success', 'Type contrat sauvegardé');
-
-            return $this->redirectToRoute('app_dashboard_moderateur_type_contrat', []);
-        }
-
-        return $this->render('dashboard/moderateur/type-contrat/new_edit.html.twig', [
-            'form' => $form->createView(),
-            'button_label' => 'Créer',
-        ]);
-    }
-
-    #[Route('/type-contrat/{slug}/edit', name: 'app_dashboard_moderateur_edit_type_contrat')]
-    public function editTypeContrat(Request $request, TypeContrat $typeContrat): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        /** @var TypeContrat $typeContrat qui vient de {slug} */
-        $form = $this->createForm(TypeContratType::class, $typeContrat);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** Mettre à jour le TypeContrat */
-            $typeContrat = $this->moderateurManager->saveTypeContratForm($form);
-            $this->addFlash('success', 'Type contrat mis à jour');
-
-            return $this->redirectToRoute('app_dashboard_moderateur_type_contrat', []);
-        }
-
-        return $this->render('dashboard/moderateur/type-contrat/new_edit.html.twig', [
-            'form' => $form->createView(),
-            'button_label' => 'Mettre à jour',
-        ]);
-    }
-
-    #[Route('/type-contrat/supprimer/{slug}', name: 'app_dashboard_moderateur_delete_type_contrat')]
-    public function deleteTypeContrat(TypeContrat $typeContrat): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        /** Supprimer le TypeContrat */
-        $this->moderateurManager->deleteTypeContrat($typeContrat);
-        $this->addFlash('success', 'Type contrat supprimé avec succès.');
-
-        return $this->redirectToRoute('app_dashboard_moderateur_type_contrat');
-    }
-
-    #[Route('/annonces', name: 'app_dashboard_moderateur_annonces')]
-    public function annonces(Request $request, PaginatorInterface $paginatorInterface): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        /** Formulaire de recherche annonces */
-        $form = $this->createForm(ModerateurAnnonceSearchType::class);
-        $form->handleRequest($request);
-        $data = $this->moderateurManager->findAllListingJob();
-        if ($form->isSubmitted() && $form->isValid()) {
-            $titre = $form->get('titre')->getData();
-            $entreprise = $form->get('entreprise')->getData();
-            $status = $form->get('status')->getData();
-            $data = $this->moderateurManager->searchAnnonce($titre, $entreprise, $status);
-            if ($request->isXmlHttpRequest()) {
-                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
-                return new JsonResponse([
-                    'content' => $this->renderView('dashboard/moderateur/annonce/_annonces.html.twig', [
-                        'annonces' => $paginatorInterface->paginate(
-                            $data,
-                            $request->query->getInt('page', 1),
-                            10
-                        ),
-                        'result' => $data
-                    ])
-                ]);
-            }
-        }
-
-        return $this->render('dashboard/moderateur/annonce/index.html.twig', [
-            'annonces' => $paginatorInterface->paginate(
-                $data,
-                $request->query->getInt('page', 1),
-                10
-            ),
-            'result' => $data,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    #[Route('/annonce/{id}', name: 'app_dashboard_moderateur_annonce_view', methods: ['GET'])]
-    public function viewAnnonce(JobListing $annonce): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        return $this->render('dashboard/moderateur/annonce/view.html.twig', [
-            'annonce' => $annonce,
-        ]);
-    }
-
-    #[Route('/annonce/{id}/candidature', name: 'app_dashboard_moderateur_annonce_candidature_view', methods: ['GET'])]
-    public function viewCandidatureAnnonce(JobListing $annonce): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        return $this->render('dashboard/moderateur/annonce/candidature.html.twig', [
-            'annonce' => $annonce,
-            'candidatures' => $annonce->getApplications(),
-        ]);
-    }
-
-    #[Route('/notifier/{annonce}/entreprise/{entreprise}', name: 'app_dashboard_moderateur_annonce_notifier')]
-    public function notifierAnnonce(Request $request, JobListing $annonce, EntrepriseProfile $entreprise): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        $notification = new Notification();
-        $notification->setDateMessage(new DateTime());
-        $notification->setExpediteur($this->userService->getCurrentUser());
-        $notification->setDestinataire($entreprise->getEntreprise());
-        $notification->setType(Notification::TYPE_ANNONCE);
-        $notification->setIsRead(false);
-
-        $form = $this->createForm(NotificationType::class, $notification);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $notification = $form->getData();
-            $this->em->persist($notification);
-            $this->em->flush();
-            /** Envoi email à l'entreprise */
-            $this->mailerService->send(
-                $entreprise->getEntreprise()->getEmail(),
-                "Statut de votre annonce sur Olona Talents",
-                "notification_annonce.html.twig",
-                [
-                    'user' => $entreprise->getEntreprise(),
-                    'details_annonce' => $notification->getContenu(),
-                    'objet' => "est toujours en cours de moderation",
-                    'dashboard_url' => $this->urlGenerator->generate('app_dashboard_entreprise_view_annonce', ['id' => $annonce->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
-                ]
-            );
-            $this->addFlash('success', 'Un email a été envoyé à l\'entreprise');
-
-            return $this->redirectToRoute('app_dashboard_moderateur_annonce_view', ['id' => $annonce->getId()]);
-        }
-
-        return $this->render('dashboard/moderateur/annonce/notify.html.twig', [
-            'annonce' => $annonce,
-            'entreprise' => $entreprise,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    #[Route('/status/annonce/{id}', name: 'change_status_annonce')]
-    public function changeAnnonceStatus(Request $request, EntityManagerInterface $entityManager, JobListing $annonce): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        $status = $request->request->get('status');
-        if ($status && in_array($status, JobListing::getArrayStatuses())) {
-            $annonce->setStatus($status);
-            $entityManager->flush();
-            /** Envoi email à l'entreprise si validée*/
-            if($annonce->getStatus() === JobListing::STATUS_PUBLISHED || $annonce->getStatus() === JobListing::STATUS_FEATURED ){
-                $this->mailerService->send(
-                    $annonce->getEntreprise()->getEntreprise()->getEmail(),
-                    "Statut de votre annonce sur Olona Talents",
-                    "entreprise/notification_annonce.html.twig",
-                    [
-                        'user' => $annonce->getEntreprise()->getEntreprise(),
-                        'details_annonce' => $annonce,
-                        'dashboard_url' => $this->urlGenerator->generate('app_dashboard_entreprise_view_annonce', ['id' => $annonce->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
-                    ]
-                );
-            }
-            $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
-        } else {
-            $this->addFlash('error', 'Statut invalide.');
-        }
-
-        return $this->redirectToRoute('app_dashboard_moderateur_annonces');
-    }
-
-    #[Route('/delete/annonce/{id}', name: 'delete_annonce', methods: ['POST'])]
-    public function deleteAnnonce(JobListing $annonce, EntityManagerInterface $entityManager): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        $entityManager->remove($annonce);
-        $entityManager->flush();
-        $this->addFlash('success', 'Annonce supprimée avec succès.');
-
-        return $this->redirectToRoute('app_dashboard_moderateur_annonces');
-    }
-
-    #[Route('/details/annonce/{id}', name: 'details_annonce', methods: ['GET'])]
-    public function detailsAnnonce(JobListing $annonce): JsonResponse
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        $annonceDetails = [
-            'titre' => $annonce->getTitre(),
-            'description' => $annonce->getDescription(),
-            'dateCreation' => $annonce->getDateCreation()?->format('Y-m-d H:i:s'),
-            'dateExpiration' => $annonce->getDateExpiration()?->format('Y-m-d H:i:s'),
-            'status' => $annonce->getStatus(),
-            'salaire' => $annonce->getSalaire(),
-            'lieu' => $annonce->getLieu(),
-            'typeContrat' => $annonce->getTypeContrat(),
-        ];
-
-        return $this->json($annonceDetails);
     }
 
     #[Route('/entreprises', name: 'app_dashboard_moderateur_entreprises')]
@@ -1034,89 +624,6 @@ class ModerateurController extends AbstractController
         return $this->redirectToRoute('app_dashboard_moderateur_mettings');
     }
 
-
-    #[Route('/candidatures', name: 'app_dashboard_moderateur_candidatures')]
-    public function candidatures(Request $request, PaginatorInterface $paginatorInterface, ApplicationsRepository $applicationsRepository): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        $form = $this->createForm(ModerateurCandidatureSearchType::class);
-        $form->handleRequest($request);
-        $data = $this->moderateurManager->findAllCandidatures();
-        if ($form->isSubmitted() && $form->isValid()) {
-            $titre = $form->get('titre')->getData();
-            $entreprise = $form->get('entreprise')->getData();
-            $candidat = $form->get('candidat')->getData();
-            $status = $form->get('status')->getData();
-            $data = $this->moderateurManager->findAllCandidatures($titre, $entreprise, $candidat, $status);
-            if ($request->isXmlHttpRequest()) {
-                // Si c'est une requête AJAX, renvoyer une réponse JSON ou un fragment HTML
-                return new JsonResponse([
-                    'content' => $this->renderView('dashboard/moderateur/candidature/_candidatures.html.twig', [
-                        'candidatures' => $paginatorInterface->paginate(
-                            $data,
-                            $request->query->getInt('page', 1),
-                            10
-                        ),
-                        'result' => $data
-                    ])
-                ]);
-            }
-        }
-        
-        return $this->render('dashboard/moderateur/candidature/index.html.twig', [
-            'candidatures' => $paginatorInterface->paginate(
-                $data,
-                $request->query->getInt('page', 1),
-                10
-            ),
-            'result' => $data,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    #[Route('/candidature/{id}', name: 'app_dashboard_moderateur_candidature_view')]
-    public function candidature(Request $request, Applications $applications): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-        
-        return $this->render('dashboard/moderateur/candidature/view.html.twig', [
-            'application' => $applications,
-        ]);
-    }
-
-    #[Route('/candidature/{id}/status', name: 'app_dashboard_moderateur_candidature_status')]
-    public function statusCandidature(Request $request, Applications $applications, NotificationRepository $notificationRepository): Response
-    {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
-        $status = $request->request->get('status');
-        if ($status && in_array($status, Applications::getArrayStatuses())) {
-            $applications->setStatus($status);
-            $this->em->persist($applications);
-            $this->em->flush();
-            /** Envoi mail */
-
-            $this->addFlash('success', 'Le statut a été mis à jour avec succès.');
-        } else {
-            $this->addFlash('error', 'Statut invalide.');
-        }
-
-        return $this->redirectToRoute('app_dashboard_moderateur_candidat_applications', ['id' => $applications->getCandidat()->getId()]);
-        
-        return $this->render('dashboard/moderateur/notifications.html.twig', [
-            'sectors' => $notificationRepository->findAll(),
-        ]);
-    }
 
     #[Route('/notifications', name: 'app_dashboard_moderateur_notifications')]
     public function notifications(Request $request, NotificationRepository $notificationRepository): Response

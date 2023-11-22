@@ -21,6 +21,22 @@ class AffiliateToolRepository extends ServiceEntityRepository
         parent::__construct($registry, AffiliateTool::class);
     }
 
+   /**
+    * @return AffiliateTool[] Returns an array of AffiliateTool objects
+    */
+    public function findSearch($value, int $max = 13, int $offset = null): array
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.type = :val')
+            ->andWhere('a.image IS NOT NULL')
+            ->setParameter('val', $value)
+            ->orderBy('a.id', 'ASC')
+            ->setMaxResults($max)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 //    /**
 //     * @return AffiliateTool[] Returns an array of AffiliateTool objects
 //     */

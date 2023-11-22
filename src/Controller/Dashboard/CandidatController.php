@@ -62,7 +62,7 @@ class CandidatController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $candidat = $user->getCandidateProfile();
         if (!$candidat instanceof CandidateProfile){ 
-            return $this->redirectToRoute('app_profile');
+            return $this->redirectToRoute('app_connect');
         }
 
         return null;
