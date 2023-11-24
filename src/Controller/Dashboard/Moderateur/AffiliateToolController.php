@@ -2,26 +2,31 @@
 
 namespace App\Controller\Dashboard\Moderateur;
 
+use DateTime;
 use App\Data\ImportData;
 use App\Service\WooCommerce;
 use App\Entity\AffiliateTool;
 use App\Form\Import\ImportType;
+use App\Entity\AffiliateTool\Tag;
 use App\Entity\ModerateurProfile;
 use App\Service\User\UserService;
 use App\Manager\AffiliateToolManager;
+use App\Entity\AffiliateTool\Category;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Form\Moderateur\AffiliateToolType;
-use App\Form\Search\Secteur\ToolSearchType;
 use App\Repository\AffiliateToolRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Repository\AffiliateTool\TagRepository;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Form\Search\AffiliateTool\ToolSearchType;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Repository\AffiliateTool\CategoryRepository;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/dashboard/moderateur/affiliate')]
+#[Route('/dashboard/affiliate')]
 class AffiliateToolController extends AbstractController
 {
     public function __construct(
@@ -29,6 +34,9 @@ class AffiliateToolController extends AbstractController
         private EntityManagerInterface $em,
         private AffiliateToolRepository $affiliateToolRepository,
         private AffiliateToolManager $affiliateToolManager,
+        private CategoryRepository $categoryRepository,
+        private TagRepository $tagRepository,
+        private SluggerInterface $sluggerInterface,
     ) {
     }
 
@@ -47,11 +55,6 @@ class AffiliateToolController extends AbstractController
     #[Route('/tools', name: 'app_dashboard_moderateur_affiliate_tool')]
     public function index(Request $request, PaginatorInterface $paginatorInterface): Response
     {
-        $redirection = $this->checkModerateur();
-        if ($redirection !== null) {
-            return $redirection; 
-        }
-
         $form = $this->createForm(ToolSearchType::class);
         $form->handleRequest($request);
         $data = $this->affiliateToolManager->findAllAITools();
@@ -137,18 +140,31 @@ class AffiliateToolController extends AbstractController
         ]);
 
     }
+
+    #[Route('/tool/{slug}/view', name: 'app_dashboard_moderateur_view_affiliate_tool')]
+    public function viewTool(Request $request, AffiliateTool $tool): Response
+    {
+        $tools = $tool->getRelatedIds();
+        foreach ($tools as $key => $value) {
+            $relateds[] = $this->affiliateToolRepository->findOneBy(['customId' => $value]); 
+        }
+        return $this->render('dashboard/moderateur/affiliate_tool/view.html.twig', [
+            'aiTool' => $tool,
+            'relateds' => $relateds,
+        ]);
+
+    }
+
     #[Route('/tool/import', name: 'app_dashboard_moderateur_import_affiliate_tool')]
-    public function importCsvAction(
-        Request $request, 
-        EntityManagerInterface $entityManager, 
-        SluggerInterface $sluggerInterface,
-        WooCommerce $woocommerce
-    )
+    public function importCsvAction(Request $request, WooCommerce $woocommerce )
     {
         $importType = new ImportData();
         $formImport = $this->createForm(ImportType::class, $importType);
         $formImport->handleRequest($request);
-        $products = $woocommerce->importProduct($importType);
+        $products = $this->affiliateToolManager->findAllAITools();
+
+        if ($formImport->isSubmitted() && $formImport->isValid()) {
+            $products = $woocommerce->importProduct($importType);
             
             foreach ($products as $product) {
 
@@ -159,32 +175,56 @@ class AffiliateToolController extends AbstractController
                 }
 
                 $entity->setNom($product['name']);
-                $entity->setSlug($sluggerInterface->slug(strtolower($product['name'])));
-                $entity->setType($product['status']);
+                $entity->setDescription($product['description']);
                 $entity->setLienAffiliation($product['external_url']);
+                $entity->setCommission(0.90);
+                $entity->setSlug($this->sluggerInterface->slug(strtolower($product['name'])));
+                $entity->setType($product['status']);
                 $entity->setImage($product['images'][0]->src);
-                $entity->setDescription($product['short_description']);
-                $entity->setCommission(1.80);
+                $entity->setCustomId($product['id']);
+                $entity->setShortDescription($product['short_description']);
+                $entity->setSlogan($product['slogan']);
+                $entity->setPrix(number_format(floatval($product['price']), 2, '.', ''));
+                $entity->setCreeLe(new DateTime($product['date_created']));
+                $entity->setEditeLe(new DateTime());
+                $entity->setRelatedIds($product['related_ids']);
 
-                // foreach ($product['categories'] as $category) {
+                foreach ($product['categories'] as $category) {
 
-                //     $aIcategory = $aIcategoryRepository->findOneBy(['slug' => $category->slug]);
+                    $aIcategory = $this->categoryRepository->findOneBy(['slug' => $this->sluggerInterface->slug(strtolower($category->name))]);
 
-                //     if(!$aIcategory instanceof AIcategory){
-                //         $aIcategory = new AIcategory();
-                //     }
+                    if(!$aIcategory instanceof Category){
+                        $aIcategory = new Category();
+                    }
 
-                //     $aIcategory->setName($category->name);
-                //     $aIcategory->setSlug($category->slug);
+                    $aIcategory->setnom($category->name);
+                    $aIcategory->setSlug($this->sluggerInterface->slug(strtolower($category->name)));
 
-                //     $entityManager->persist($aIcategory);
-                //     $entity->addAIcategory($aIcategory);
-                // }
+                    $this->em->persist($aIcategory);
+                    $entity->addCategory($aIcategory);
+                }
 
-                $entityManager->persist($entity);
+                foreach ($product['tags'] as $tag) {
+
+                    $aItag = $this->tagRepository->findOneBy(['slug' => $this->sluggerInterface->slug(strtolower($tag->name))]);
+
+                    if(!$aItag instanceof Tag){
+                        $aItag = new Tag();
+                    }
+
+                    $aItag->setnom($tag->name);
+                    $aItag->setSlug($this->sluggerInterface->slug(strtolower($tag->name)));
+
+                    $this->em->persist($aItag);
+                    $entity->addTag($aItag);
+                }
+
+                $this->em->persist($entity);
             }
-            $entityManager->flush();
+            $this->em->flush();
             $this->addFlash('success', 'Les produits sont bien importés');
+
+        }
 
         return $this->render('dashboard/moderateur/affiliate_tool/import.html.twig', [
             'formImport' => $formImport->createView(),

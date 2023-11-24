@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+<section class="py-5 text-center container">
+    <div class="row py-lg-5">
+      <div class="col-lg-6 col-md-8 mx-auto text-light">
+        <h1 class="fw-light">Category {{category.nom}}</h1>
+        <p class="lead text-body-light">{{ category.description }}</p>
+        <p>
+          <a href="#" class="btn btn-primary my-2">Main call to action</a>
+        </p>
+      </div>
+    </div>
+  </section>
+    <div class="album py-5 bg-body-dark">
+      <div class="container">
+
+      <div id="ia-container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 ia-item">  
+            {% include "ai_tool/_tools.html.twig" %}
+        </div>
+
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  let offset = 9; 
+  $(window).on('scroll', function() {
+      const threshold = 2;
+      const position = $(window).scrollTop() + $(window).height();
+      const height = $(document).height();
+          
+      if (position >= height - threshold && offset <= 20) { // Ajout de la condition offset <= 20
+          console.log('fini');
+          $.ajax({
+              url: `/ai-tools?offset=${offset}`,
+              type: 'GET',
+              success: function(response) {
+                  if (response) {
+                      const $produitItemDiv = $('#ia-container .ia-item');
+                      if ($produitItemDiv.length) {
+                          $produitItemDiv.append(response.html);
+                      }
+                      offset += 9; // Incrémente pour le prochain lot
+                  }
+              },
+              error: function(error) {
+                  console.error('Une erreur est survenue:', error);
+              }
+          });
+      }
+  });
+</script>
+{% endblock %}
