@@ -9,77 +9,10 @@
     {{ form_start(formImport) }}
     {{ form_widget(formImport) }}
     <button type="submit" class="btn btn-info">
-        Actualiser                
+        Importer                
     </button>
     {{ form_end(formImport) }}
-    <table class="min-w-full text-left text-sm font-light">
-        <thead class="border-b bg-white font-medium dark:border-neutral-500 dark:bg-neutral-600">
-            <tr>
-                <th scope="col" class="px-6 py-4">
-                    id
-                </th>
-                <th scope="col" class="px-6 py-4">
-                    name
-                </th>
-                <th scope="col" class="px-6 py-4">
-                    slug
-                </th>
-                <th scope="col" class="px-6 py-4">
-                    affiliate_link
-                </th>
-                <th scope="col" class="px-6 py-4">
-                    related_ids
-                </th>
-                <th scope="col" class="px-6 py-4">
-                    categories
-                </th>
-                <th scope="col" class="px-6 py-4">
-                    status
-                </th>
-                <th scope="col" class="px-6 py-4">
-                    image
-                </th>
-                <th scope="col" class="px-6 py-4">
-                    slogan
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-                <tr class="border-b bg-neutral-100 dark:border-neutral-500 dark:bg-neutral-700">
-                    <td class="whitespace-nowrap px-6 py-4">
-                        {{ product.id }}
-                    </td>
-                    <td class="whitespace-nowrap px-6 py-4">
-                        {{ product.name }}
-                    </td>
-                    <td class="whitespace-nowrap px-6 py-4">
-                        {{ product.slug }}
-                    </td>
-                    <td class="whitespace-nowrap px-6 py-4">
-                        {{ product.external_url}}
-                    </td>
-                    <td class="whitespace-nowrap px-6 py-4">
-                    {% for id in product.related_ids %}
-                        {{ id }},
-                    {% endfor %}
-                    </td>
-                    <td class="whitespace-nowrap px-6 py-4">
-                        {{ product.categories|length }}
-                    </td>
-                    <td class="whitespace-nowrap px-6 py-4">
-                        {{ product.status }}
-                    </td>
-                    <td class="whitespace-nowrap px-6 py-4">
-                        {{ product.images[0].src }}
-                    </td>
-                    <td class="whitespace-nowrap px-6 py-4">
-                        {{ product.slogan }}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    
 
 </div>
 {% endblock %}

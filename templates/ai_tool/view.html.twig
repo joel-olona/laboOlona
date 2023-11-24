@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+
+<h1 class="h2 my-3">{{ aiTool.nom }}</h1>
+<p>{{aiTool.slogan}}</p>
+<section class="my-5">
+    <div class="row align-items-center">
+      <div class="col-md-4">
+        <div class="d-flex justify-content-center">
+          <div class="card-image-ia-single" style="background-image: url('{{aiTool.image}}');">
+          </div>
+        </div>
+        <div class="text-center mt-4">
+        <a href="{{ aiTool.lienAffiliation }}" target="_blank" class="btn btn-outline-secondary">Visite website</a>
+
+      </div>
+      </div>
+      <div class="col-md-8">
+        <div class="text-bg-dark rounded-3 p-3">
+          <p class="text-small mt-3"> <i class="bi bi-calendar-check"></i> Added on {{aiTool.creeLe|date('M d, Y')}}</p>
+          <p>{{aiTool.shortDescription|raw}}</p>
+        </div>
+      </div>
+    </div>
+</section>
+
+<section class="">
+    <div class="row">
+      <div class="col-md-8">
+      {{filterContent(doShortcode(aiTool.description))|raw}}
+      </div>
+      <div class="col-md-4">
+      {% for tag in aiTool.tags %}
+    <p><a href="{{ path('app_ai_tools_tag', {'slug': tag.slug}) }}"> # {{ tag.nom }}  </a></p>
+      {% endfor %}
+      </div>
+  </div>
+</section>
+
+
+<h2 class="h3 my-3">Alternative AI Tools for {{ aiTool.nom }}</h2>
+
+<div class="album py-5 bg-body-dark">
+  <div class="container">
+    <div id="ia-container">
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 ia-item">  
+          {% include "ai_tool/_tools.html.twig" with {aiTools : relateds}%}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

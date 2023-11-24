@@ -24,7 +24,7 @@ class AffiliateToolRepository extends ServiceEntityRepository
    /**
     * @return AffiliateTool[] Returns an array of AffiliateTool objects
     */
-    public function findSearch($value, int $max = 13, int $offset = null): array
+    public function findSearch($value, int $max = 12, int $offset = null): array
     {
         return $this->createQueryBuilder('a')
             ->andWhere('a.type = :val')
@@ -37,6 +37,47 @@ class AffiliateToolRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+
+    /**
+     * @return AffiliateTool[] Returns an array of AffiliateTool objects
+     */
+    public function findByCategory($value, int $max = 12, int $offset = null): array
+    {
+        return $this->createQueryBuilder('a')
+            ->leftJoin('a.categories', 'c')
+            ->andWhere('c.slug = :category')
+            ->andWhere('a.type = :status') // Utilisation d'un paramètre pour 'publish'
+            ->andWhere('a.image IS NOT NULL')
+            ->setParameter('category', $value)
+            ->setParameter('status', 'publish') // Définir la valeur de 'status'
+            ->orderBy('a.id', 'ASC')
+            ->setMaxResults($max)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * @return AffiliateTool[] Returns an array of AffiliateTool objects
+     */
+    public function findByTag($value, int $max = 12, int $offset = null): array
+    {
+        return $this->createQueryBuilder('a')
+            ->leftJoin('a.tags', 't')
+            ->andWhere('t.slug = :tag')
+            ->andWhere('a.type = :status') // Utilisation d'un paramètre pour 'publish'
+            ->andWhere('a.image IS NOT NULL')
+            ->setParameter('tag', $value)
+            ->setParameter('status', 'publish') // Définir la valeur de 'status'
+            ->orderBy('a.id', 'ASC')
+            ->setMaxResults($max)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
 //    /**
 //     * @return AffiliateTool[] Returns an array of AffiliateTool objects
 //     */

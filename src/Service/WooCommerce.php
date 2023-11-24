@@ -61,16 +61,21 @@ class WooCommerce
         $values = [];
         $resp = [];
 
+        // dd($responses);
         foreach ($responses as $key => $response) {
             $resp['id'] = $response->id;
             $resp['name'] = $response->name;
             $resp['slug'] = $response->slug;
             $resp['categories'] = $response->categories;
+            $resp['tags'] = $response->tags;
             $resp['external_url'] = $response->external_url;
             $resp['images'] = $response->images;
             $resp['related_ids'] = $response->related_ids;
             $resp['short_description'] = $response->short_description;
+            $resp['description'] = $response->description;
             $resp['status'] = $response->status;
+            $resp['price'] = $response->price;
+            $resp['date_created'] = $response->date_created;
             foreach ($response->meta_data as $key => $value) {
                 if($value->key == 'slogan'){
                     $resp['slogan'] = $value->value;

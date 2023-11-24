@@ -19,6 +19,17 @@ class AffiliateToolType extends AbstractType
             ->add('slug')
             ->add('type')
             ->add('image')
+            ->add('customId')
+            ->add('shortDescription')
+            ->add('slogan')
+            ->add('prix')
+            // ->add('creeLe')
+            // ->add('editeLe')
+            ->add('status')
+            ->add('featured')
+            // ->add('relatedIds')
+            ->add('categories')
+            ->add('tags')
         ;
     }
 
