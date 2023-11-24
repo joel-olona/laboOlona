@@ -2,9 +2,11 @@
 
 {% block body %}
 <div class="container mt-5">
-    <h2>Affiliate Tool</h2>
+    <h2>Outil IA</h2>
+    {% if app.user.type is same as(constant('App\\Entity\\User::ACCOUNT_MODERATEUR')) %}
     <a href="{{ path('app_dashboard_moderateur_new_affiliate_tool')}}" class="btn btn-secondary my-3">Nouveau</a>
     <a href="{{ path('app_dashboard_moderateur_import_affiliate_tool')}}" class="btn btn-secondary my-3">Importer</a>
+    {% endif %}
     {{ form_start(form, {'attr': {'class': 'form-group mb-2 col-6', 'id':'moderateur-aitools-search-form'}}) }}
     <div class="input-group">
         {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}

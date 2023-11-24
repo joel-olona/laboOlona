@@ -886,3 +886,23 @@ rendezvous_send_invitation:
 rendezvous_reschedule:
     title: Rendez-vous sur Olona Talents
     dashboard_title: Reprogrammer un rendez-vous
+
+app_dashboard_moderateur_import_affiliate_tool:
+    title: Outils IA sur Olona Talents
+    dashboard_title: Import des IA 
+
+app_dashboard_moderateur_edit_affiliate_tool:
+    title: Outils IA sur Olona Talents
+    dashboard_title: Modifier un outil IA
+    
+app_dashboard_moderateur_affiliate_tool:
+    title: Outils IA sur Olona Talents
+    dashboard_title: Outils IA sur Olona Talents
+    
+app_dashboard_moderateur_new_affiliate_tool:
+    title: Outils IA sur Olona Talents
+    dashboard_title: Nouvel outil IA
+
+app_dashboard_moderateur_view_affiliate_tool:
+    title: Outils IA sur Olona Talents
+    dashboard_title: Détails sur l'outils IA

@@ -3,6 +3,7 @@
 namespace App\Controller\Ajax;
 
 use App\Entity\Secteur;
+use App\Repository\AffiliateToolRepository;
 use App\Repository\CandidateProfileRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,9 +27,23 @@ class CandidatController extends AbstractController
             ], []),
         ], 200, [], []);
 
-        // return $this->json([
-        //     'data' => $expertRepository->findTopExperts('', 10, $offset),
-        // ], 200, [], ['groups' => 'identity']);
+    }
+
+    #[Route('/ajax/ai-tools', name: 'app_ajax_aitools')]
+    public function aiTools(
+        Request $request,
+        AffiliateToolRepository $affiliateToolRepository
+    ): Response
+    {
+        $offset = $request->query->get('offset', 0);
+        // $offset = $request->query->get('offset', 0);
+
+        return $this->json([
+            'html' => $this->renderView('ai_tool/_tools.html.twig', [
+                'aiTools' => $affiliateToolRepository->findSearch('publish', 12, $offset),
+            ], []),
+        ], 200, [], []);
+
     }
 
 }
