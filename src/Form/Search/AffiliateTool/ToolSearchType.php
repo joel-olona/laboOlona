@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Search\Secteur;
+namespace App\Form\Search\AffiliateTool;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -14,18 +14,11 @@ class ToolSearchType extends AbstractType
         $builder
             ->add('nom', TextType::class, [
                 'required' => false,
-                'label' => 'Rechercher',
+                'label' => false,
                 'attr' => [
                     'placeholder' => 'Entrez votre recherche...',
                 ]
             ])
-            // ->add('type', TextType::class, [
-            //     'required' => false,
-            //     'label' => 'Rechercher',
-            //     'attr' => [
-            //         'placeholder' => 'Entrez votre recherche...',
-            //     ]
-            // ])
         ;
     }
 
