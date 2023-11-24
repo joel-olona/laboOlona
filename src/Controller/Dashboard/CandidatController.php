@@ -151,7 +151,6 @@ class CandidatController extends AbstractController
 
 
     #[Route("/profil", name: "profil")]
-
     public function profil(): Response
     {
         $redirection = $this->checkCandidat();
