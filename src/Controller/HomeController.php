@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AffiliateTool;
 use App\Entity\Entreprise\JobListing;
 use App\Entity\Moderateur\ContactForm;
 use App\Form\JobListingType;
@@ -45,17 +46,6 @@ class HomeController extends AbstractController
             'annonces' => $this->jobListingRepository->findBy([
                 'status' => JobListing::STATUS_PUBLISHED,
             ]),
-        ]);
-    }
-
-    #[Route('/outils-ia', name: 'app_home_aitools')]
-    public function aiTools(Request $request, AffiliateToolRepository $affiliateToolRepository): Response
-    {        
-        $offset = $request->query->get('offset', 0);
-        $aicores = $affiliateToolRepository->findSearch('publish', 12, $offset);
-
-        return $this->render('home/ai_tools.html.twig', [
-            'aiTools' => $aicores,
         ]);
     }
 

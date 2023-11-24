@@ -45,7 +45,8 @@ class AppExtension extends AbstractExtension
             new TwigFunction('identity_title', [$this, 'identityTitle']),
             new TwigFunction('meta_description', [$this, 'metaDescription']),
             new TwigFunction('meta_keywords', [$this, 'metaKeywords']),
-            new TwigFunction('show_account_desc', [$this, 'showAccountDesc']),
+            new TwigFunction('filterContent', [$this, 'filterContent']),
+            new TwigFunction('doShortcode', [$this, 'doShortcode']),
             new TwigFunction('isoToEmoji', [$this, 'isoToEmoji']),
             new TwigFunction('show_country', [$this, 'showCountry']),
             new TwigFunction('experience_text', [$this, 'getExperienceText']),
@@ -198,12 +199,215 @@ class AppExtension extends AbstractExtension
         return $this->translator->trans($routeName . '.keywords');
     }
 
-    public function showAccountDesc($accountId)
+    public function doShortcode($content)
     {
-        $accountId = (int) $accountId;
-        $account = $this->accountRepository->findOneById($accountId);
-        // dd($account, $account->getDescription());
-        return $account;
+        // Liste des shortcodes à supprimer
+            $shortcodesToRemove = [
+                'et_pb_wc_breadcrumb',
+                'et_pb_wc_title',
+                'et_pb_wc_rating',
+                'et_pb_wc_cart_notice',
+                'dsm_typing_effect',
+                'et_pb_wc_description',
+                'et_pb_wc_add_to_cart',
+                'et_pb_wc_images',
+                'et_pb_wc_tabs',
+                'et_pb_wc_related_products',
+                'et_pb_wc_upsells',
+                'et_pb_wc_price',
+                'et_pb_wc_meta'
+            ];
+
+            foreach ($shortcodesToRemove as $shortcode) {
+                // Supprime les shortcodes et leurs contenus / attributs
+                $content = preg_replace('/\[' . $shortcode . '.*?\](\[\/' . $shortcode . '\])?/', '', $content);
+            }
+
+            $content = preg_replace_callback('/\[et_pb_section(.*?)\]/', function($matches) {
+                // Analyser et transformer les attributs
+                $attributes = $matches[1];
+                $style = '';
+
+                // Exemple de traitement des attributs
+                if (preg_match('/fb_built="(.*?)"/', $attributes, $fbBuiltMatches)) {
+                    // Traiter l'attribut fb_built ici si nécessaire
+                }
+                if (preg_match('/_builder_version="(.*?)"/', $attributes, $builderVersionMatches)) {
+                    // Traiter l'attribut _builder_version ici si nécessaire
+                }
+                if (preg_match('/background_color="(.*?)"/', $attributes, $bgColorMatches)) {
+                    $style .= 'background-color:' . strtolower($bgColorMatches[1]) . ';';
+                }
+                if (preg_match('/custom_padding="(.*?)"/', $attributes, $customPaddingMatches)) {
+                    $style .= 'padding:' . $customPaddingMatches[1] . ';';
+                }
+
+                return '<div class="et-pb-section" style="' . $style . '">';
+            }, $content);
+
+            // Assurez-vous de fermer la balise div ouverte pour chaque section
+            $content = str_replace('[/et_pb_section]', '</div>', $content);
+
+
+            $content = preg_replace_callback('/\[et_pb_row(.*?)\]/', function($matches) {
+                // Analyser et transformer les attributs
+                $attributes = $matches[1];
+                $style = '';
+                $class = 'row'; // Classe Bootstrap pour les rangées
+
+                // Exemple de traitement des attributs
+                if (preg_match('/_builder_version="(.*?)"/', $attributes, $builderVersionMatches)) {
+                    // Traiter l'attribut _builder_version ici si nécessaire
+                }
+                if (preg_match('/background_size="(.*?)"/', $attributes, $backgroundSizeMatches)) {
+                    // Traiter l'attribut background_size ici si nécessaire
+                }
+                if (preg_match('/background_position="(.*?)"/', $attributes, $backgroundPositionMatches)) {
+                    // Traiter l'attribut background_position ici si nécessaire
+                }
+                if (preg_match('/background_repeat="(.*?)"/', $attributes, $backgroundRepeatMatches)) {
+                    // Traiter l'attribut background_repeat ici si nécessaire
+                }
+                if (preg_match('/width="(.*?)"/', $attributes, $widthMatches)) {
+                    $style .= 'width:' . $widthMatches[1] . ';';
+                }
+                if (preg_match('/custom_padding="(.*?)"/', $attributes, $customPaddingMatches)) {
+                    $style .= 'padding:' . $customPaddingMatches[1] . ';';
+                }
+
+                return '<div class="' . $class . '" style="' . $style . '">';
+            }, $content);
+
+            // Assurez-vous de fermer la balise div ouverte pour chaque rangée
+            $content = str_replace('[/et_pb_row]', '</div>', $content);
+
+
+            $content = preg_replace_callback('/\[et_pb_column type="([^"]+)"(.*?)\]/', function($matches) {
+                // Analyser et transformer les attributs
+                $type = $matches[1];
+                $otherAttributes = $matches[2];
+                $style = '';
+                $class = '';
+
+                // Convertir le type Divi en classe Bootstrap
+                if ($type === '4_4') {
+                    $class = 'col-12'; // Colonne pleine largeur dans Bootstrap
+                }
+                // Ajouter d'autres correspondances de type ici si nécessaire
+
+                // Traitement des autres attributs
+                if (preg_match('/_builder_version="(.*?)"/', $otherAttributes, $builderVersionMatches)) {
+                    // Traiter l'attribut _builder_version ici si nécessaire
+                }
+                if (preg_match('/custom_padding="(.*?)"/', $otherAttributes, $customPaddingMatches)) {
+                    $style .= 'padding:' . $customPaddingMatches[1] . ';';
+                }
+
+                return '<div class="' . $class . '" style="' . $style . '">';
+            }, $content);
+
+            // Assurez-vous de fermer la balise div ouverte pour chaque colonne
+            $content = str_replace('[/et_pb_column]', '</div>', $content);
+
+
+            $content = preg_replace_callback('/\[et_pb_video src="([^"]+)"(.*?)\](\[\/et_pb_video\])?/', function($matches) {
+                $videoUrl = $matches[1];
+                $otherAttributes = $matches[2];
+        
+                // Convertir l'URL YouTube en URL d'intégration si nécessaire
+                $embedUrl = str_replace("watch?v=", "embed/", $videoUrl);
+        
+                // Vous pouvez extraire et utiliser d'autres attributs ici si nécessaire
+                // Par exemple, pour l'image de prévisualisation (image_src)
+                if (preg_match('/image_src="([^"]+)"/', $otherAttributes, $imageSrcMatches)) {
+                    $imageSrc = $imageSrcMatches[1];
+                    // Utiliser $imageSrc pour un poster ou une image de prévisualisation, si nécessaire
+                }
+        
+                // Retourner un élément iframe pour l'intégration de la vidéo
+                return '<section class="ratio ratio-16x9 "><iframe src="' . $embedUrl . '" frameborder="0" allowfullscreen></iframe></section>';
+            }, $content);
+
+
+            $content = preg_replace_callback('/\[et_pb_text(.*?)\]/', function($matches) {
+                $attributes = $matches[1];
+                $style = '';
+
+                // Exemple de traitement des attributs pour extraire les styles
+                if (preg_match('/text_font_size="(.*?)"/', $attributes, $fontSizeMatches)) {
+                    $style .= 'font-size:' . $fontSizeMatches[1] . ';';
+                }
+                if (preg_match('/text_line_height="(.*?)"/', $attributes, $lineHeightMatches)) {
+                    $style .= 'line-height:' . $lineHeightMatches[1] . ';';
+                }
+                if (preg_match('/header_3_font_size="(.*?)"/', $attributes, $h3FontSizeMatches)) {
+                    // Vous pouvez choisir d'appliquer ou d'ignorer ce style
+                    // $style .= 'font-size:' . $h3FontSizeMatches[1] . ' for h3 headers;';
+                }
+
+                // Retourner une balise div ou p avec les styles appliqués
+                return '<div style="' . $style . '" class="text-white">';
+            }, $content);
+
+            // Assurez-vous de fermer la balise div ouverte pour chaque texte
+            $content = str_replace('[/et_pb_text]', '</div>', $content);
+
+
+            $content = preg_replace_callback('/\[et_pb_image(.*?)\](\[\/et_pb_image\])?/', function($matches) {
+                $attributes = $matches[1];
+                $imageSrc = '';
+                $altText = '';
+                $titleText = '';
+                $url = '';
+
+                if (preg_match('/src="([^"]+)"/', $attributes, $srcMatches)) {
+                    $imageSrc = $srcMatches[1];
+                }
+                if (preg_match('/alt="([^"]+)"/', $attributes, $altMatches)) {
+                    $altText = $altMatches[1];
+                }
+                if (preg_match('/title_text="([^"]+)"/', $attributes, $titleMatches)) {
+                    $titleText = $titleMatches[1];
+                }
+                if (preg_match('/url="([^"]+)"/', $attributes, $urlMatches)) {
+                    $url = $urlMatches[1];
+                }
+
+                // Construire le HTML pour l'image, éventuellement avec un lien
+                $html = '';
+                if (!empty($url)) {
+                    $html .= '<a href="' . $url . '">';
+                }
+                $html .= '<figure class="d-flex justify-content-center m-5"><img src="' . $imageSrc . '" alt="' . $altText . '" title="' . $titleText . '" class="img-fluid"></figure>';
+                if (!empty($url)) {
+                    $html .= '</a>';
+                }
+
+                return $html;
+            }, $content);
+
+
+        
+            return $content;
+        
+    }
+    
+    function filterContent($content) {
+        
+        // Supprimer la chaîne spécifique @ET-DC@...@
+        $content = preg_replace('/@ET-DC@[a-zA-Z0-9+\/=]+@/', '', $content);
+        // Supprimer tous les shortcodes
+        $content = preg_replace('/\[\/?.*?\]/', '', $content);
+    
+        // Conserver uniquement les titres, paragraphes, images et vidéos
+        $content = strip_tags($content, '<h1><h2><h3><h4><h5><h6><p><img><iframe><section><video><figure>');
+    
+        // Supprimer les balises div et span (et d'autres balises si nécessaire)
+        $content = preg_replace('/<\/?div[^>]*>/', '', $content);
+        $content = preg_replace('/<\/?span[^>]*>/', '', $content);
+        // Ajoutez des lignes similaires ici pour d'autres balises que vous voulez supprimer
+    
+        return $content;
     }
 
     public function isoToEmoji(string $code)
