@@ -64,7 +64,7 @@ class AffiliateToolManager
         }
 
         if (!empty($nom)) {
-            $conditions[] = '(a.nom LIKE :nom OR t.nom LIKE :nom )';
+            $conditions[] = '(a.nom LIKE :nom OR t.nom LIKE :nom OR t.nomFr LIKE :nom )';
             $parameters['nom'] = '%' . $nom . '%';
         }
 

@@ -9,7 +9,7 @@ Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
     <thead>
         <tr>
             <th class="col-1">ID</th>
-            <th class="col-2">Titre</th>
+            <th class="col-2">Nom</th>
             <th class="col-6">Description</th>
             <th class="col-3">Image</th>
             <th class="col-3"></th>
@@ -22,15 +22,15 @@ Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
                 <td>
                     <figure>
                         <blockquote class="blockquote">
-                        <p> {{ aitool.nom }} </p>
+                        <p><a href="{{path('app_dashboard_moderateur_view_affiliate_tool', { 'slug': aitool.slug}) }}"> {{ aitool.nom }} </a></p>
                         </blockquote>
                         <figcaption class="blockquote-footer">
-                        <cite title="Source Title">{{ aitool.slogan }}</cite>
+                        <cite title="Source Title">{{ aitool.sloganFr ?? aitool.slogan }}</cite>
                         </figcaption>
                     </figure>                 
-                    
+                    <a href="{{ aitool.lienAffiliation }}" class="btn btn-sm btn-primary rounded-pill px-3">Visiter le site <i class="bi bi-box-arrow-up-right"></i></a>
                 </td>
-                <td>{{ aitool.shortDescription|raw }}</td>
+                <td>{{ (aitool.shortDescriptionFr ?? aitool.shortDescription)|raw }}</td>
                 {# <td>{{ (aitool.description|length > 250 ? aitool.description|slice(0, 50) ~ '...' : aitool.description)|raw }}</td> #}
                 <td><img src="{{ aitool.image }}" class="img-fluid" alt="thumbail"></td>
                 <td class="actions-col">
