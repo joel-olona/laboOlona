@@ -72,6 +72,18 @@ class AffiliateTool
     #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'affiliateTool')]
     private Collection $tags;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $descriptionEn = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $descriptionFr = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $sloganFr = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $shortDescriptionFr = null;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
@@ -325,6 +337,54 @@ class AffiliateTool
         if ($this->tags->removeElement($tag)) {
             $tag->removeAffiliateTool($this);
         }
+
+        return $this;
+    }
+
+    public function getDescriptionEn(): ?string
+    {
+        return $this->descriptionEn;
+    }
+
+    public function setDescriptionEn(?string $descriptionEn): static
+    {
+        $this->descriptionEn = $descriptionEn;
+
+        return $this;
+    }
+
+    public function getDescriptionFr(): ?string
+    {
+        return $this->descriptionFr;
+    }
+
+    public function setDescriptionFr(?string $descriptionFr): static
+    {
+        $this->descriptionFr = $descriptionFr;
+
+        return $this;
+    }
+
+    public function getSloganFr(): ?string
+    {
+        return $this->sloganFr;
+    }
+
+    public function setSloganFr(?string $sloganFr): static
+    {
+        $this->sloganFr = $sloganFr;
+
+        return $this;
+    }
+
+    public function getShortDescriptionFr(): ?string
+    {
+        return $this->shortDescriptionFr;
+    }
+
+    public function setShortDescriptionFr(?string $shortDescriptionFr): static
+    {
+        $this->shortDescriptionFr = $shortDescriptionFr;
 
         return $this;
     }

@@ -378,7 +378,7 @@ class AppExtension extends AbstractExtension
                 if (!empty($url)) {
                     $html .= '<a href="' . $url . '">';
                 }
-                $html .= '<figure class="d-flex justify-content-center m-5"><img src="' . $imageSrc . '" alt="' . $altText . '" title="' . $titleText . '" class="img-fluid"></figure>';
+                $html .= '<figure class="d-flex justify-content-center my-5"><img src="' . $imageSrc . '" alt="' . $altText . '" title="' . $titleText . '" class="img-fluid"></figure>';
                 if (!empty($url)) {
                     $html .= '</a>';
                 }
@@ -406,6 +406,9 @@ class AppExtension extends AbstractExtension
         $content = preg_replace('/<\/?div[^>]*>/', '', $content);
         $content = preg_replace('/<\/?span[^>]*>/', '', $content);
         // Ajoutez des lignes similaires ici pour d'autres balises que vous voulez supprimer
+
+        // Supprimer les sauts de ligne
+        $content = str_replace("\n", '', $content);
     
         return $content;
     }
@@ -471,5 +474,27 @@ class AppExtension extends AbstractExtension
         }
 
         return trim($result);
+    }
+    
+    public function countTokens($text) {
+        // Sépare le texte en mots en utilisant des espaces et d'autres séparateurs courants
+        $words = preg_split('/[\s,\.;:\?!]+/', $text, -1, PREG_SPLIT_NO_EMPTY);
+    
+        // Compter les mots
+        $wordCount = count($words);
+    
+        // Compter tous les caractères non alphabétiques et non numériques
+        $specialCharactersCount = 0;
+        $length = strlen($text);
+        for ($i = 0; $i < $length; $i++) {
+            if (!ctype_alnum($text[$i])) {
+                $specialCharactersCount++;
+            }
+        }
+    
+        // Total estimé des tokens
+        $totalTokens = $wordCount + $specialCharactersCount;
+    
+        return $totalTokens;
     }
 }
