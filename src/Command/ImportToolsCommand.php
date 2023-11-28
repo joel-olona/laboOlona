@@ -68,8 +68,12 @@ class ImportToolsCommand extends Command
         $importData->per_page = $input->getArgument('per_page');
         $products = $this->wooCommerce->importProduct($importData);
         
+        $counter = 0;
         foreach ($products as $product) {
             $slug = $this->sluggerInterface->slug(strtolower($product['name']));
+            $description = $this->appExtension->filterContent($this->appExtension->doShortcode($product['description']));
+            $short_description = $this->appExtension->filterContent($this->appExtension->doShortcode($product['short_description']));
+            $slogan = $this->appExtension->filterContent($this->appExtension->doShortcode($product['slogan']));
             $affiliateTool = $this->affiliateToolRepository->findOneBy(['slug' => $slug]);
 
             if(!$affiliateTool instanceof AffiliateTool){
@@ -79,15 +83,16 @@ class ImportToolsCommand extends Command
                 $output->writeln(' -> Création terminée ');
             }
 
-            $output->writeln('Mise à jour de '. $product['name']);
+            $startTime = new DateTime(); // Heure de début
+            $output->writeln('Début de la mise à jour de ' . $product['name'] . ' à ' . $startTime->format('Y-m-d H:i:s'));
             $affiliateTool->setNom($product['name']);
             $affiliateTool->setDescription($product['description']);
-            $affiliateTool->setDescriptionEn($this->appExtension->filterContent($this->appExtension->doShortcode($product['description'])));
+            $affiliateTool->setDescriptionEn($description);
             $output->writeln('Traduction de la description de '. $product['name']);
             $affiliateTool->setDescriptionFr($this->openAITranslator->translate(
-                $this->appExtension->filterContent($this->appExtension->doShortcode($product['description'])) ,
-                    'en',
-                    'fr'
+                $description,
+                'en',
+                'fr'
             ));
             $output->writeln(' -> Traduction terminée ');
             $affiliateTool->setLienAffiliation($product['external_url']);
@@ -95,31 +100,45 @@ class ImportToolsCommand extends Command
             $affiliateTool->setType($product['status']);
             $affiliateTool->setImage($product['images'][0]->src);
             $affiliateTool->setCustomId($product['id']);
+            $affiliateTool->setShortDescription($short_description);
             $output->writeln('Traduction de la description courte de '. $product['name']);
-            $affiliateTool->setShortDescription($product['short_description']);
             $affiliateTool->setShortDescriptionFr($this->openAITranslator->translate(
-                $this->appExtension->filterContent($this->appExtension->doShortcode($product['short_description'])) ,
-                    'en',
-                    'fr'
+                $short_description ,
+                'en',
+                'fr'
             ));
-            $affiliateTool->setSlogan($product['slogan']);
+            $output->writeln(' -> Traduction terminée ');
+            $affiliateTool->setSlogan($slogan);
             $output->writeln('Traduction du slogan '. $product['name']);
             $affiliateTool->setSloganFr($this->openAITranslator->translateCategory(
-                $this->appExtension->filterContent($this->appExtension->doShortcode($product['slogan'])) ,
-                    'en',
-                    'fr'
+                $slogan ,
+                'en',
+                'fr'
             ));
-            $output->writeln(' -> Traductions terminées ');
+            $output->writeln(' -> Traduction terminée ');
             $affiliateTool->setPrix(number_format(floatval($product['price']), 2, '.', ''));
             $affiliateTool->setCreeLe(new DateTime($product['date_created']));
             $affiliateTool->setEditeLe(new DateTime());
             $affiliateTool->setRelatedIds($product['related_ids']);
 
             $this->em->persist($affiliateTool);
-            $output->writeln(' ---> Modification terminée pour '. $product['name']);
+            $endTime = new DateTime(); // Heure de fin
+            $interval = $startTime->diff($endTime); // Calcul de la différence
+            $output->writeln(' ===> Modification terminée pour ' . $product['name'] . ' à ' . $endTime->format('Y-m-d H:i:s'));
+            $output->writeln('     Durée de traitement: ' . $interval->format('%i minutes %s secondes'));
+
+            if (++$counter % 5 == 0) {
+                $this->em->flush(); // Flush par lots de 5
+                $output->writeln(' -> Flush par lots de 5 ');
+                $this->em->clear(); // Libère les objets de la mémoire
+                $output->writeln(' -> Liberation des objets de la mémoire ');
+            }
         }
 
-        $this->em->flush();
+        $this->em->flush(); // S'assure que tous les produits restants sont flushés
+        $output->writeln(' -> Tous les produits restants sont flushés ');
+        $this->em->clear(); // Nettoie l'EntityManager à la fin
+        $output->writeln(' -> Nettoyage de l\'EntityManager');
 
 
         // outputs a message followed by a "\n"
