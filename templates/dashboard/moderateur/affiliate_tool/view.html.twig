@@ -3,7 +3,7 @@
 {% block body %}
 <div class="container mt-5">
 <h1 class="h2 my-3">{{ aiTool.nom }}</h1>
-<p>{{aiTool.slogan}}</p>
+<p>{{(aiTool.sloganFr ?? aiTool.slogan)|raw}}</p>
 <section class="my-5">
     <div class="row align-items-center">
       <div class="col-md-4">
@@ -18,8 +18,8 @@
       </div>
       <div class="col-md-8">
         <div class="text-bg-dark rounded-3 p-3">
-          <p class="text-small mt-3"> <i class="bi bi-calendar-check"></i> Added on {{aiTool.creeLe|date('M d, Y')}}</p>
-          <p>{{aiTool.shortDescription|raw}}</p>
+          <p class="text-small mt-3"> <i class="bi bi-calendar-check"></i> Ajouté le {{aiTool.creeLe|date('d M Y')}}</p>
+          <p>{{(aiTool.shortDescriptionFr ?? aiTool.shortDescription)|raw}}</p>
         </div>
       </div>
     </div>
@@ -28,22 +28,22 @@
 <section class="">
     <div class="row">
       <div class="col-md-10 mx-auto">
-      {{filterContent(doShortcode(aiTool.description))|raw}}
+      {{(aiTool.descriptionFR ?? filterContent(doShortcode(aiTool.description)))|raw}}
       </div>
   </div>
   <div class="small">
     {% for tag in aiTool.tags %}
-    <span class="badge text-bg-dark rounded-pill"> # {{ tag.nom }}  </span>   
+    <span class="badge text-bg-dark rounded-pill"> # {{ tag.nomFr ?? tag.nom }}  </span>   
     {% endfor %}
   </div>
 </section>
 <div class="small">
   {% for cat in aiTool.categories %}
-  <span class="badge text-bg-secondary rounded-pill"><i class="bi bi-tags"></i> {{ cat.nom }}   </span>    
+  <span class="badge text-bg-secondary rounded-pill"><i class="bi bi-tags"></i> {{ cat.nomFr ?? cat.nom }}   </span>    
   {% endfor %}
 </div>
 
-<h2 class="h3 my-3">Alternative AI Tools for {{ aiTool.nom }}</h2>
+<h2 class="h3 my-3">Outils IA similaire à {{ aiTool.nom }}</h2>
 
 <div class="album py-5 bg-body-dark">
   <div class="container">

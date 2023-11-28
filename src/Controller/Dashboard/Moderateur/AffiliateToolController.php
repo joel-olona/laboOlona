@@ -23,6 +23,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Form\Search\AffiliateTool\ToolSearchType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\AffiliateTool\CategoryRepository;
+use App\Service\OpenAITranslator;
+use App\Twig\AppExtension;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -37,6 +39,8 @@ class AffiliateToolController extends AbstractController
         private CategoryRepository $categoryRepository,
         private TagRepository $tagRepository,
         private SluggerInterface $sluggerInterface,
+        private AppExtension $appExtension,
+        private OpenAITranslator $openAITranslator,
     ) {
     }
 
@@ -156,7 +160,10 @@ class AffiliateToolController extends AbstractController
     }
 
     #[Route('/tool/import', name: 'app_dashboard_moderateur_import_affiliate_tool')]
-    public function importCsvAction(Request $request, WooCommerce $woocommerce )
+    public function importCsvAction(
+        Request $request, 
+        WooCommerce $woocommerce, 
+    )
     {
         $importType = new ImportData();
         $formImport = $this->createForm(ImportType::class, $importType);
@@ -176,6 +183,12 @@ class AffiliateToolController extends AbstractController
 
                 $entity->setNom($product['name']);
                 $entity->setDescription($product['description']);
+                $entity->setDescriptionEn($this->appExtension->filterContent($this->appExtension->doShortcode($product['description'])));
+                $entity->setDescriptionFr($this->openAITranslator->translate(
+                    $this->appExtension->filterContent($this->appExtension->doShortcode($product['description'])) ,
+                        'en',
+                        'fr'
+                ));
                 $entity->setLienAffiliation($product['external_url']);
                 $entity->setCommission(0.90);
                 $entity->setSlug($this->sluggerInterface->slug(strtolower($product['name'])));
