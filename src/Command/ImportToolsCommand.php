@@ -18,6 +18,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use App\Repository\AffiliateTool\CategoryRepository;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
@@ -48,6 +49,7 @@ class ImportToolsCommand extends Command
             // configure an argument
             ->addArgument('per_page', InputArgument::REQUIRED, 'Number of AffiliateTools per page.')
             ->addArgument('page', InputArgument::REQUIRED, 'Page.')
+            ->addOption('option', 'o', InputOption::VALUE_REQUIRED, 'Would you want to translate description?','description')
             // ...
         ;
     }
@@ -90,7 +92,7 @@ class ImportToolsCommand extends Command
             $affiliateTool->setDescriptionEn($description);
             $output->writeln('Traduction de la description de '. $product['name']);
             // Vérification et traduction de la description
-            if (empty($affiliateTool->getDescriptionFr())) {
+            if (empty($affiliateTool->getDescriptionFr()) && $input->getOption('option') === "description") {
                 $descriptionFr = $this->openAITranslator->translate($description, 'en', 'fr');
                 $affiliateTool->setDescriptionFr($descriptionFr);
                 $output->writeln(' -> Traduction de la description effectuée ');
@@ -103,7 +105,7 @@ class ImportToolsCommand extends Command
             $affiliateTool->setShortDescription($short_description);
             $output->writeln('Traduction de la description courte de '. $product['name']);
             // Vérification et traduction de la description courte
-            if (empty($affiliateTool->getShortDescriptionFr())) {
+            if (empty($affiliateTool->getShortDescriptionFr()) && $input->getOption('option') === "short_description") {
                 $short_descriptionFr = $this->openAITranslator->translate($short_description, 'en', 'fr');
                 $affiliateTool->setShortDescriptionFr($short_descriptionFr);
                 $output->writeln(' -> Traduction de la description courte effectuée ');
@@ -111,7 +113,7 @@ class ImportToolsCommand extends Command
             $affiliateTool->setSlogan($slogan);
             $output->writeln('Traduction du slogan '. $product['name']);
             // Vérification et traduction du slogan
-            if (empty($affiliateTool->getSloganFr())) {
+            if (empty($affiliateTool->getSloganFr()) && $input->getOption('option') === "slogan") {
                 $sloganFr = $this->openAITranslator->translateCategory($slogan, 'en', 'fr');
                 $affiliateTool->setSloganFr($sloganFr);
                 $output->writeln(' -> Traduction du slogan effectuée ');
