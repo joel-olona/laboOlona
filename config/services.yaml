@@ -33,3 +33,7 @@ services:
 
     App\Service\WooCommerce:
         arguments: ['%env(WC_CUSTOMER_ENDPOINT)%', '%env(WC_CUSTOMER_KEY)%', '%env(WC_CUSTOMER_SECRET)%']  
+        
+    App\Service\OpenAITranslator:
+        arguments:
+            $apiKey: '%env(OPENAI_API_KEY)%' # Assurez-vous que cette variable d'environnement est définie

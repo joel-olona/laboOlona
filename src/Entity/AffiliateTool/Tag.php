@@ -29,6 +29,9 @@ class Tag
     #[ORM\ManyToMany(targetEntity: AffiliateTool::class, inversedBy: 'tags')]
     private Collection $affiliateTool;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $nomFr = null;
+
     public function __toString()
     {
         return $this->nom;
@@ -100,6 +103,18 @@ class Tag
     public function removeAffiliateTool(AffiliateTool $affiliateTool): static
     {
         $this->affiliateTool->removeElement($affiliateTool);
+
+        return $this;
+    }
+
+    public function getNomFr(): ?string
+    {
+        return $this->nomFr;
+    }
+
+    public function setNomFr(?string $nomFr): static
+    {
+        $this->nomFr = $nomFr;
 
         return $this;
     }
