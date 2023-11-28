@@ -10,9 +10,10 @@ Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
         <tr>
             <th class="col-1">ID</th>
             <th class="col-2">Nom</th>
-            <th class="col-6">Description</th>
+            <th class="col-4">Description</th>
+            <th class="col-2">Catégories</th>
             <th class="col-3">Image</th>
-            <th class="col-3"></th>
+            <th class="col-1"></th>
         </tr>
     </thead>
     <tbody>
@@ -31,7 +32,11 @@ Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
                     <a href="{{ aitool.lienAffiliation }}" class="btn btn-sm btn-primary rounded-pill px-3">Visiter le site <i class="bi bi-box-arrow-up-right"></i></a>
                 </td>
                 <td>{{ (aitool.shortDescriptionFr ?? aitool.shortDescription)|raw }}</td>
-                {# <td>{{ (aitool.description|length > 250 ? aitool.description|slice(0, 50) ~ '...' : aitool.description)|raw }}</td> #}
+                <td class="id-column">
+                    {% for category in aitool.categories %}
+                    <span class="badge text-bg-info">{{ category.nom }}</span>
+                    {% endfor %}
+                </td>
                 <td><img src="{{ aitool.image }}" class="img-fluid" alt="thumbail"></td>
                 <td class="actions-col">
                     <a href="{{path('app_dashboard_moderateur_view_affiliate_tool', { 'slug': aitool.slug}) }}" class="btn btn-sm btn-secondary"><i class="bi bi-eye"></i></a>
