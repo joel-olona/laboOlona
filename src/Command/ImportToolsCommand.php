@@ -115,30 +115,30 @@ class ImportToolsCommand extends Command
             $affiliateTool->setEditeLe(new DateTime());
             $affiliateTool->setRelatedIds($product['related_ids']);
 
-            foreach ($product['categories'] as $category) {
+            foreach ($product['categories'] as $tag) {
 
-                $aIcategory = $this->categoryRepository->findOneBy(['slug' => $this->sluggerInterface->slug(strtolower(html_entity_decode($category->name)))]);
+                $aItag = $this->tagRepository->findOneBy(['slug' => $this->sluggerInterface->slug(strtolower(html_entity_decode($tag->name)))]);
 
-                if(!$aIcategory instanceof Category){
-                    $output->writeln('Catégorie '. html_entity_decode($category->name));
-                    $aIcategory = new Category();
-                    $aIcategory->setSlug($this->sluggerInterface->slug(strtolower(html_entity_decode($category->name))));
+                if(!$aItag instanceof Tag){
+                    $output->writeln('Etiquette '. html_entity_decode($tag->name));
+                    $aItag = new Tag();
+                    $aItag->setSlug($this->sluggerInterface->slug(strtolower(html_entity_decode($tag->name))));
                 }else{
-                    $output->writeln('Catégorie '. html_entity_decode($category->name));
+                    $output->writeln('Etiquette '. html_entity_decode($tag->name));
                 }
 
-                $aIcategory->setnom(html_entity_decode($category->name));
-                $aIcategory->setNomFr($this->openAITranslator->translateCategory(
-                    html_entity_decode($category->name) ,
+                $aItag->setnom(html_entity_decode($tag->name));
+                $aItag->setNomFr($this->openAITranslator->translateCategory(
+                    html_entity_decode($tag->name) ,
                     'en',
                     'fr'
                 ));
-                $aIcategory->setDescription($this->openAITranslator->generateDescription(
-                    html_entity_decode($category->name) ,
+                $aItag->setDescription($this->openAITranslator->generateDescription(
+                    html_entity_decode($tag->name) ,
                 ));
 
-                $this->em->persist($aIcategory);
-                $affiliateTool->addCategory($aIcategory);
+                $this->em->persist($aItag);
+                $affiliateTool->addTag($aItag);
                 $output->writeln(' -> Ajoutée à '. $product['name']);
             }
 
