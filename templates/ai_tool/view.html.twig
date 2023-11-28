@@ -30,22 +30,26 @@
       {{(aiTool.descriptionFR ?? filterContent(doShortcode(aiTool.description)))|raw}}
       </div>
       <div class="col-md-4">
-      <div class="small">
-        {% for tag in aiTool.tags %}
-        <a href="{{ path('app_ai_tools_tag', {'slug': tag.slug}) }}"><span class="badge text-bg-primary rounded-pill"> # {{ tag.nomFr ?? tag.nom }}</span></a>
-        {% endfor %}
-      </div>
-      <div class="small">
-        {% for category in aiTool.categories %}
-        <a href="{{ path('app_ai_tools_category', {'slug': category.slug}) }}"><span class="badge text-bg-dark rounded-pill"><i class="bi bi-tags"></i> {{ category.nomFr ?? category.nom }}</span></a>
-        {% endfor %}
-      </div>
+        <h2 class="h4 mt-3">Catégories</h2>
+        {% if aiTool.categories|length > 0 %}
+          <div class="small">
+            {% for category in aiTool.categories %}
+            <a href="{{ path('app_ai_tools_category', {'slug': category.slug}) }}"><span class="badge text-bg-dark rounded-pill"><i class="bi bi-tags"></i> {{ category.nomFr ?? category.nom }}</span></a>
+            {% endfor %}
+          </div>
+        {% endif %}
+        <h2 class="h4 mt-3">Etiquettes</h2>
+        <div class="small">
+          {% for tag in aiTool.tags %}
+          <a href="{{ path('app_ai_tools_tag', {'slug': tag.slug}) }}"><span class="badge text-bg-primary rounded-pill"> # {{ tag.nomFr ?? tag.nom }}</span></a>
+          {% endfor %}
+        </div>
       </div>
   </div>
 </section>
 
 
-<h2 class="h3 my-3">Outils IA similaire à {{ aiTool.nom }}</h2>
+<h2 class="h3 mt-4">Outils IA similaire à {{ aiTool.nom }}</h2>
 
 <div class="album py-5 bg-body-dark">
   <div class="container">
