@@ -2,7 +2,7 @@
 {% block body %}
 
 <h1 class="h2 my-3">{{ aiTool.nom }}</h1>
-<p>{{aiTool.slogan}}</p>
+<p>{{(aiTool.sloganFr ?? aiTool.slogan|raw)}}</p>
 <section class="my-5">
     <div class="row align-items-center">
       <div class="col-md-4">
@@ -11,14 +11,14 @@
           </div>
         </div>
         <div class="text-center mt-4">
-        <a href="{{ aiTool.lienAffiliation }}" target="_blank" class="btn btn-outline-secondary">Visite website</a>
+        <a href="{{ aiTool.lienAffiliation }}" target="_blank" class="btn btn-outline-secondary">Visiter le site web</a>
 
       </div>
       </div>
       <div class="col-md-8">
         <div class="text-bg-dark rounded-3 p-3">
-          <p class="text-small mt-3"> <i class="bi bi-calendar-check"></i> Added on {{aiTool.creeLe|date('M d, Y')}}</p>
-          <p>{{aiTool.shortDescription|raw}}</p>
+          <p class="text-small mt-3"> <i class="bi bi-calendar-check"></i> Ajouté le {{aiTool.creeLe|date('d M Y')}}</p>
+          <p>{{(aiTool.shortDescriptionFr ?? aiTool.shortDescription)|raw}}</p>
         </div>
       </div>
     </div>
@@ -27,18 +27,25 @@
 <section class="">
     <div class="row">
       <div class="col-md-8">
-      {{filterContent(doShortcode(aiTool.description))|raw}}
+      {{(aiTool.descriptionFR ?? filterContent(doShortcode(aiTool.description)))|raw}}
       </div>
       <div class="col-md-4">
-      {% for tag in aiTool.tags %}
-    <p><a href="{{ path('app_ai_tools_tag', {'slug': tag.slug}) }}"> # {{ tag.nom }}  </a></p>
-      {% endfor %}
+      <div class="small">
+        {% for tag in aiTool.tags %}
+        <a href="{{ path('app_ai_tools_tag', {'slug': tag.slug}) }}"><span class="badge text-bg-primary rounded-pill"> # {{ tag.nomFr ?? tag.nom }}</span></a>
+        {% endfor %}
+      </div>
+      <div class="small">
+        {% for category in aiTool.categories %}
+        <a href="{{ path('app_ai_tools_category', {'slug': category.slug}) }}"><span class="badge text-bg-dark rounded-pill"><i class="bi bi-tags"></i> {{ category.nomFr ?? category.nom }}</span></a>
+        {% endfor %}
+      </div>
       </div>
   </div>
 </section>
 
 
-<h2 class="h3 my-3">Alternative AI Tools for {{ aiTool.nom }}</h2>
+<h2 class="h3 my-3">Outils IA similaire à {{ aiTool.nom }}</h2>
 
 <div class="album py-5 bg-body-dark">
   <div class="container">
