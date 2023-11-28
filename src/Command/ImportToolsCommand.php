@@ -89,12 +89,12 @@ class ImportToolsCommand extends Command
             $affiliateTool->setDescription($product['description']);
             $affiliateTool->setDescriptionEn($description);
             $output->writeln('Traduction de la description de '. $product['name']);
-            $affiliateTool->setDescriptionFr($this->openAITranslator->translate(
-                $description,
-                'en',
-                'fr'
-            ));
-            $output->writeln(' -> Traduction terminée ');
+            // Vérification et traduction de la description
+            if (empty($affiliateTool->getDescriptionFr())) {
+                $descriptionFr = $this->openAITranslator->translate($description, 'en', 'fr');
+                $affiliateTool->setDescriptionFr($descriptionFr);
+                $output->writeln(' -> Traduction de la description effectuée ');
+            }
             $affiliateTool->setLienAffiliation($product['external_url']);
             $affiliateTool->setCommission(0.90);
             $affiliateTool->setType($product['status']);
@@ -102,20 +102,20 @@ class ImportToolsCommand extends Command
             $affiliateTool->setCustomId($product['id']);
             $affiliateTool->setShortDescription($short_description);
             $output->writeln('Traduction de la description courte de '. $product['name']);
-            $affiliateTool->setShortDescriptionFr($this->openAITranslator->translate(
-                $short_description ,
-                'en',
-                'fr'
-            ));
-            $output->writeln(' -> Traduction terminée ');
+            // Vérification et traduction de la description courte
+            if (empty($affiliateTool->getShortDescriptionFr())) {
+                $short_descriptionFr = $this->openAITranslator->translate($short_description, 'en', 'fr');
+                $affiliateTool->setShortDescriptionFr($short_descriptionFr);
+                $output->writeln(' -> Traduction de la description courte effectuée ');
+            }
             $affiliateTool->setSlogan($slogan);
             $output->writeln('Traduction du slogan '. $product['name']);
-            $affiliateTool->setSloganFr($this->openAITranslator->translateCategory(
-                $slogan ,
-                'en',
-                'fr'
-            ));
-            $output->writeln(' -> Traduction terminée ');
+            // Vérification et traduction du slogan
+            if (empty($affiliateTool->getSloganFr())) {
+                $sloganFr = $this->openAITranslator->translateCategory($slogan, 'en', 'fr');
+                $affiliateTool->setSloganFr($sloganFr);
+                $output->writeln(' -> Traduction du slogan effectuée ');
+            }
             $affiliateTool->setPrix(number_format(floatval($product['price']), 2, '.', ''));
             $affiliateTool->setCreeLe(new DateTime($product['date_created']));
             $affiliateTool->setEditeLe(new DateTime());
