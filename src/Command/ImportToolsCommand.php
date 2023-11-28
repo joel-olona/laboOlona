@@ -69,13 +69,13 @@ class ImportToolsCommand extends Command
         $products = $this->wooCommerce->importProduct($importData);
         
         foreach ($products as $product) {
-
-            $affiliateTool = $this->affiliateToolRepository->findOneBy(['slug' => $this->sluggerInterface->slug(strtolower($product['name']))]);
+            $slug = $this->sluggerInterface->slug(strtolower($product['name']));
+            $affiliateTool = $this->affiliateToolRepository->findOneBy(['slug' => $slug]);
 
             if(!$affiliateTool instanceof AffiliateTool){
                 $output->writeln('Création de l\'outil '. $product['name']);
                 $affiliateTool = new AffiliateTool();
-                $affiliateTool->setSlug($this->sluggerInterface->slug(strtolower($product['name'])));
+                $affiliateTool->setSlug($slug);
                 $output->writeln(' -> Création terminée ');
             }
 
@@ -114,60 +114,6 @@ class ImportToolsCommand extends Command
             $affiliateTool->setCreeLe(new DateTime($product['date_created']));
             $affiliateTool->setEditeLe(new DateTime());
             $affiliateTool->setRelatedIds($product['related_ids']);
-
-            foreach ($product['categories'] as $tag) {
-
-                $aItag = $this->tagRepository->findOneBy(['slug' => $this->sluggerInterface->slug(strtolower(html_entity_decode($tag->name)))]);
-
-                if(!$aItag instanceof Tag){
-                    $output->writeln('Etiquette '. html_entity_decode($tag->name));
-                    $aItag = new Tag();
-                    $aItag->setSlug($this->sluggerInterface->slug(strtolower(html_entity_decode($tag->name))));
-                }else{
-                    $output->writeln('Etiquette '. html_entity_decode($tag->name));
-                }
-
-                $aItag->setnom(html_entity_decode($tag->name));
-                $aItag->setNomFr($this->openAITranslator->translateCategory(
-                    html_entity_decode($tag->name) ,
-                    'en',
-                    'fr'
-                ));
-                $aItag->setDescription($this->openAITranslator->generateDescription(
-                    html_entity_decode($tag->name) ,
-                ));
-
-                $this->em->persist($aItag);
-                $affiliateTool->addTag($aItag);
-                $output->writeln(' -> Ajoutée à '. $product['name']);
-            }
-
-            foreach ($product['tags'] as $tag) {
-
-                $aItag = $this->tagRepository->findOneBy(['slug' => $this->sluggerInterface->slug(strtolower(html_entity_decode($tag->name)))]);
-
-                if(!$aItag instanceof Tag){
-                    $output->writeln('Etiquette '. html_entity_decode($tag->name));
-                    $aItag = new Tag();
-                    $aItag->setSlug($this->sluggerInterface->slug(strtolower(html_entity_decode($tag->name))));
-                }else{
-                    $output->writeln('Etiquette '. html_entity_decode($tag->name));
-                }
-
-                $aItag->setnom(html_entity_decode($tag->name));
-                $aItag->setNomFr($this->openAITranslator->translateCategory(
-                    html_entity_decode($tag->name) ,
-                    'en',
-                    'fr'
-                ));
-                $aItag->setDescription($this->openAITranslator->generateDescription(
-                    html_entity_decode($tag->name) ,
-                ));
-
-                $this->em->persist($aItag);
-                $affiliateTool->addTag($aItag);
-                $output->writeln(' -> Ajoutée à '. $product['name']);
-            }
 
             $this->em->persist($affiliateTool);
             $output->writeln(' ---> Modification terminée pour '. $product['name']);
