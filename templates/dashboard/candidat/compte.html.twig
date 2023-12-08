@@ -2,7 +2,7 @@
 
 {% block body %}
 <div class="container mt-3 px-auto">
-    <section class="text-dark card p-4 my-3">
+    <section class="text-dark card shadow p-4 my-3">
         <h4 class="">
             <i class="bi bi-person-circle mx-2"></i>
             Informations personnelles
@@ -11,30 +11,36 @@
         {{ form_start(form_one) }}
         <div class="row">
             <div class="col">
+                <i class="fas fa-user mx-2"></i> <!-- Added icon -->
                 {{ form_label(form_one.candidat.nom) }}
                 {{ form_widget(form_one.candidat.nom, {'attr': {'class': 'form-control mb-4'}}) }}
             </div>
             <div class="col">
+                <i class="fas fa-user mx-2"></i> <!-- Added icon -->
                 {{ form_label(form_one.candidat.prenom) }}
                 {{ form_widget(form_one.candidat.prenom, {'attr': {'class': 'form-control mb-4'}}) }}
             </div>
         </div>
         <div class="row">
             <div class="col">
+                <i class="fas fa-envelope mx-2"></i> <!-- Added icon -->
                 {{ form_label(form_one.candidat.email) }}
                 {{ form_widget(form_one.candidat.email, {'attr': {'class': 'form-control mb-4'}}) }}
             </div>
             <div class="col">
+                <i class="fas fa-phone mx-2"></i> <!-- Added icon -->
                 {{ form_label(form_one.candidat.telephone) }}
                 {{ form_widget(form_one.candidat.telephone, {'attr': {'class': 'form-control mb-4'}}) }}
             </div>
         </div>
         <div class="row">
             <div class="col">
+                <i class="fas fa-map-marker-alt mx-2"></i> <!-- Added icon -->
                 {{ form_label(form_one.candidat.adress) }} 
                 {{ form_widget(form_one.candidat.adress, {'attr': {'class': 'form-control mb-4'}}) }}
             </div>
             <div class="col">
+                <i class="fas fa-location-arrow mx-2"></i> <!-- Added icon -->
                 {{ form_label(form_one.localisation) }}
                 {{ form_widget(form_one.localisation, {'attr': {'class': 'form-control mb-4'}}) }}
             </div>
@@ -43,41 +49,47 @@
             {{ form_widget(form_one) }}
         </div>
         <div class="input-group-append">
-            <button type="submit" class="btn btn-primary">Enregister</button>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save mx-2"></i> <!-- Added icon -->
+                Enregister
+            </button>
         </div>
         {{ form_end(form_one) }}
     </section>
 
-    <section class="text-dark card p-4 my-3">
+    <section class="text-dark card shadow p-4 my-3">
         <h4 class="">
             <i class="bi bi-person-badge mx-2"></i>
-            Informations professionnelle
+            Informations professionnelles
         </h4>
         <hr class="mb-4">
         {{ form_start(form_two) }}
         <div class="row">
             <div class="col">
+                <i class="bi bi-card-heading mx-2"></i> <!-- Added icon -->
                 {{ form_label(form_two.titre) }}
                 {{ form_widget(form_two.titre, {'attr': {'class': 'form-control mb-4'}}) }}
-                    {{ form_label(form_two.social.linkedin) }}
-                    {{ form_widget(form_two.social.linkedin) }}
-
-                    {{ form_label(form_two.social.skype) }}
-                    {{ form_widget(form_two.social.skype) }}
-
-                    {{ form_label(form_two.social.slack) }}
-                    {{ form_widget(form_two.social.slack) }}
-
-                    {{ form_label(form_two.social.facebook) }}
-                    {{ form_widget(form_two.social.facebook) }}
-
-                    {{ form_label(form_two.social.instagram) }}
-                    {{ form_widget(form_two.social.instagram) }}
-
-                    {{ form_label(form_two.social.github) }}
-                    {{ form_widget(form_two.social.github) }}
+                <i class="bi bi-linkedin mx-2"></i> <!-- Added icon -->
+                {{ form_label(form_two.social.linkedin) }}
+                {{ form_widget(form_two.social.linkedin) }}
+                <i class="bi bi-skype mx-2 mt-4"></i> <!-- Added icon -->
+                {{ form_label(form_two.social.skype) }}
+                {{ form_widget(form_two.social.skype) }}
+                <i class="bi bi-slack mx-2 mt-4"></i> <!-- Added icon -->
+                {{ form_label(form_two.social.slack) }}
+                {{ form_widget(form_two.social.slack) }}
+                <i class="bi bi-facebook mx-2 mt-4"></i> <!-- Added icon -->
+                {{ form_label(form_two.social.facebook) }}
+                {{ form_widget(form_two.social.facebook) }}
+                <i class="bi bi-instagram mx-2 mt-4"></i> <!-- Added icon -->
+                {{ form_label(form_two.social.instagram) }}
+                {{ form_widget(form_two.social.instagram) }}
+                <i class="bi bi-github mx-2 mt-4"></i> <!-- Added icon -->
+                {{ form_label(form_two.social.github) }}
+                {{ form_widget(form_two.social.github) }}
             </div>
             <div class="col">
+                <i class="bi bi-file-earmark-text mx-2"></i> <!-- Added icon -->
                 {{ form_label(form_two.resume) }}
                 {{ form_widget(form_two.resume, {'attr': {'class': 'form-control mb-4'}}) }}
             </div>
@@ -85,13 +97,16 @@
         <div style="display:none">
             {{ form_widget(form_two) }}
         </div>
-        <div class="input-group-append">
-            <button type="submit" class="btn btn-primary">Enregister</button>
+        <div class="input-group-append mt-4">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save mx-2"></i> <!-- Added icon -->
+                Enregister
+            </button>
         </div>
         {{ form_end(form_two) }}
     </section>
 
-    <section class="text-dark card p-4 my-3">
+    <section class="text-dark card shadow p-4 my-3">
         <h4 class="">
             <i class="bi bi-suitcase-lg mx-2"></i>
             Informations liées à votre CV
@@ -267,40 +282,40 @@
                 </div>
             </div>
         </div>
-    <h5 class=""><i class="mx-2 h5 bi bi-archive"></i> Mes documents</h5>
-    <div class="row">
-        <div class="col">
-        {% for cv in app.user.candidateProfile.cvs %}
-            <div class="col-md-6 my-2">
-                <div class="card">
-                    <div class="card-body">
-                        <!-- Icône agrandie -->
-                        <i class="bi bi-file-earmark-person" style="font-size: 3rem;"></i>
-                        <p class="card-title small">{{ cv.safeFileName }}.pdf</p>
-                        <!-- Lien pour visualiser le CV dans un nouvel onglet -->
-                        <a href="{{ asset('uploads/cv/' ~ cv.cvLink) }}" class="btn btn-sm rounded-pill btn-primary" title="Ouvrir" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
-                        <a href="javascript:void(0);" data-cv-link="{{ cv.cvLink }}" data-cv-id="{{ cv.id }}" class="select-cv-btn btn btn-sm rounded-pill btn-danger" title="Sélectionner"><i class="bi bi-check2-square"></i></a>
+        <h5 class=""><i class="mx-2 h5 bi bi-archive"></i> Mes documents</h5>
+        <div class="row">
+            <div class="col">
+            {% for cv in app.user.candidateProfile.cvs %}
+                <div class="col-md-6 my-2">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Icône agrandie -->
+                            <i class="bi bi-file-earmark-person" style="font-size: 3rem;"></i>
+                            <p class="card-title small">{{ cv.safeFileName }}.pdf</p>
+                            <!-- Lien pour visualiser le CV dans un nouvel onglet -->
+                            <a href="{{ asset('uploads/cv/' ~ cv.cvLink) }}" class="btn btn-sm rounded-pill btn-primary" title="Ouvrir" target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
+                            <a href="javascript:void(0);" data-cv-link="{{ cv.cvLink }}" data-cv-id="{{ cv.id }}" class="select-cv-btn btn btn-sm rounded-pill btn-danger" title="Sélectionner"><i class="bi bi-check2-square"></i></a>
 
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            <div class="col">
+                {{ form_label(form_three.cv) }}
+                {{ form_widget(form_three.cv) }}
+                {{ form_errors(form_three.cv) }}
+            </div>
         </div>
-        <div class="col">
-            {{ form_label(form_three.cv) }}
-            {{ form_widget(form_three.cv) }}
-            {{ form_errors(form_three.cv) }}
-        </div>
-    </div>
-        
-        <div style="display:none">
-            {{ form_widget(form_three) }}
-        </div>
-        <hr class="mb-4">
-                <div class="input-group-append">
-                    <button type="submit" class="btn btn-primary">Enregister</button>
-                </div>
-        {{ form_end(form_three) }}
+            
+            <div style="display:none">
+                {{ form_widget(form_three) }}
+            </div>
+            <hr class="mb-4">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">Enregister</button>
+                    </div>
+            {{ form_end(form_three) }}
     </section>
 </div>
 {% endblock %}
