@@ -6,6 +6,7 @@
 {% block fluid %}<div class="container-fluid m-0">{% endblock %} 
 {% block body %}
 {% include "home/section/section-hero.html.twig" %}
+<div id="mercure"></div>
 {% include "home/section/section-portage.html.twig" %}
 {% include "home/section/section-annonces.html.twig" %}
 {% include "home/section/section-candidats.html.twig" with {'candidats': candidats} %}
@@ -155,4 +156,29 @@
 		}
 
 	</script>
+<script>
+const eventSource = new EventSource("{{ mercure('https://example.com/books/1')|escape('js') }}");
+eventSource.onmessage = event => {
+	// Convertit la chaîne JSON en objet JavaScript
+	const data = JSON.parse(event.data);
+	console.log(event.data)
+
+	// Obtient la référence à l'élément div
+	const alertDiv = document.getElementById('mercure');
+
+	// Met à jour le texte de l'alerte
+	alertDiv.textContent = data.status;
+
+	// Ajoute les classes Bootstrap pour l'alerte et rend l'élément visible
+	alertDiv.className = 'alert alert-primary';
+	alertDiv.style.display = 'block'; // Assurez-vous que l'alerte est visible si elle était cachée
+
+	// Cache l'alerte après 2 secondes
+	setTimeout(() => {
+		alertDiv.style.display = 'none'; // Cache l'alerte
+		// Optionnellement, supprime les classes pour réinitialiser l'état de l'élément
+		alertDiv.className = '';
+	}, 2000); // 2000 millisecondes équivalent à 2 secondes
+}
+</script>
 {% endblock %}

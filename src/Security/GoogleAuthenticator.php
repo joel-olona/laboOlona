@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Manager\IdentityManager;
 use App\Entity\Referrer\Referral;
 use App\Service\User\MailerService;
+use App\Manager\Mercure\MercureManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\UserPostAuthenticationService;
@@ -37,6 +38,7 @@ class GoogleAuthenticator extends OAuth2Authenticator
         private UrlGeneratorInterface $urlGenerator, 
         private UserPostAuthenticationService $userPostAuthenticationService,
         private RequestStack $requestStack,
+        private MercureManager $mercureManager
     )
     {
         
@@ -74,6 +76,18 @@ class GoogleAuthenticator extends OAuth2Authenticator
                     if($refered instanceof Referral){
                         $refered->setStep(2);
                     }
+
+                    // The Publisher service is an invokable object
+                    $this->mercureManager->publish(
+                    'https://example.com/books/1',
+                    'utilisateur',
+                    [
+                        'email' => $existingUser->getEmail(),
+                        'type' => $existingUser->getType(),
+                        'id' => $existingUser->getId(),
+                    ],
+                    'Nouvel Utilisateur : '.$existingUser->getEmail()
+                    );
                 }
 
                 $this->userPostAuthenticationService->updateLastLoginDate($existingUser);

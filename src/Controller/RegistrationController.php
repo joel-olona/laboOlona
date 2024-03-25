@@ -2,21 +2,24 @@
 
 namespace App\Controller;
 
-use App\Entity\Referrer\Referral;
 use DateTime;
 use App\Entity\User;
 use App\Security\EmailVerifier;
+use App\Entity\Referrer\Referral;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
 use App\Security\AppAuthenticator;
 use Symfony\Component\Mime\Address;
+use App\Manager\Mercure\MercureManager;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Event\RegistrationCompletedEvent;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
@@ -29,6 +32,8 @@ class RegistrationController extends AbstractController
     public function __construct(
         private EmailVerifier $emailVerifier,
         private EntityManagerInterface $em,
+        private MercureManager $mercureManager,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     #[Route('/register', name: 'app_register')]
@@ -50,6 +55,8 @@ class RegistrationController extends AbstractController
 
             $entityManager->persist($user);
             $entityManager->flush();
+            $event = new RegistrationCompletedEvent($user);
+            $this->eventDispatcher->dispatch($event);
 
             // generate a signed url and email it to the user
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,

@@ -22,6 +22,7 @@ use App\Entity\Moderateur\ContactForm;
 use App\Manager\Finance\EmployeManager;
 use App\Service\Annonce\AnnonceService;
 use App\Form\Moderateur\ContactFormType;
+use App\Manager\Mercure\MercureManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\CandidateProfileRepository;
@@ -33,6 +34,9 @@ use App\Repository\Entreprise\JobListingRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
+use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\Mercure\Update;
+
 
 class HomeController extends AbstractController
 {
@@ -47,8 +51,22 @@ class HomeController extends AbstractController
         private AnnonceService $annonceService,
         private EmployeManager $employeManager,
         private RequestStack $requestStack,
+        private MercureManager $mercureManager,
         private Environment $twig
     ) {
+    }
+
+    #[Route('/publish', name: 'app_dashboard_moderateur_publish')]
+    public function publish(HubInterface $hub): Response
+    {
+        $update = new Update(
+            'https://example.com/books/1',
+            json_encode(['status' => 'message reçu'])
+        );
+
+        $hub->publish($update);
+
+        return new Response('published!');
     }
 
     #[Route('/', name: 'app_home')]
@@ -274,6 +292,18 @@ class HomeController extends AbstractController
                     )
                 );
                 $this->em->persist($user);
+
+                // The Publisher service is an invokable object
+                $this->mercureManager->publish(
+                'https://example.com/books/1',
+                'utilisateur',
+                [
+                    'email' => $user->getEmail(),
+                    'type' => $user->getType(),
+                    'id' => $user->getId(),
+                ],
+                'Nouvelle simulation : '.$user->getEmail()
+                );
             }
             $this->em->persist($employe);
             $this->em->persist($simulateur);

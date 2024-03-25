@@ -58,3 +58,7 @@ services:
         arguments:
             $domain: 'meet.olona-talents.com'
 
+    App\Manager\Mercure\MercureManager:
+        arguments:
+            $hub: '@mercure.hub.default'
+
