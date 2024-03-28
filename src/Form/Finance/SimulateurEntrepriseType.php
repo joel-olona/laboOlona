@@ -15,7 +15,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
-class SimulateurType extends AbstractType
+class SimulateurEntrepriseType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -41,17 +41,20 @@ class SimulateurType extends AbstractType
             ->add('deviseSymbole', HiddenType::class, [
                 'data' => "€", 
             ])
+            ->add('salaireNet', TextType::class, [
+                'label' => 'Salaire Net proposé'
+            ])
+            ->add('primeNet', TextType::class, [
+                'label' => 'Commission nette'
+            ])
             ->add('status', ChoiceType::class, [
                 'choices' => [
                     'Portage salarial' => 'PORTAGE' ,
                     'Freelance' => 'FREELANCE' ,
                 ],
-                'label' => 'Mon statut',
+                'label' => 'Statut du colaborateur',
                 'expanded' => true,
                 'data' => 'PORTAGE',
-            ])
-            ->add('salaireNet', TextType::class, [
-                'label' => 'Salaire Net souhaité'
             ])
             ->add('nombreEnfant', IntegerType::class, [
                 'label' => 'Nombre d\'enfant',
@@ -76,10 +79,11 @@ class SimulateurType extends AbstractType
             ])
             ->add('type', ChoiceType::class, [
                 'choices' => [
-                    'Je travaille de chez moi' => 'TELETRAVAIL' ,
-                    'Je souhaite avoir un bureau chez OLONA' => 'OLONA',
+                    'Télétravail' => 'TELETRAVAIL' ,
+                    'Bureau de l\'entreprise' => 'ENTREPRISE',
+                    'Espace co-working Chez Olona' => 'OLONA' ,
                 ],
-                'label' => 'Ma situation'
+                'label' => 'Lieu de travail'
             ])
             ->add('avantage', SimulateurAvantageType::class, [
                 'label' => false

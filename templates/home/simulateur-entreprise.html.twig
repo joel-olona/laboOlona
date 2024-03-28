@@ -14,8 +14,8 @@
 	{% else %}
 		<div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 100vh;">
 			<div class="px-3">
-				<h3 class="h4 text-center">Bienvenue sur notre Simulateur de Portage Salarial</h3>
-				<p class="text-center pt-5">Vous êtes un freelancer résidant à Madagascar et travaillez avec des clients internationaux ? Notre simulateur de portage salarial est conçu spécialement pour vous. Ce puissant outil vous aidera à calculer facilement le montant à facturer à vos clients pour garantir le salaire net souhaité après déduction des frais de portage salarial.</p>
+				<h3 class="h4 text-center">Bienvenue sur notre Simulateur de Salaire pour Entreprises</h3>
+				<p class="text-center pt-5">Vous gérez une entreprise et envisagez d'embaucher de nouveaux talents ? Notre simulateur de salaire est conçu spécialement pour aider les entreprises à estimer les coûts salariaux. Cet outil pratique vous permettra de calculer facilement le coût total d'embauche en prenant en compte les charges sociales, les taxes et tout autre frais associé, pour vous assurer d'offrir un salaire net attractif tout en maîtrisant vos coûts.</p>
 			</div>
 		</div>
 	{% endif %}
@@ -24,18 +24,18 @@
 {% block body %}
 	<div class="container">
 		<div class="annonce-list p-2 p-sm-0">
-				<h1 class="card-title mb-3">Simulateur de salaire</h1>
+				<h1 class="card-title mb-3">Simulateur de salaire pour entreprise</h1>
 				<div class="d-block d-sm-none">
 					<div class="px-3">
-						<h3 class="h4 text-center">Bienvenue sur notre Simulateur de Portage Salarial</h3>
-						<p class="text-center pt-5">Vous êtes un freelancer résidant à Madagascar et travaillez avec des clients internationaux ? Notre simulateur de portage salarial est conçu spécialement pour vous. Ce puissant outil vous aidera à calculer facilement le montant à facturer à vos clients pour garantir le salaire net souhaité après déduction des frais de portage salarial.</p>
+						<h3 class="h4 text-center">Bienvenue sur notre Simulateur de Salaire pour Entreprises</h3>
+						<p class="text-center pt-5">Vous gérez une entreprise et envisagez d'embaucher de nouveaux talents ? Notre simulateur de salaire est conçu spécialement pour aider les entreprises à estimer les coûts salariaux. Cet outil pratique vous permettra de calculer facilement le coût total d'embauche en prenant en compte les charges sociales, les taxes et tout autre frais associé, pour vous assurer d'offrir un salaire net attractif tout en maîtrisant vos coûts.</p>
 					</div>
 				</div>
 			<div class="annonce-item shadow p-3 p-sm-5 m-1 m-sm-4">
 				<div class="">
-					{{form_start(form, {'attr': {'id': 'example-basic'}}) }}
+					{{form_start(form, {'attr': {'id': 'example-company'}}) }}
 					{{ form_widget(form.deviseSymbole, {'attr': {'data-id': 'simulateur_deviseSymbole'}})}}
-					<!-- Début du formulaire avec l'ID "example-basic" -->
+					<!-- Début du formulaire avec l'ID "example-company" -->
 					<h3 class="card-title mb-3">Devise</h3>
 					<section
 						style="position: relative;width: 100%;">
@@ -52,7 +52,7 @@
 								</div>
 							</div>
 						</div>
-						<p class="mt-4">Le taux de change correspond au taux utilisé pour convertir le montant de votre paiement dans la devise de votre client.</p>
+						<p class="mt-4">Le taux de change est le taux appliqué pour convertir les coûts salariaux estimés dans la devise de votre entreprise à partir de celle du pays de résidence de l'employé potentiel.</p>
 						<legend class="h2">{{ form_label(form.type) }}</legend>
 						<div class="">
 							{{ form_widget(form.type)}}
@@ -81,7 +81,7 @@
 								<span class="input-group-text change-devise">€</span>
 							</div>
 						</div>
-						<p class="mt-4">Le salaire net représente le montant que vous souhaitez percevoir après déduction des impôts et des cotisations sociales.</p>
+						<p class="mt-4">Le salaire net proposé représente le montant que l'employé recevra après déduction des impôts et des cotisations sociales.</p>
 					</section>
 
 					<h3 class="card-title mb-3">Avantages</h3>
@@ -164,13 +164,28 @@
 								</div>
 							</div>
 						</div>
+						<div class="row align-items-center">
+							<div class="col-lg-4 ">
+								<label class="col-form-label mt-3">{{ form_label(form.primeNet) }}
+									<span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip" data-bs-title="Prime après déductions, en plus du salaire net.">
+										<i class="bi bi-info-circle-fill"></i>
+									</span>
+								</label>
+							</div>
+							<div class="col-lg-3 ">
+								<div class="input-group">
+									{{ form_widget(form.primeNet)}}
+									<span class="input-group-text change-devise">€</span>
+								</div>
+							</div>
+						</div>
 					</section>
 
 					<h3 class="card-title mb-3">Résumé</h3>
 					<section
 						class="text-grey" style="position: relative;width: 100%;">
 						<!-- Explication du champ "Prime" -->
-						<div id="resum"></div>
+						<div id="resumCompany"></div>
 						<div style="display:none;">
 							<button type="button" id="popup" data-bs-toggle="modal" data-bs-target="#connexionModal"></button>
 						</div>
@@ -257,9 +272,9 @@
 	<script src="{{asset('assets/main.js')}}"></script>
 	<script>
 		$(function () {
-			initFormStep($("#example-basic"), "h3", "section", "fade", utilisateurEstConnecte());
+			initEntrepriseFormStep($("#example-company"), "h3", "section", "fade", utilisateurEstConnecte());
 			
-			$('#simulateur_employe_user_email').blur(function() {
+			$('#simulateur_entreprise_employe_user_email').blur(function() {
 				var email = $(this).val();
 				if (email !== '') {
 					// Vérifiez la disponibilité de l'e-mail
@@ -267,7 +282,7 @@
 				}
     		});
 
-			$('#simulateur_employe_user_plainPassword_first').blur(function() {
+			$('#simulateur_entreprise_employe_user_plainPassword_first').blur(function() {
 				var password = $(this).val();
 				if (password !== '') {
 					if(password.length < 5){
@@ -286,7 +301,7 @@
 				}
     		});
 
-			$('#simulateur_employe_user_telephone').blur(function() {
+			$('#simulateur_entreprise_employe_user_telephone').blur(function() {
 				var telephone = $(this).val();
 				if (telephone !== '') {
 					if(telephone.length < 9){
@@ -316,7 +331,7 @@
 			}
 
 			// Écouteur d'événement sur les champs pour vérifier lorsqu'ils changent
-			$('input[id^="simulateur_employe_user_"]').on('input', function() {
+			$('input[id^="simulateur_entreprise_employe_user_"]').on('input', function() {
 				// Vérifiez si l'un des champs est vide
 				if (checkFields()) {
 					// Si l'un des champs est vide, désactivez le bouton submit
@@ -330,7 +345,7 @@
 			});
 
 			// Sélectionner le champ select
-			var selectType = $('#simulateur_type');
+			var selectType = $('#simulateur_entreprise_type');
 
 			// Sélectionner les divs à afficher ou cacher
 			var divEmploye = $('#employe');
@@ -353,14 +368,13 @@
 				}
 			});
 
-
 			// Écoute des changements sur les boutons radio et mise à jour de l'explication
-			$('input[name="simulateur[status]"]').change(function() {
+			$('input[name="simulateur_entreprise[status]"]').change(function() {
 				updateExplanation(this.value);
 			});
 
 			// Mise à jour initiale pour la sélection par défaut
-			updateExplanation($('input[name="simulateur[status]"]:checked').val());
+			updateExplanation($('input[name="simulateur_entreprise[status]"]:checked').val());
 		})
 
 		function updateExplanation(value) {
@@ -404,7 +418,7 @@
 		// Fonction pour vérifier si l'un des champs est vide
 		function checkFields() {
 			var isEmpty = false;
-			$('input[id^="simulateur_employe_user_"]').each(function() {
+			$('input[id^="simulateur_entreprise_employe_user_"]').each(function() {
 				if ($(this).val() === '') {
 					isEmpty = true;
 					return false; // Sortir de la boucle si un champ est vide
