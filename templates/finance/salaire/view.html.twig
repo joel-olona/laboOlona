@@ -1,6 +1,6 @@
 {% extends 'finance/base.html.twig' %}
 
-{% block title %}Détails du contrat
+{% block title %}Détails de la simulation
 {% endblock %}
 {% set salaire_plafond = convertToAriary(results.salaire_brut_estime_euro, simulateur) %}
 {% if salaire_plafond > 1910400 %}
@@ -12,8 +12,11 @@
 	<div class="container">
 		<div class="annonce-list p-2">
 			<div class="annonce-item shadow p-md-5 m-md-4">
-				<h1 class="h2">Détails du contrat
-					{{ contrat|contratStatus|raw }}</h1>
+				<h1 class="h2">Détails de la simulation
+					{% if simulateur.contrat is defined and simulateur.contrat is not null %}
+					{{ simulateur.contrat|contratStatus|raw }}
+					{% endif %}
+				</h1>
 				<hr>
 				<div class="row">
 					<h3 class="h4 text-danger">Utilisateur</h3>
@@ -21,8 +24,8 @@
 						<div class="col-sm-4 text-strong">Nom et prénom(s) :</div>
 						<div class="col-sm-8">
 							<div class="row">
-								<div class="col text-muted">{{ contrat.employe.user.nom }}
-									{{ contrat.employe.user.prenom }}</div>
+								<div class="col text-muted">{{ simulateur.employe.user.nom }}
+									{{ simulateur.employe.user.prenom }}</div>
 							</div>
 						</div>
 					</div>
@@ -30,7 +33,7 @@
 						<div class="col-sm-4 text-strong">email :</div>
 						<div class="col-sm-8">
 							<div class="row">
-								<div class="col text-muted">{{ contrat.employe.user.email }}</div>
+								<div class="col text-muted">{{ simulateur.employe.user.email }}</div>
 							</div>
 						</div>
 					</div>
@@ -38,7 +41,7 @@
 						<div class="col-sm-4 text-strong">Téléphone :</div>
 						<div class="col-sm-8">
 							<div class="row">
-								<div class="col text-muted">{{ contrat.employe.user.telephone }}</div>
+								<div class="col text-muted">{{ simulateur.employe.user.telephone }}</div>
 							</div>
 						</div>
 					</div>
@@ -46,7 +49,7 @@
 						<div class="col-sm-4 text-strong">Type :</div>
 						<div class="col-sm-8">
 							<div class="row">
-								<div class="col text-muted">{{ contrat.employe.user.type }}</div>
+								<div class="col text-muted">{{ simulateur.employe.user.type }}</div>
 							</div>
 						</div>
 					</div>
@@ -60,7 +63,7 @@
 								<div class="col-sm-4 text-strong">Créée le :</div>
 								<div class="col-sm-8">
 									<div class="row">
-										<div class="col text-muted">{{ contrat.simulateur.createdAt|date('d/m/Y') }}</div>
+										<div class="col text-muted">{{ simulateur.createdAt|date('d/m/Y') }}</div>
 									</div>
 								</div>
 							</div>
@@ -68,7 +71,7 @@
 								<div class="col-sm-4 text-strong">Devise :</div>
 								<div class="col-sm-8">
 									<div class="row">
-										<div class="col text-muted">{{ contrat.simulateur.devise }}</div>
+										<div class="col text-muted">{{ simulateur.devise }}</div>
 									</div>
 								</div>
 							</div>
@@ -76,7 +79,7 @@
 								<div class="col-sm-4 text-strong">Taux :</div>
 								<div class="col-sm-8">
 									<div class="row">
-										<div class="col text-muted">{{ contrat.simulateur.devise.taux }}
+										<div class="col text-muted">{{ simulateur.devise.taux }}
 											Ar</div>
 									</div>
 								</div>
@@ -85,8 +88,8 @@
 								<div class="col-sm-4 text-strong">Salaire net souhaité :</div>
 								<div class="col-sm-8">
 									<div class="row">
-										<div class="col text-muted">{{ contrat.simulateur.salaireNet }}
-											{{ contrat.simulateur.devise.symbole }}</div>
+										<div class="col text-muted">{{ simulateur.salaireNet }}
+											{{ simulateur.devise.symbole }}</div>
 									</div>
 								</div>
 							</div>
@@ -251,71 +254,36 @@
 
 				<div class="row p-4 mt-5 border rounded">
 					<div class="row">
-						<div class="col-sm-4 mx-auto h2">Contrat</div>
+						<div class="col-sm-5 mx-auto h2">Relancer l'utilisateur</div>
 					</div>
 
 					{{ form_start(form)}}
 					<div class="row mb-3">
-						<div class="col-sm-4">{{ form_label(form.type)}}</div>
-						<div class="col-sm-8">
+						<div class="col-sm-3">Objet du mail</div>
+						<div class="col-sm-9">
 							<div class="row">
 								<div class="col text-muted">
-									{{ form_widget(form.type)}}
+									{{ form_widget(form.titre)}}
 								</div>
 							</div>
 						</div>
 					</div>
 					<div class="row mb-3">
-						<div class="col-sm-4">{{ form_label(form.dateDebut)}}</div>
-						<div class="col-sm-8">
+						<div class="col-sm-3">{{ form_label(form.contenu)}}</div>
+						<div class="col-sm-9">
 							<div class="row">
 								<div class="col text-muted">
-									{{ form_widget(form.dateDebut)}}
+									{{ form_widget(form.contenu)}}
 								</div>
 							</div>
 						</div>
 					</div>
-					<div class="row mb-3">
-						<div class="col-sm-4">{{ form_label(form.dateFin)}}</div>
-						<div class="col-sm-8">
-							<div class="row">
-								<div class="col text-muted">
-									{{ form_widget(form.dateFin)}}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="row mb-3">
-						<div class="col-sm-4">{{ form_label(form.status)}}</div>
-						<div class="col-sm-8">
-							<div class="row">
-								<div class="col text-muted">
-									{{ form_widget(form.status)}}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="row mb-3">
-						<div class="col-sm-4">{{ form_label(form.commentaire)}}</div>
-						<div class="col-sm-8">
-							<div class="row">
-								<div class="col text-muted">
-									{{ form_widget(form.commentaire)}}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="row mb-3">
-						<div class="col-sm-4"></div>
-						<div class="col-sm-8">
-							<button class="btn btn-success rounded-pill px-5" type="submit">
-								Enregistrer
-							</button>
-						</div>
-					</div>
+
 					<div style="display:none">
 						{{ form_widget(form)}}
 					</div>
+					<button class="btn btn-success rounded-pill px-3 px-sm-5" type="submit"><i class="mx-2 bi bi-send"></i> Envoyer</button>
+
 					{{ form_end(form)}}
 				</div>
 
@@ -327,7 +295,7 @@
 	</div>
 <script src="{{ asset('assets/ckeditor5/ckeditor.js')}}"></script>
 <script>
-    ClassicEditor.create( document.querySelector( '#contrat_commentaire' ) )
+    ClassicEditor.create( document.querySelector( '#notification_profile_contenu' ) )
 </script>
 
 {% endblock %}
