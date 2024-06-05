@@ -279,6 +279,7 @@
         $('.edit-application').click(function(e) {
             e.preventDefault();
             var applicationId = $(this).data('application-id');
+            console.log(applicationId)
             var experienceContainer = $('[data-application-id="' + applicationId + '"]').closest('.application');
             
             saveOriginalContent(applicationId, experienceContainer); // Sauvegarde du contenu original

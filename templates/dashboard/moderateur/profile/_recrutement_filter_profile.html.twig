@@ -1,0 +1,9 @@
+{{ form_start(form, {'attr': {'class': 'form-inline p-4 shadow'}}) }}
+    <div class="input-group">
+        {{ form_widget(form.q, {'attr': {'class': 'form-control'}}) }}
+        <button class="btn btn-dark" type="submit"><i class="mx-2 h5 bi bi-search"></i> Rechercher</button>
+    </div>
+    <div style="display:none;">
+        {{ form_widget(form) }}
+    </div>
+{{ form_end(form) }}

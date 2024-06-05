@@ -1137,6 +1137,10 @@ app_dashboard_moderateur_profile_stat :
     title : Statistiques
     dashboard_title : Statistiques
 
+app_dashboard_moderateur_profile_recrutement : 
+    title : Recrutement
+    dashboard_title : Recrutement
+
 app_dashboard_employes_annonces : 
     title : Toutes les annonces Olona Talents
     dashboard_title : Toutes les annonces Olona Talents
