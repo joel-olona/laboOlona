@@ -9,7 +9,8 @@ use Symfony\Component\Uid\Uuid;
 use App\Entity\CandidateProfile;
 use App\Manager\CandidatManager;
 use App\Data\SearchCandidateData;
-use App\Entity\EntrepriseProfile;
+use App\Entity\Candidate\TarifCandidat;
+use App\Entity\Entreprise\BudgetAnnonce;
 use App\Service\User\UserService;
 use App\Entity\Finance\Simulateur;
 use App\Manager\EntrepriseManager;
@@ -17,6 +18,7 @@ use App\Manager\ModerateurManager;
 use App\Form\Entreprise\AnnonceType;
 use App\Manager\NotificationManager;
 use App\Entity\Entreprise\JobListing;
+use App\Entity\Finance\Devise;
 use App\Service\Mailer\MailerService;
 use Symfony\Component\Intl\Countries;
 use App\Entity\Moderateur\Assignation;
@@ -36,7 +38,7 @@ use App\Repository\Entreprise\JobListingRepository;
 use App\Repository\Candidate\ApplicationsRepository;
 use App\Repository\Moderateur\TypeContratRepository;
 use App\Form\Search\Annonce\EntrepriseAnnonceSearchType;
-use App\Form\Search\Candidat\EntrepriseCandidateSearchType;
+use App\Manager\Finance\EmployeManager;
 use App\Manager\SimulateurEntrepriseManager;
 use App\Repository\Finance\SimulateurRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -62,6 +64,7 @@ class EntrepriseController extends AbstractController
         private AppExtension $appExtension,
         private FavorisRepository $favorisRepository,
         private SimulateurRepository $simulateurRepository,
+        private EmployeManager $employeManager,
         private SimulateurEntrepriseManager $simulateurEntrepriseManager,
     ) {
     }
@@ -152,8 +155,11 @@ class EntrepriseController extends AbstractController
         /** @var User $user */
         $user = $this->userService->getCurrentUser();
         $entreprise = $user->getEntrepriseProfile();
+        $devise = $this->entrepriseManager->getEntrepriseDevise($entreprise);
         $jobListing = new JobListing();
-        $jobListing->setEntreprise($entreprise); // suppose que l'utilisateur connecté est une entreprise
+        $budgetJob = (new BudgetAnnonce())->setCurrency($devise);
+        $jobListing->setEntreprise($entreprise); 
+        $jobListing->setBudgetAnnonce($budgetJob); 
         $jobListing->setDateCreation(new \DateTime());
         $jobListing->setJobId(new Uuid(Uuid::v1()));
         $jobListing->setStatus(JobListing::STATUS_PENDING);
@@ -351,6 +357,31 @@ class EntrepriseController extends AbstractController
             'competences' => $this->candidatManager->getCompetencesSortedByNote($candidateProfile),
             'langages' => $this->candidatManager->getLangagesSortedByNiveau($candidateProfile),
             
+        ]);
+    }
+
+    #[Route('/simulation-candidat/{id}', name: 'app_dashboard_entreprise_simulation_candidat')]
+    public function simulationCandidat(Request $request, CandidateProfile $candidateProfile): Response
+    {
+        $this->checkEntreprise();
+        /** @var User $user */
+        $user = $this->userService->getCurrentUser();
+        $entreprise = $user->getEntrepriseProfile();
+        $deviseEntreprise = $entreprise->getDevise();
+        if(!$deviseEntreprise instanceof Devise){
+            $deviseEntreprise = $this->em->getRepository(Devise::class)->find(1);
+        }
+        if(!$candidateProfile->getTarifCandidat() instanceof TarifCandidat || !$candidateProfile->getTarifCandidat()->getSimulation() instanceof Simulateur){
+            return $this->redirectToRoute('app_dashboard_entreprise_details_candidat', ['id' => $candidateProfile->getId()]);
+        }
+        $simulation = $candidateProfile->getTarifCandidat()->getSimulation();
+        $simu = $this->employeManager->convertSimulationToDevise($simulation, $deviseEntreprise);
+
+        return $this->render('dashboard/entreprise/candidat/simulation.html.twig', [
+            'candidat' => $candidateProfile,
+            'entreprise' => $entreprise,
+            'simulateur' => $simulation,
+            'results' => $this->employeManager->simulate($simu),
         ]);
     }
 
