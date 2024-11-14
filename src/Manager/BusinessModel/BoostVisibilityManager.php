@@ -9,6 +9,7 @@ use App\Entity\CandidateProfile;
 use Symfony\Component\Form\Form;
 use App\Entity\EntrepriseProfile;
 use App\Entity\BusinessModel\Boost;
+use App\Entity\BusinessModel\BoostFacebook;
 use App\Entity\BusinessModel\Credit;
 use App\Entity\BusinessModel\Package;
 use App\Entity\Entreprise\JobListing;
@@ -35,6 +36,21 @@ class BoostVisibilityManager
         $visibilityBoost->setType($boost->getType());
         $visibilityBoost->setBoost($boost);
         $visibilityBoost->setDurationDays($boost->getDurationDays());
+        $this->save($visibilityBoost);
+
+        return $visibilityBoost;
+    }
+
+    public function initBoostvisibilityFacebook(BoostFacebook $boost): BoostVisibility
+    {
+        $visibilityBoost = new BoostVisibility();
+        $visibilityBoost->setStartDate(new \DateTime());
+        $visibilityBoost->setEndDate((new \DateTime())->modify('+'.$boost->getDurationDays().' days'));
+        $visibilityBoost->setType($boost->getType());
+        $visibilityBoost->setBoostFacebook($boost);
+        $visibilityBoost->setDurationDays($boost->getDurationDays());
+        $visibilityBoost->setUser($this->security->getUser());
+        $this->save($visibilityBoost);
 
         return $visibilityBoost;
     }
@@ -46,12 +62,28 @@ class BoostVisibilityManager
         $visibilityBoost->setType($boost->getType());
         $visibilityBoost->setBoost($boost);
         $visibilityBoost->setDurationDays($boost->getDurationDays());
+        $this->save($visibilityBoost);
 
         return $visibilityBoost;
     }
 
-    public function isExpired(BoostVisibility $boostVisibility): bool
+    public function updateFacebook(BoostVisibility $visibilityBoost, BoostFacebook $boost): BoostVisibility
     {
+        $visibilityBoost->setStartDate(new \DateTime());
+        $visibilityBoost->setEndDate((new \DateTime())->modify('+'.$boost->getDurationDays().' days'));
+        $visibilityBoost->setType($boost->getType());
+        $visibilityBoost->setBoostFacebook($boost);
+        $visibilityBoost->setDurationDays($boost->getDurationDays());
+        $this->save($visibilityBoost);
+
+        return $visibilityBoost;
+    }
+
+    public function isExpired(?BoostVisibility $boostVisibility): bool
+    {
+        if($boostVisibility === null){
+            return true;
+        }
         if ($boostVisibility->getEndDate() < new \DateTime()) {
             $prestation = $boostVisibility->getPrestation();
             if($prestation instanceof Prestation){
@@ -78,5 +110,11 @@ class BoostVisibilityManager
             return true;
         }
         return false;
+    }
+
+    public function save(BoostVisibility $boostVisibility): void
+    {
+        $this->em->persist($boostVisibility);
+        $this->em->flush();
     }
 }

@@ -3,8 +3,13 @@
 namespace App\Controller\V2;
 
 use App\Entity\User;
-use App\Entity\Notification;
+use App\Form\V2\AccountType;
 use App\Form\V2\ProfileType;
+use App\Entity\AffiliateTool;
+use App\Entity\AffiliateTool\Category;
+use App\Entity\AffiliateTool\Tag;
+use App\Form\V2\CandidateType;
+use App\Form\V2\RecruiterType;
 use App\Manager\ProfileManager;
 use App\Entity\CandidateProfile;
 use App\Manager\CandidatManager;
@@ -13,27 +18,29 @@ use App\Entity\ModerateurProfile;
 use App\Entity\Vues\CandidatVues;
 use App\Service\User\UserService;
 use Symfony\UX\Turbo\TurboBundle;
-use App\Entity\BusinessModel\Credit;
+use App\Entity\Formation\Playlist;
 use App\Manager\NotificationManager;
-use App\Entity\Entreprise\JobListing;
+use App\Manager\AffiliateToolManager;
 use App\Service\Mailer\MailerService;
 use App\Entity\Moderateur\ContactForm;
 use App\Form\Moderateur\ContactFormType;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\AffiliateToolRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Form\Boost\CreateCandidateBoostType;
 use App\Form\Boost\CreateRecruiterBoostType;
 use App\Manager\BusinessModel\CreditManager;
 use App\Entity\BusinessModel\BoostVisibility;
+use App\Repository\Formation\VideoRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\BusinessModel\PurchasedContact;
-use App\Form\V2\AccountType;
-use App\Form\V2\CandidateType;
-use App\Form\V2\RecruiterType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\Formation\PlaylistRepository;
+use App\Form\Search\AffiliateTool\ToolSearchType;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Manager\BusinessModel\BoostVisibilityManager;
+use App\Service\ActivityLogger;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -51,6 +58,8 @@ class DashboardController extends AbstractController
         private MailerService $mailerService,
         private UrlGeneratorInterface $urlGenerator,
         private RequestStack $requestStack,
+        private AffiliateToolManager $affiliateToolManager,
+        private ActivityLogger $activityLogger,
         private BoostVisibilityManager $boostVisibilityManager,
     ){}
 
@@ -124,7 +133,7 @@ class DashboardController extends AbstractController
             if ($request->getPreferredFormat() === TurboBundle::STREAM_FORMAT) {
                 $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
 
-                return $this->render('v2/dashboard/profile/update.html.twig', [
+                return $this->render('v2/dashboard/provider/update.html.twig', [
                     'formProfileUser' => $formProfileUser->createView(),
                     'success' => $success,
                 ]);
@@ -148,14 +157,14 @@ class DashboardController extends AbstractController
             if ($request->getPreferredFormat() === TurboBundle::STREAM_FORMAT) {
                 $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
 
-                return $this->render('v2/dashboard/profile/update.html.twig', [
+                return $this->render('v2/dashboard/provider/update.html.twig', [
                     'formProfileUser' => $formProfileUser->createView(),
                     'success' => false,
                 ]);
             }
         }
 
-        return $this->render('v2/dashboard/profile/create.html.twig', [
+        return $this->render('v2/dashboard/provider/create.html.twig', [
             'form' => $form->createView(),
             'formProfileUser' => $formProfileUser->createView(),
         ]);
@@ -184,7 +193,7 @@ class DashboardController extends AbstractController
             return $this->redirectToRoute('app_v2_dashboard_boost_profile', ['id' => $user->getId()]);
         }
         
-        return $this->render('v2/dashboard/profile/contact.html.twig', [
+        return $this->render('v2/dashboard/provider/contact.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -210,7 +219,7 @@ class DashboardController extends AbstractController
                     $visibilityBoost = $this->boostVisibilityManager->init($boostOption);
                 }
                 $visibilityBoost = $this->boostVisibilityManager->update($visibilityBoost, $boostOption);
-                $response = $this->creditManager->adjustCredits($user, $boostOption->getCredit());
+                $response = $this->creditManager->adjustCredits($user, $boostOption->getCredit(), "Boost Profil Olona Talents");
                 
                 $message = 'Crédits insuffisants pour ce boost.';
                 $success = true;
@@ -237,9 +246,8 @@ class DashboardController extends AbstractController
 
             if($request->getPreferredFormat() === TurboBundle::STREAM_FORMAT){
                 $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
-                // dd($message, $status, $success);
     
-                return $this->render('v2/dashboard/profile/update.html.twig', [
+                return $this->render('v2/dashboard/provider/update.html.twig', [
                     'message' => $message,
                     'success' => $success,
                     'status' => $status,
@@ -256,125 +264,9 @@ class DashboardController extends AbstractController
             ], 200);
         }
         
-        return $this->render('v2/dashboard/profile/boost.html.twig', [
+        return $this->render('v2/dashboard/provider/boost.html.twig', [
             'form' => $form->createView(),
         ]);
-    }
-    
-    #[Route('/contacts', name: 'app_v2_contacts')]
-    public function contact(Request $request): Response
-    {
-        /** @var User $currentUser */
-        $currentUser = $this->userService->getCurrentUser();
-        $purchasedContacts = $this->em->getRepository(PurchasedContact::class)->findBy([
-            'buyer' => $currentUser,
-            'isAccepted'  => true,
-        ], ['id' => 'DESC']);
-        
-        return $this->render('v2/dashboard/contacts/index.html.twig', [
-            'contacts' => $this->paginator->paginate(
-                $purchasedContacts,
-                $request->query->getInt('page', 1),
-                10
-            )
-        ]);
-    }
-
-    #[Route('/contact/view/{purchasedContact}', name: 'app_v2_contact_view')]
-    public function view(Request $request, PurchasedContact $purchasedContact): Response
-    {
-        return $this->render('v2/dashboard/contacts/view.html.twig', [
-            'contact' => $purchasedContact->getContact(),
-        ]);
-    }
-
-    #[Route('/contact/delete/{contact}', name: 'app_v2_contact_delete', methods: ['POST', 'GET'])]
-    public function delete(Request $request, PurchasedContact $contact): Response
-    {
-        $contactId = $contact->getId();
-        $message = "La contact a bien été supprimée";
-        $this->em->remove($contact);
-        $this->em->flush();
-        if($request->getPreferredFormat() === TurboBundle::STREAM_FORMAT){
-            $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
-            return $this->render('v2/dashboard/contacts/delete.html.twig', [
-                'contactId' => $contactId,
-                'message' => $message,
-            ]);
-        }
-
-        $referer = $request->headers->get('referer');
-        return $referer ? $this->redirect($referer) : $this->redirectToRoute('app_v2_dashboard');
-    }
-
-    #[Route('/show-contact', name: 'app_v2_contact_show', methods: ['POST', 'GET'])]
-    public function showContact(Request $request): Response
-    {
-        /** @var User $currentUser */
-        $currentUser = $this->userService->getCurrentUser();
-        $contactId = $request->request->get('contactId');
-        $contact = $this->em->getRepository(User::class)->find($contactId);
-        $message = 'Demande d\'ajout dans votre réseau professionnel envoyée';
-        $success = true;
-        $status = 'Succès';
-    
-        $creditAmount = $this->profileManager->getCreditAmount(Credit::ACTION_VIEW_CANDIDATE);
-        $response = $this->creditManager->adjustCredits($currentUser, $creditAmount);
-    
-        $recruiter = $this->em->getRepository(EntrepriseProfile::class)->findOneBy(['entreprise' => $contactId]);
-        $candidat = $this->em->getRepository(CandidateProfile::class)->findOneBy(['candidat' => $contactId]);
-        
-        if (isset($response['error'])) {
-            $message = $response['error'];
-            $success = false;
-            $status = 'Echec';
-        }else{
-            $purchasedContact = new PurchasedContact();
-            $purchasedContact->setBuyer($currentUser);
-            $purchasedContact->setPurchaseDate(new \DateTime());
-            $purchasedContact->setContact($contact);
-            $purchasedContact->setPrice($creditAmount);
-            $purchasedContact->setIsAccepted(false);
-            $this->em->persist($purchasedContact);
-            $this->em->flush();
-            $urlAccepted = $this->urlGenerator->generate(
-                'app_v2_dashboard_notification_accept',
-                ['id' => $purchasedContact->getId()], 
-                UrlGeneratorInterface::ABSOLUTE_URL
-            );
-            $urlRefused = $this->urlGenerator->generate(
-                'app_v2_dashboard_notification_refuse',
-                ['id' => $purchasedContact->getId()], 
-                UrlGeneratorInterface::ABSOLUTE_URL
-            );
-            $this->notificationManager->createNotification(
-                $currentUser, 
-                $contact, 
-                Notification::TYPE_CONTACT,
-                'Nouvelle demande de contact',
-                ucfirst(substr($currentUser->getNom(), 0, 1)).'. '.$currentUser->getPrenom(). ' souhaite vous contacter pour une opportunité de collaboration. Acceptez-vous de partager vos coordonnées ? <br>
-                <a class="btn btn-primary rounded-pill my-3 px-4" href="'.$urlAccepted.'">Accepter</a>  <a class="btn btn-danger rounded-pill my-3 px-3" href="'.$urlRefused.'">Refuser</a>
-                '
-            );
-        }
-
-        
-        if($request->getPreferredFormat() === TurboBundle::STREAM_FORMAT){
-            $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
-
-            return $this->render('v2/turbo/live.html.twig', [
-                'message' => $message,
-                'success' => $success,
-                'status' => $status,
-                'recruiter' => $recruiter,
-                'candidat' => $candidat,
-                'user' => $contact,
-                'credit' => $currentUser->getCredit()->getTotal(),
-            ]);
-        }
-
-        $referer = $request->headers->get('referer');
-        return $referer ? $this->redirect($referer) : $this->redirectToRoute('app_v2_dashboard');
     }
 
     #[Route('/profile/view/{id}', name: 'app_v2_profile_view')]
@@ -423,33 +315,6 @@ class DashboardController extends AbstractController
         ]);
     }
 
-    #[Route('/job-offer/view/{id}', name: 'app_v2_job_offer_view')]
-    public function viewJobOffer(Request $request, int $id): Response
-    {
-        /** @var User $currentUser */
-        $currentUser = $this->userService->getCurrentUser();
-        $annonce = $this->em->getRepository(JobListing::class)->find($id);
-        $candidat = $this->userService->checkProfile();
-        if($candidat instanceof CandidateProfile){
-            return $this->redirectToRoute('app_v2_candidate_view_job_offer', ['id' => $id]);
-        }
-        if(!$annonce instanceof JobListing){
-            $this->addFlash('error', 'Annonce introuvable.');
-            return $this->redirectToRoute('app_v2_candidate_job_offer');
-        }
-
-        $contactRepository = $this->em->getRepository(PurchasedContact::class);
-        $purchasedContact = $contactRepository->findOneBy([
-            'buyer' => $currentUser,
-            'contact' => $annonce->getEntreprise()->getEntreprise(),
-        ]);
-
-        return $this->render('v2/dashboard/job_offer/details.html.twig', [
-            'annonce' => $annonce,
-            'purchasedContact' => $purchasedContact,
-        ]);
-    }
-
     #[Route('/contact', name: 'app_v2_contact')]
     public function support(Request $request): Response
     {
@@ -474,6 +339,101 @@ class DashboardController extends AbstractController
 
         return $this->render('v2/dashboard/support.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/centre-de-formation', name: 'app_v2_dashboard_formation')]
+    public function formation(PlaylistRepository $playlistRepository, VideoRepository $videoRepository): Response
+    {
+        return $this->render('v2/dashboard/formation.html.twig', [
+            'playlists' => $playlistRepository->findAll(),
+            'videos' => $videoRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/centre-de-formation/playlist/{id}', name: 'app_v2_dashboard_formation_playlist_view')]
+    public function viewPlaylist(Playlist $playlist): Response
+    {
+        return $this->render('v2/dashboard/_playlist.html.twig', [
+            'playlist' => $playlist,
+        ]);
+    }
+
+    #[Route('/outils-ai', name: 'app_v2_dashboard_ai_tools')]
+    public function aiToolsIndex(Request $request): Response
+    {
+        $query = $request->query->get('q');
+        $size = $request->query->getInt('size', 9);
+        $from = $request->query->getInt('from', 0);
+        $form = $this->createForm(ToolSearchType::class);
+        $form->handleRequest($request);
+        $params = [];
+        $data = $this->affiliateToolManager->getAllAITools($from, $size, $query);
+        $params['aiTools'] = $data;
+        $params['from'] = $from;
+        $params['form'] = $form->createView();
+        $params['hasMore'] = count($data) === $size;
+        if ($form->isSubmitted() && $form->isValid()) {
+            $nom = $form->get('nom')->getData();
+            $data = $this->affiliateToolManager->findSearchTools($nom);
+            $params['aiTools'] = $data;
+            if ($request->isXmlHttpRequest()) {
+                $htmlContent = $this->renderView("v2/dashboard/ai_tools/_part_ai_tools_list.html.twig", $params);
+                return $this->json([
+                    'content' => $htmlContent,
+                    'hasMore' => $params['hasMore'],
+                ]);
+            }
+        }
+        
+        if ($request->isXmlHttpRequest()) {
+            $htmlContent = $this->renderView("v2/dashboard/ai_tools/_part_ai_tools_list.html.twig", $params);
+            return $this->json([
+                'content' => $htmlContent,
+                'hasMore' => $params['hasMore'],
+            ]);
+        }
+
+        return $this->render('v2/dashboard/ai_tools/index.html.twig', $params);
+    }
+
+    #[Route('/outils-ai/{slug}', name: 'app_v2_dashboard_ai_tool_view')]
+    public function aiTool(AffiliateTool $tool, AffiliateToolRepository $affiliateToolRepository): Response
+    {
+        $tools = $tool->getRelatedIds();
+        $relateds = [];
+        if(!empty($tools)){
+            foreach ($tools as $key => $value) {
+                $relateds[] = $affiliateToolRepository->findOneBy(['customId' => $value]); 
+            }
+        }
+
+        $currentUser = $this->userService->getCurrentUser();
+        if ($currentUser) {
+            $this->activityLogger->logAiToolsViewActivity($currentUser, $tool->getNom());
+        }
+
+        return $this->render('v2/dashboard/ai_tools/view.html.twig', [
+            'aiTool' => $tool,
+            'relateds' => $relateds,
+        ]);
+    }
+
+    #[Route('/outils-ai/categorie/{slug}', name: 'app_v2_dashboard_ai_tool_category')]
+    public function aiToolCategory(Category $category): Response
+    {        
+        return $this->render('v2/dashboard/ai_tools/category.html.twig', [
+            'category' => $category,
+            'aiTools' => $this->em->getRepository(AffiliateTool::class)->getAffiliateToolsByCategory($category),
+        ]);
+    }
+
+    #[Route('/outils-ai/tag/{slug}', name: 'app_v2_dashboard_ai_tool_tag')]
+    public function aiToolTag(Tag $tag): Response
+    {        
+        return $this->render('v2/dashboard/ai_tools/tag.html.twig', [
+            'tag' => $tag,
+            'aiTools' => $this->em->getRepository(AffiliateTool::class)->getAffiliateToolsByTag($tag),
         ]);
     }
 }

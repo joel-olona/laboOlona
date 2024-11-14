@@ -1,7 +1,4 @@
-<div class="text-small my-4">
-    {{ totalCandidatesResults }} resultat(s)
-</div>
-{% for item in candidats %}
+ {% for item in candidats %}
     <div class="d-flex w-100 align-items-center justify-content-between">
         <!-- Avatar container -->
         <div class="rounded-circle" style="
@@ -15,13 +12,24 @@
 
         <!-- Text content -->
         <div class="flex-grow-1 ms-3">
-			{% if app.user %}
-				<a href="{{ path('app_v2_recruiter_view_profile', {'id': item['_id']})}}">{{ generatePseudoById(item['_id']) }} </a>
-			{% else %}
+            {% if app.user %}
+                <a href="{{ path('app_v2_recruiter_view_profile', {'id': item['_id']})}}">{{ generatePseudoById(item['_id']) }} </a>
+            {% else %}
                 <a href="#" data-id="{{ item['_id'] }}" class="candidate-link"><strong class="mb-1">{{ generatePseudoById(item['_id']) }} </strong></a>
             {% endif %}
             <div class="col-10 mb-1 fw-semibold">{{ item['_source'].titre|upper }}</div>
         </div>
+
+            {% if app.user.entrepriseProfile is defined and app.user.entrepriseProfile is not null %}
+            <div id="row_favorite_{{ item['_id'] }}">
+                {% if isLikedByRecruiter(app.user.entrepriseProfile, item['_id']) %}
+                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 remove-from-favorites" data-href="{{ path('app_v2_recruiter_favorite_delete_candidate', {'id':item['_id']}) }}"><i class="bi bi-star-fill me-2"></i>Favori</button>
+                {% else %}
+                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 add-to-favorites" data-href="{{ path('app_v2_recruiter_favorite_add_candidate', {'id':item['_id']}) }}"><i class="bi bi-star me-2"></i>Ajouter</button>
+                {% endif %}
+            </div>
+            {% endif %}
+            
         <!-- Date or any other information -->
         <span data-candidate="{{ item['_id'] }}" style="display:none">
         
@@ -112,10 +120,10 @@
             {% for field, fragments in item.highlight %}
                 {% if not displayed %}
                     {% if fragments|length > 1 %}
-                        {{ fragments[1]|raw }} {# Affiche le deuxième fragment s’il existe #}
+                        {{ fragments[1]|stripDivP|raw }} 
                         {% set displayed = true %}
                     {% elseif fragments|length > 0 %}
-                        {{ fragments[0]|raw }} {# Affiche le premier fragment s’il n’existe qu’un seul #}
+                        {{ fragments[0]|stripDivP|raw }} 
                         {% set displayed = true %}
                     {% endif %}
                 {% endif %}
@@ -143,7 +151,6 @@
                     {% if app.user.type is same as(constant('App\\Entity\\User::ACCOUNT_ENTREPRISE')) %}
                         <li><a class="dropdown-item add-to-favorites" data-href="{{ path('app_v2_recruiter_favorite_add_candidate', {'id':item['_id']}) }}" href="#" style="cursor:pointer;">Ajouter comme favoris</a></li>
                     {% endif %}
-                    <li><a class="dropdown-item" href="{{ path('app_v2_recruiter_favorite_add_candidate', {'id':item['_id']}) }}" style="cursor:pointer;">Voir le contact</a></li>
                 {% else %}
                 <li><a class="dropdown-item candidate-link" data-id="{{ item['_id'] }}" href="#">Aperçu</a></li>
                 <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#connectingModal" data-bs-href="{{ path('app_v2_recruiter_favorite_add_candidate', {'id':item['_id']}) }}" href="#" style="cursor:pointer;">Ajouter comme favoris</a></li>
@@ -155,30 +162,3 @@
     </div>
 {% endfor %}
 
-{% if totalCandidatesResults > 0 %}
-<nav aria-label="Page navigation">
-    <ul class="pagination">
-        {% if currentPage > 1 %}
-        <li class="page-item">
-            <a class="page-link" href="{{ path('app_olona_talents_result', {q: searchQuery, page: currentPage - 1, size: size}) }}" aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-            </a>
-        </li>
-        {% endif %}
-
-        {% for num in 1..totalPages %}
-        <li class="page-item {{ currentPage == num ? 'active' : '' }}">
-            <a class="page-link" href="{{ path('app_olona_talents_result', {q: searchQuery, page: num, size: size}) }}">{{ num }}</a>
-        </li>
-        {% endfor %}
-
-        {% if currentPage < totalPages %}
-        <li class="page-item">
-            <a class="page-link" href="{{ path('app_olona_talents_result', {q: searchQuery, page: currentPage + 1, size: size}) }}" aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-            </a>
-        </li>
-        {% endif %}
-    </ul>
-</nav>
-{% endif %}

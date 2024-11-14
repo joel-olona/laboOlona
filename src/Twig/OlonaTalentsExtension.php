@@ -2,14 +2,16 @@
 
 namespace App\Twig;
 
-use App\Entity\CandidateProfile;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use App\Entity\CandidateProfile;
 use App\Entity\EntrepriseProfile;
+use App\Entity\Entreprise\Favoris;
 use App\Entity\Entreprise\JobListing;
 use Symfony\Component\Intl\Countries;
 use Twig\Extension\AbstractExtension;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Bundle\SecurityBundle\Security;
 use App\Repository\ReferrerProfileRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -33,6 +35,8 @@ class OlonaTalentsExtension extends AbstractExtension
             new TwigFilter('reffererStatusLabel', [$this, 'reffererStatusLabel']),
             new TwigFilter('countryName', [$this, 'countryName']),
             new TwigFilter('displayAge', [$this, 'displayAge']),
+            new TwigFilter('stripDivP', [$this, 'stripDivP'], ['is_safe' => ['html']]),
+            new TwigFilter('getFirstCommonSecteur', [$this, 'getFirstCommonSecteur']),
         ];
     }
 
@@ -42,6 +46,7 @@ class OlonaTalentsExtension extends AbstractExtension
             new TwigFunction('highlightKeywordsEntreprise', [$this, 'highlightKeywordsEntreprise']),
             new TwigFunction('highlightKeywordsAnnonce', [$this, 'highlightKeywordsAnnonce']),
             new TwigFunction('generatePseudoById', [$this, 'generatePseudoById']),
+            new TwigFunction('isLikedByRecruiter', [$this, 'isLikedByRecruiter']),
         ];
     }
     
@@ -122,6 +127,47 @@ class OlonaTalentsExtension extends AbstractExtension
         $paddedId = sprintf('%04d', $id);
 
         return $letters . $paddedId;
+    }
+
+
+    public function isLikedByRecruiter(EntrepriseProfile $recruiter, int $id):bool
+    {
+        $candidat = $this->em->getRepository(CandidateProfile::class)->find($id);
+        if($candidat){
+            $liked = $this->em->getRepository(Favoris::class)->findOneBy([
+                'entreprise' => $recruiter,
+                'candidat' => $candidat
+            ]);
+            if($liked){
+                return true;
+            }
+            return false;
+        }
+
+        return false;
+    }
+
+    public function stripDivP(string $content): string
+    {
+        // Étape 1: Fermez correctement les balises <strong> ouvertes sans correspondance
+        // Rechercher les balises <strong> sans balise fermante correspondante dans l'ordre et les supprimer
+        while (preg_match('#<strong\b[^>]*>(?![^<]*</strong>)#i', $content)) {
+            $content = preg_replace('#<strong\b[^>]*>(?![^<]*</strong>)#i', '', $content);
+        }
+
+        // Étape 2: Supprime toutes les balises sauf <strong> correctement fermées
+        // Remplace toutes les balises autres que <strong> et </strong>
+        $content = preg_replace('#<(?!\/?strong\b)[^>]*>#i', '', $content);
+
+        return $content;
+    }
+
+    public function getFirstCommonSecteur($secteurs1, $secteurs2)
+    {
+        $secteurs1 = $secteurs1 instanceof Collection ? $secteurs1->toArray() : $secteurs1;
+        $secteurs2 = $secteurs2 instanceof Collection ? $secteurs2->toArray() : $secteurs2;
+        $common = array_intersect($secteurs1, $secteurs2);
+        return !empty($common) ? reset($common) : (empty($secteurs1) ? "Aucun secteur" : $secteurs1[0]);
     }
 
 }

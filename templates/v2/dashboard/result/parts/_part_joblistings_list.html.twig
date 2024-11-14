@@ -1,0 +1,61 @@
+{% if joblistings_boost is defined %}
+{% include "v2/result/boost_annonces.html.twig" %}
+{% endif %}
+<div class="card position-relative text-center d-none d-md-block">
+    <a href="{{ path('app_v2_contact') }}">
+        <img class="img-fluid" src="{{ asset('images/espace-pub-horizontal.webp')}}">
+    </a>
+</div>
+
+<div class="m-4 card position-relative text-center d-block d-md-none">
+	<a href="{{ path('app_v2_contact') }}">
+		<img class="img-fluid" src="{{ asset('images/Ot-votrepubici-verticalbis.webp')}}">
+	</a>
+</div>
+
+{% for job in joblistings %}
+	<div class="card my-3 small px-3 px-sm-5 py-4">
+		<h2 class="fs-6">
+			{% if app.user %}
+				<a href="{{ path('app_v2_candidate_view_job_offer', {'id': job.id })}}">
+					{{ job.titre }}
+				</a>
+			{% else %}
+				<span style="cursor:pointer;" class="annonce-link" data-id="{{ job.id }}">{{ job.titre }}</span>
+			{% endif %}
+		</h2>
+		<div class="small">
+			{{ job.shortDescription|raw }}
+		</div>
+		<div class="small">
+			<p class="small fw-light">
+				<span class="badge bg-info rounded-pill px-2">{{ job.typeContrat }}</span>
+				<span class="small text-center mx-2">|</span>
+				<i class="bi bi-hourglass-split"></i>
+				Publiée le
+				{{ job.dateCreation|date('d/m/Y') }}
+				<span class="small text-center mx-2">|</span>
+				<i class="bi bi-eye"></i>
+				{{ job.annonceVues|length }}
+				vues
+				<span class="small text-center mx-2">|</span>
+				<i class="bi bi-bookmark-check"></i>
+				{{ job.applications|length }}
+				offres
+			</p>
+		</div>
+		<div class="d-flex ms-auto small">
+			{% if app.user %}
+				<a class="btn btn-sm btn-primary rounded-pill px-3 me-2" href="{{ path('app_v2_candidate_view_job_offer', {'id': job.id })}}">Plus de details</a>
+			{% else %}
+				<button class="btn btn-sm btn-primary rounded-pill px-3 me-2 annonce-link" type="button" data-id="{{ job.id }}">Plus de details</button>
+			{% endif %}
+		</div>
+		<div class="">
+        	<span class="position-absolute top-0 start-50 px-3 translate-middle badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis rounded-pill"><i class="bi bi-tags"></i> {{ job.secteur.nom}}</span>
+		</div>
+	</div>
+	<span data-annonce="{{ job.id }}" style="display:none">
+		{% include "v2/preview/_prev_joblistings.html.twig" %}
+	</span>
+{% endfor %}

@@ -481,7 +481,6 @@ class CandidateProfileRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
-
     public function findProfilesForReport()
     {
         $queryBuilder = $this->createQueryBuilder('c');
@@ -497,7 +496,7 @@ class CandidateProfileRepository extends ServiceEntityRepository
             ->setParameter('statusValid', CandidateProfile::STATUS_VALID)
             ->setParameter('statusFeatured', CandidateProfile::STATUS_FEATURED)
             ->setParameter('isGenerated', false)
-            ->setMaxResults(5)
+            ->setMaxResults(6)
             ->orderBy('c.id', 'DESC')
             ->getQuery();
             
@@ -509,6 +508,25 @@ class CandidateProfileRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('cp')
             ->where('cp.isGeneretated = :isGeneretated')
             ->setParameter('isGeneretated', true)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findExpiredPremium()
+    {
+        return $this->createQueryBuilder('c')
+            ->innerJoin('c.boostVisibility', 'b') 
+            ->andWhere('b.endDate < :now')        
+            ->setParameter('now', new \DateTime())
+            ->getQuery()                          
+            ->getResult(); 
+    }
+
+    public function findValidProfiles()
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.status = :statusValid')
+            ->setParameter('statusValid', CandidateProfile::STATUS_VALID)
             ->getQuery()
             ->getResult();
     }

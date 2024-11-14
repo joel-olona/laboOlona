@@ -4,8 +4,6 @@ namespace App\Form;
 
 use App\Entity\Secteur;
 use App\Entity\Prestation;
-use App\Entity\CandidateProfile;
-use App\Entity\EntrepriseProfile;
 use App\Entity\BusinessModel\Boost;
 use App\Entity\Candidate\Competences;
 use Symfony\Component\Form\FormEvent;
@@ -14,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\Prestation\TypePrestation;
 use App\Form\Prestation\AvailabilityType;
+use App\Entity\BusinessModel\BoostFacebook;
 use App\Form\Prestation\TarifPrestationType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -46,18 +45,24 @@ class PrestationType extends AbstractType
         $builder
             ->add('titre', TextType::class, [
                 'required' => false,
+                'label' => 'Titre (*)',
                 'constraints' => new Sequentially([
                     new NotBlank(message:'Le titre est obligatoire.'),
                     new Length(
                         min: 2,
-                        max: 50,
+                        max: 100,
                         minMessage: 'Le titre est trop court',
-                        maxMessage: 'Le titre ne doit pas depasser 50 characters',
+                        maxMessage: 'Le titre ne doit pas depasser 100 characters',
                     ),
                 ]),
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Entrez un titre clair et concis pour la prestation (2 à 50 caractères).',
             ])
             ->add('description', TextareaType::class, [
                 'required' => false,
+                'label' => 'Description (*)',
                 'constraints' => new Sequentially([
                     new NotBlank(message:'La description est obligatoire.'),
                     new Length(
@@ -65,6 +70,10 @@ class PrestationType extends AbstractType
                         minMessage: 'La description est trop court',
                     ),
                 ]),
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Décrivez en détail la prestation. Cela aidera les utilisateurs à comprendre ce que vous proposez.',
                 'attr' => [
                     'rows' => 6,
                     'class' => 'ckeditor-textarea'
@@ -72,9 +81,26 @@ class PrestationType extends AbstractType
             ])
             ->add('boost', EntityType::class, [
                 'class' => Boost::class,
+                'attr' => ['class' => 'boost-select radio-grid', 'data-html' => true],
                 'choices' => $this->entityManager->getRepository(Boost::class)->findBy(['type' => $options['boostType']]),
                 'choice_label' => function ($boost) {
                     return $boost->getName().' ('.$boost->getCredit().' crédits)'; 
+                },
+                'choice_attr' => function($boost) {
+                    return ['data-content' => $boost->getDescription()];
+                },
+                'expanded' => true,  
+                'required' => false, 
+                'placeholder' => 'Pas de boost',
+                'label' => false,
+                'help' => 'Choisissez un boost pour augmenter la visibilité de votre prestation (optionnel).',
+            ])
+            ->add('boostFacebook', EntityType::class, [
+                'class' => BoostFacebook::class,
+                'attr' => ['class' => 'boost-select radio-grid', 'data-html' => true],
+                'choices' => $this->entityManager->getRepository(BoostFacebook::class)->findBy(['type' => 'OT_PLUS_FB']),
+                'choice_label' => function ($boostFB) {
+                    return $boostFB->getName().' ('.$boostFB->getCredit().' crédits)'; 
                 },
                 'expanded' => true,  
                 'required' => false, 
@@ -84,23 +110,44 @@ class PrestationType extends AbstractType
             ->add('tarifPrestation', TarifPrestationType::class, [
                 'required' => false,
                 'label' => 'Tarif proposé',
+                'help' => 'Entrez le tarif que vous proposez pour cette prestation.',
             ])
             ->add('modalitesPrestation', ChoiceType::class, [
-                'choices' => Prestation::CHOICE_MODALITE
+                'choices' => Prestation::CHOICE_MODALITE,
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Sélectionnez les modalités de prestation (en présentiel, à distance, etc.).',
             ])
-            ->add('specialisations')
-            ->add('medias')
-            ->add('evaluations')
-            ->add('disponibilites')
+            ->add('specialisations', null, [
+                'help' => 'Indiquez les spécialités liées à cette prestation.',
+            ])
+            ->add('medias', null, [
+                'help' => 'Ajoutez des médias ou fichiers pour illustrer votre prestation (images, documents, etc.).',
+            ])
+            ->add('evaluations', null, [
+                'help' => 'Ajoutez les évaluations liées à cette prestation, si disponible.',
+            ])
+            ->add('disponibilites', null, [
+                'help' => 'Indiquez vos disponibilités pour cette prestation.',
+            ])
             ->add('availability', AvailabilityType::class, [
                 'required' => false,
                 'label' => 'Disponibilité',
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Choisissez les jours et heures où vous êtes disponible pour cette prestation.',
             ])
             ->add('status', ChoiceType::class, [
                 'choices' => Prestation::CHOICE_STATUS
             ])
             ->add('motsCles', TextareaType::class, [
                 'required' => false, 
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Ajoutez des mots-clés pour améliorer la recherche de votre prestation.',
                 'attr' => [
                     'rows' => 6,
                     'class' => 'ckeditor-textarea'
@@ -110,63 +157,86 @@ class PrestationType extends AbstractType
                 'class' => TypePrestation::class,
                 'choice_label' => 'name',
                 'label' => 'Type de service',
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Sélectionnez le type de prestation que vous proposez.',
                 'autocomplete' => true,
                 'expanded' => false,
                 'multiple' => false,
             ])
             ->add('portfolioLinks', TextType::class, [
                 'required' => false,
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Ajoutez un lien vers votre portfolio ou exemples de projets (optionnel).',
             ])
             ->add('temoignages')
             ->add('contactTelephone', TextType::class, [
                 'required' => false,
+                'label' => 'Téléphone (*)',
                 'constraints' => new Sequentially([
                     new NotBlank(message:'Le contact est obligatoire.'),
                 ]),
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Numéro de téléphone où vous pouvez être contacté.',
             ])
             ->add('contactEmail', EmailType::class, [
                 'required' => false,
+                'label' => 'Mail de contact (*)',
                 'constraints' => new Sequentially([
                     new NotBlank(message:'Le mail est obligatoire.'),
                 ]),
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Entrez une adresse e-mail pour vous contacter.',
             ])
             ->add('contactReseauxSociaux', TextType::class, [
                 'required' => false,
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Entrez des liens vers vos profils sur les réseaux sociaux (LinkedIn, Facebook, etc.).',
             ])
             ->add('preferencesCommunication', TextType::class, [
                 'required' => false,
+                'label' => 'Préférence de communication (*)',
                 'constraints' => new Sequentially([
                     new NotBlank(message:'Champ obligatoire.'),
                 ]),
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Précisez vos préférences pour être contacté (par téléphone, e-mail, etc.).',
             ])
             ->add('conditionsParticulieres', TextareaType::class, [
                 'required' => false, 
                 'attr' => [
                     'rows' => 6,
                     'class' => 'ckeditor-textarea'
-                ]
+                ],
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Indiquez les conditions spécifiques pour cette prestation (si applicable).',
             ])
             ->add('engagementQualite', TextareaType::class, [
                 'required' => false, 
                 'attr' => [
                     'rows' => 6,
                     'class' => 'ckeditor-textarea'
-                ]
-            ])
-            ->add('agreeTerms', CheckboxType::class, [
-                'label' => false,
-                'mapped' => false,
-                'constraints' => [
-                    new IsTrue([
-                        'message' => 'Vous devriez accepter nos conditions.',
-                    ]),
                 ],
-                'attr' => [
-                    'label' => 'J\'accepte les termes et conditions.',
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
                 ],
+                'help' => 'Décrivez vos engagements qualité pour cette prestation.',
             ])
             ->add('competences', TextType::class, [
-                'label' => 'Spécialisations',
+                'label' => 'Spécialisations (*)',
                 'autocomplete' => true,
                 'attr' => [
                     'data-controller' => 'technical-add-autocomplete',
@@ -186,9 +256,14 @@ class PrestationType extends AbstractType
                 'autocomplete_url' => '/autocomplete/competences_autocomplete_field',
                 'no_results_found_text' => 'Aucun résultat',
                 'no_more_results_text' => 'Plus de résultats',
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Indiquez vos compétences et spécialisations pour cette prestation.',
             ])
             ->add('secteurs', EntityType::class, [
                 'class' => Secteur::class,
+                'label' => 'Secteur d\'activité (*)',
                 'choice_label' => function(?Secteur $secteur) {
                     return $secteur ? $secteur->getNom() : '';
                 },
@@ -199,6 +274,10 @@ class PrestationType extends AbstractType
                         'message' => 'Vous devriez choisir un secteur.',
                     ]),
                 ],
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Sélectionnez le secteur d\'activité pour cette prestation.',
             ])
             ->add('file', FileType::class, [
                 'required' => false,
@@ -215,6 +294,10 @@ class PrestationType extends AbstractType
                         ],
                     ])
                 ],
+                'label_attr' => [
+                    'class' => 'fw-bold fs-6' 
+                ],
+                'help' => 'Téléchargez une image ou un fichier (JPEG, PNG, BMP). Taille maximale : 2 Mo.',
             ])
         ;
 

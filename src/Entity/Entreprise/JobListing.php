@@ -3,6 +3,7 @@
 namespace App\Entity\Entreprise;
 
 use App\Entity\BusinessModel\Boost;
+use App\Entity\BusinessModel\BoostFacebook;
 use App\Entity\BusinessModel\BoostVisibility;
 use App\Entity\Candidate\Applications;
 use App\Entity\Candidate\Competences;
@@ -162,11 +163,14 @@ class JobListing
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $cleanDescription = null;
 
-    #[ORM\ManyToOne(inversedBy: 'jobListing')]
-    private ?BoostVisibility $boostVisibility = null;
-
     #[ORM\ManyToOne(inversedBy: 'jobListings')]
     private ?Boost $boost = null;
+
+    #[ORM\ManyToOne(inversedBy: 'jobListings')]
+    private ?BoostFacebook $boostFacebook = null;
+
+    #[ORM\OneToMany(mappedBy: 'jobListing', targetEntity: BoostVisibility::class)]
+    private Collection $boostVisibilities;
 
     public function __toString()
     {
@@ -181,6 +185,7 @@ class JobListing
         $this->langues = new ArrayCollection();
         $this->assignations = new ArrayCollection();
         $this->referrals = new ArrayCollection();
+        $this->boostVisibilities = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -650,18 +655,6 @@ class JobListing
         return $this;
     }
 
-    public function getBoostVisibility(): ?BoostVisibility
-    {
-        return $this->boostVisibility;
-    }
-
-    public function setBoostVisibility(?BoostVisibility $boostVisibility): static
-    {
-        $this->boostVisibility = $boostVisibility;
-
-        return $this;
-    }
-
     public function getBoost(): ?Boost
     {
         return $this->boost;
@@ -670,6 +663,48 @@ class JobListing
     public function setBoost(?Boost $boost): static
     {
         $this->boost = $boost;
+
+        return $this;
+    }
+
+    public function getBoostFacebook(): ?BoostFacebook
+    {
+        return $this->boostFacebook;
+    }
+
+    public function setBoostFacebook(?BoostFacebook $boostFacebook): static
+    {
+        $this->boostFacebook = $boostFacebook;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BoostVisibility>
+     */
+    public function getBoostVisibilities(): Collection
+    {
+        return $this->boostVisibilities;
+    }
+
+    public function addBoostVisibility(BoostVisibility $boostVisibility): static
+    {
+        if (!$this->boostVisibilities->contains($boostVisibility)) {
+            $this->boostVisibilities->add($boostVisibility);
+            $boostVisibility->setJobListing($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBoostVisibility(BoostVisibility $boostVisibility): static
+    {
+        if ($this->boostVisibilities->removeElement($boostVisibility)) {
+            // set the owning side to null (unless already changed)
+            if ($boostVisibility->getJobListing() === $this) {
+                $boostVisibility->setJobListing(null);
+            }
+        }
 
         return $this;
     }

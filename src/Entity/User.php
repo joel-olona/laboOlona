@@ -2,11 +2,14 @@
 
 namespace App\Entity;
 
+use App\Entity\BusinessModel\BoostVisibility;
 use App\Entity\BusinessModel\Credit;
 use App\Entity\BusinessModel\History;
+use App\Entity\BusinessModel\Order;
 use App\Entity\BusinessModel\PurchasedContact;
 use App\Entity\BusinessModel\Transaction;
 use App\Entity\Finance\Employe;
+use App\Entity\Logs\ActivityLog;
 use App\Entity\Vues\VideoVues;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -101,7 +104,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user'])]
     private ?string $prenom = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     #[Groups(['user'])]
     private ?\DateTimeInterface $dateInscription = null;
 
@@ -166,6 +169,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $city = null;
 
+    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Order::class)]
+    private Collection $orders;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: BoostVisibility::class)]
+    private Collection $boostVisibilities;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ActivityLog::class)]
+    private Collection $activityLogs;
+
     public function __construct()
     {
         $this->envois = new ArrayCollection();
@@ -175,6 +187,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->histories = new ArrayCollection();
         $this->transactions = new ArrayCollection();
         $this->purchasedContacts = new ArrayCollection();
+        $this->orders = new ArrayCollection();
+        $this->boostVisibilities = new ArrayCollection();
+        $this->activityLogs = new ArrayCollection();
     }
 
     public function __toString()
@@ -756,6 +771,96 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCity(?string $city): static
     {
         $this->city = $city;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Order>
+     */
+    public function getOrders(): Collection
+    {
+        return $this->orders;
+    }
+
+    public function addOrder(Order $order): static
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders->add($order);
+            $order->setCustomer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(Order $order): static
+    {
+        if ($this->orders->removeElement($order)) {
+            // set the owning side to null (unless already changed)
+            if ($order->getCustomer() === $this) {
+                $order->setCustomer(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BoostVisibility>
+     */
+    public function getBoostVisibilities(): Collection
+    {
+        return $this->boostVisibilities;
+    }
+
+    public function addBoostVisibility(BoostVisibility $boostVisibility): static
+    {
+        if (!$this->boostVisibilities->contains($boostVisibility)) {
+            $this->boostVisibilities->add($boostVisibility);
+            $boostVisibility->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBoostVisibility(BoostVisibility $boostVisibility): static
+    {
+        if ($this->boostVisibilities->removeElement($boostVisibility)) {
+            // set the owning side to null (unless already changed)
+            if ($boostVisibility->getUser() === $this) {
+                $boostVisibility->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ActivityLog>
+     */
+    public function getActivityLogs(): Collection
+    {
+        return $this->activityLogs;
+    }
+
+    public function addActivityLog(ActivityLog $activityLog): static
+    {
+        if (!$this->activityLogs->contains($activityLog)) {
+            $this->activityLogs->add($activityLog);
+            $activityLog->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActivityLog(ActivityLog $activityLog): static
+    {
+        if ($this->activityLogs->removeElement($activityLog)) {
+            // set the owning side to null (unless already changed)
+            if ($activityLog->getUser() === $this) {
+                $activityLog->setUser(null);
+            }
+        }
 
         return $this;
     }

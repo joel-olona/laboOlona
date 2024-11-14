@@ -3,18 +3,16 @@
 namespace App\Twig;
 
 use App\Entity\BusinessModel\Boost;
+use App\Entity\BusinessModel\BoostFacebook;
 use App\Entity\BusinessModel\BoostVisibility;
+use App\Entity\BusinessModel\Order;
 use App\Entity\BusinessModel\Transaction;
 use App\Entity\Candidate\TarifCandidat;
 use App\Entity\CandidateProfile;
-use App\Entity\User;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
-use App\Entity\ReferrerProfile;
-use App\Entity\Referrer\Referral;
 use App\Entity\Entreprise\JobListing;
 use Twig\Extension\AbstractExtension;
-use App\Entity\Moderateur\Assignation;
 use App\Entity\Entreprise\BudgetAnnonce;
 use App\Entity\EntrepriseProfile;
 use App\Entity\Finance\Contrat;
@@ -61,6 +59,7 @@ class StatusExtension extends AbstractExtension
             new TwigFunction('satusCandidate', [$this, 'satusCandidate']),
             new TwigFunction('satusMetting', [$this, 'satusMetting']),
             new TwigFunction('satusPrestation', [$this, 'satusPrestation']),
+            new TwigFunction('statusOrder', [$this, 'statusOrder']),
             new TwigFunction('statusTransaction', [$this, 'statusTransaction']),
             new TwigFunction('satusJobListing', [$this, 'satusJobListing']),
             new TwigFunction('isPrestationBoosted', [$this, 'isPrestationBoosted']),
@@ -246,6 +245,54 @@ class StatusExtension extends AbstractExtension
         return $status;
     }
 
+    public function statusOrder(Order $transaction)
+    {
+        $type = $transaction->getStatus() ?? '';
+        switch ($type) {
+            case Transaction::STATUS_PENDING :
+                $status = '<span class="badge text-bg-danger">'.$this->getLabels(Transaction::STATUS_PENDING).'</span>';
+                break;
+
+            case Transaction::STATUS_COMPLETED :
+                $status = '<span class="badge text-bg-info">'.$this->getLabels(Transaction::STATUS_COMPLETED).'</span>';
+                break;
+
+            case Transaction::STATUS_FAILED :
+                $status = '<span class="badge text-bg-success">'.$this->getLabels(Transaction::STATUS_FAILED).'</span>';
+                break;
+
+            case Transaction::STATUS_CANCELLED :
+                $status = '<span class="badge text-bg-dark">'.$this->getLabels(Transaction::STATUS_CANCELLED).'</span>';
+                break;
+
+            case Transaction::STATUS_ON_HOLD :
+                $status = '<span class="badge text-bg-primary">'.$this->getLabels(Transaction::STATUS_ON_HOLD).'</span>';
+                break;
+
+            case Transaction::STATUS_PROCESSING :
+                $status = '<span class="badge text-bg-primary">'.$this->getLabels(Transaction::STATUS_PROCESSING).'</span>';
+                break;
+
+            case Transaction::STATUS_AUTHORIZED :
+                $status = '<span class="badge text-bg-primary">'.$this->getLabels(Transaction::STATUS_AUTHORIZED).'</span>';
+                break;
+
+            case Transaction::STATUS_REFUNDED :
+                $status = '<span class="badge text-bg-primary">'.$this->getLabels(Transaction::STATUS_REFUNDED).'</span>';
+                break;
+
+            case Transaction::STATUS_DISPUTED :
+                $status = '<span class="badge text-bg-primary">'.$this->getLabels(Transaction::STATUS_DISPUTED).'</span>';
+                break;
+            
+            default:
+                $status = '<span class="badge text-bg-primary">'.$this->getLabels(Transaction::STATUS_PENDING).'</span>';
+                break;
+        }
+        
+        return $status;
+    }
+
     private function getLabels(string $status): string
     {
         return Transaction::getLabels()[$status];
@@ -256,31 +303,31 @@ class StatusExtension extends AbstractExtension
         $type = $prestation->getStatus() ?? '';
         switch ($type) {
             case Prestation::STATUS_VALID :
-                $status = '<span class="badge text-bg-danger">Validée</span>';
+                $status = '<span class="badge rounded-pill px-2 text-bg-danger">Validée</span>';
                 break;
 
             case Prestation::STATUS_COMPLETED :
-                $status = '<span class="badge text-bg-info">Terminé</span>';
+                $status = '<span class="badge rounded-pill px-2 text-bg-info">Terminé</span>';
                 break;
 
             case Prestation::STATUS_FEATURED :
-                $status = '<span class="badge text-bg-success">Boostée</span>';
+                $status = '<span class="badge rounded-pill px-2 text-bg-success">Boostée</span>';
                 break;
 
             case Prestation::STATUS_DELETED :
-                $status = '<span class="badge text-bg-dark">Effacée</span>';
+                $status = '<span class="badge rounded-pill px-2 text-bg-dark">Effacée</span>';
                 break;
 
             case Prestation::STATUS_PENDING :
-                $status = '<span class="badge text-bg-primary">En attente</span>';
+                $status = '<span class="badge rounded-pill px-2 text-bg-primary">En attente</span>';
                 break;
 
             case Prestation::STATUS_SUSPENDED :
-                $status = '<span class="badge text-bg-primary">Suspendue</span>';
+                $status = '<span class="badge rounded-pill px-2 text-bg-primary">Suspendue</span>';
                 break;
             
             default:
-                $status = '<span class="badge text-bg-primary">En attente</span>';
+                $status = '<span class="badge rounded-pill px-2 text-bg-primary">En attente</span>';
                 break;
         }
         
@@ -338,36 +385,45 @@ class StatusExtension extends AbstractExtension
     public function isPrestationBoosted(Prestation $prestation): string
     {
         $boost = $prestation->getBoost();
-        $url = $this->urlGenerator->generate('app_v2_edit_prestation', ['prestation' => $prestation->getId()]);
-        $info = '<a href="'.$url.'" class="btn btn-sm btn-danger text-uppercase fw-bold"><i class="bi bi-rocket-takeoff me-2"></i> Booster</a>';
+        $boostFacebook = $prestation->getBoostFacebook();
+        $info = '<button class="btn btn-sm btn-danger text-uppercase fw-bold" data-bs-toggle="modal" data-bs-target="#boostPrestation'.$prestation->getId().'" data-bs-type="boost-prestation" data-bs-prestation="'.$prestation->getId().'"><i class="bi bi-rocket-takeoff me-2"></i> Booster</button>';
         if($boost instanceof Boost){
-            switch ($boost->getSlug()) {
-                case 'boost-recruiter-prestation-7' :
-                    $info = '<span class="fw-semibold small">Boost 7 jour</span>';
-                    break;
-    
-                case 'boost-recruiter-prestation-15' :
-                    $info = '<span class="fw-semibold small">Boost 15 jour</span>';
-                    break;
-    
-                case 'boost-recruiter-prestation-30' :
-                    $info = '<span class="fw-semibold small">Boost 30 jour</span>';
-                    break;
-                
-                default:
-                    $status = '<span class="fw-semibold small">Boost 1 jour</span>';
-                    break;
+            $boostVisibility = $this->em->getRepository(BoostVisibility::class)->findBoostVisibilityByBoostAndPrestation($boost, $prestation);
+            if($boostVisibility instanceof BoostVisibility && !$boostVisibility->isExpired() ){
+                switch ($boost->getSlug()) {
+                    case 'boost-prestation-recruiter-7' :
+                    case 'boost-prestation-candidate-7' :
+                        $info = '<div class="text-center"><span class="fw-semibold small">Boost 7 jour</span><br><span class="fw-lighter small"> Expire '.$this->appExtension->timeUntil($boostVisibility->getEndDate()).'</span></div>';
+                        break;
+        
+                    case 'boost-prestation-recruiter-15' :
+                    case 'boost-prestation-candidate-15' :
+                        $info = '<div class="text-center"><span class="fw-semibold small">Boost 15 jour</span><br><span class="fw-lighter small"> Expire '.$this->appExtension->timeUntil($boostVisibility->getEndDate()).'</span></div>';
+                        break;
+        
+                    case 'boost-prestation-recruiter-15' :
+                    case 'boost-prestation-candidate-30' :
+                        $info = '<div class="text-center"><span class="fw-semibold small">Boost 30 jour</span><br><span class="fw-lighter small"> Expire '.$this->appExtension->timeUntil($boostVisibility->getEndDate()).'</span></div>';
+                        break;
+                }
             }
         }
-        
+        if($boostFacebook instanceof BoostFacebook){
+            $boostVisibilityFacebook = $this->em->getRepository(BoostVisibility::class)->findBoostVisibilityByBoostFacebookAndPrestation($boostFacebook, $prestation);
+            if($boostVisibilityFacebook instanceof BoostVisibility && !$boostVisibilityFacebook->isExpired()){
+                $info .= '<div class="text-center"><span class="small fw-semibold"><i class="bi bi-facebook me-2"></i> Boost</span><br><span class="small fw-light"> Jusqu\'au '.$boostVisibilityFacebook->getEndDate()->format('d-m-Y \à H:i').' </span></div>';
+            }
+        }
+
         return $info;
     }
 
     public function isJobOfferBoosted(JobListing $jobListing)
     {
         $boost = $jobListing->getBoost();
+        $boostFacebook = $jobListing->getBoostFacebook();
         $url = $this->urlGenerator->generate('app_v2_recruiter_job_listing_edit', ['jobListing' => $jobListing->getId()]);
-        $info = '<a href="'.$url.'" class="btn btn-sm btn-danger text-uppercase fw-bold"><i class="bi bi-rocket-takeoff me-2"></i> Booster</a>';
+        $info = '<button class="btn btn-sm btn-danger text-uppercase fw-bold" data-bs-toggle="modal" data-bs-target="#boostJobListing'.$jobListing->getId().'" data-bs-type="boost-annonce" data-bs-annonce="'.$jobListing->getId().'"><i class="bi bi-rocket-takeoff me-2"></i> Booster</button>';
         if($boost instanceof Boost){
             $boostVisibility = $this->em->getRepository(BoostVisibility::class)->findLatestBoostVisibilityByBoost($boost);
             if($boostVisibility instanceof BoostVisibility && !$boostVisibility->isExpired() ){
@@ -388,6 +444,12 @@ class StatusExtension extends AbstractExtension
                         $status = '<span class="fw-bold">Boost 1 jour</span><br><span class="fw-lighter small"> Expire '.$this->appExtension->timeUntil($boostVisibility->getEndDate()).'</span>';
                         break;
                 }
+            }
+        }
+        if($boostFacebook instanceof BoostFacebook){
+            $boostVisibilityFacebook = $this->em->getRepository(BoostVisibility::class)->findBoostVisibilityByBoostFacebookAndJobListing($boostFacebook, $jobListing);
+            if($boostVisibilityFacebook instanceof BoostVisibility && !$boostVisibilityFacebook->isExpired()){
+                $info .= '<div class="text-center"><span class="small fw-semibold"><i class="bi bi-facebook me-2"></i> Boost</span><br><span class="small fw-light"> Jusqu\'au '.$boostVisibilityFacebook->getEndDate()->format('d-m-Y \à H:i').' </span></div>';
             }
         }
         

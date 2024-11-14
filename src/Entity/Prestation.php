@@ -3,8 +3,10 @@
 namespace App\Entity;
 
 use App\Entity\BusinessModel\Boost;
+use App\Entity\BusinessModel\BoostFacebook;
 use App\Entity\BusinessModel\BoostVisibility;
 use App\Entity\Prestation\TypePrestation;
+use App\Entity\Vues\PrestationVues;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Candidate\Competences;
@@ -163,18 +165,40 @@ class Prestation
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
-    #[ORM\ManyToOne(inversedBy: 'prestation')]
-    private ?BoostVisibility $boostVisibility = null;
-
     #[ORM\ManyToOne(inversedBy: 'prestations')]
     private ?Boost $boost = null;
 
     #[ORM\ManyToOne(inversedBy: 'prestation')]
     private ?TypePrestation $typePrestation = null;
 
+    #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: PrestationVues::class)]
+    private Collection $prestationVues;
+
+    #[ORM\ManyToOne(inversedBy: 'prestations')]
+    private ?BoostFacebook $boostFacebook = null;
+
+    #[ORM\OneToMany(mappedBy: 'prestation', targetEntity: BoostVisibility::class)]
+    private Collection $boostVisibilities;
+
     public function __construct()
     {
         $this->competences = new ArrayCollection();
+        $this->prestationVues = new ArrayCollection();
+        $this->boostVisibilities = new ArrayCollection();
+    }
+    
+    public function __serialize(): array
+    {
+        return [
+            'id' => $this->id,
+            'createdAt' => $this->createdAt,
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->id = $data['id'] ?? null;
+        $this->createdAt = $data['createdAt'] ?? null;
     }
 
     public function getId(): ?int
@@ -617,18 +641,6 @@ class Prestation
         return $this;
     }
 
-    public function getBoostVisibility(): ?BoostVisibility
-    {
-        return $this->boostVisibility;
-    }
-
-    public function setBoostVisibility(?BoostVisibility $boostVisibility): static
-    {
-        $this->boostVisibility = $boostVisibility;
-
-        return $this;
-    }
-
     public function getBoost(): ?Boost
     {
         return $this->boost;
@@ -649,6 +661,78 @@ class Prestation
     public function setTypePrestation(?TypePrestation $typePrestation): static
     {
         $this->typePrestation = $typePrestation;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PrestationVues>
+     */
+    public function getPrestationVues(): Collection
+    {
+        return $this->prestationVues;
+    }
+
+    public function addPrestationVue(PrestationVues $prestationVue): static
+    {
+        if (!$this->prestationVues->contains($prestationVue)) {
+            $this->prestationVues->add($prestationVue);
+            $prestationVue->setPrestation($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrestationVue(PrestationVues $prestationVue): static
+    {
+        if ($this->prestationVues->removeElement($prestationVue)) {
+            // set the owning side to null (unless already changed)
+            if ($prestationVue->getPrestation() === $this) {
+                $prestationVue->setPrestation(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getBoostFacebook(): ?BoostFacebook
+    {
+        return $this->boostFacebook;
+    }
+
+    public function setBoostFacebook(?BoostFacebook $boostFacebook): static
+    {
+        $this->boostFacebook = $boostFacebook;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BoostVisibility>
+     */
+    public function getBoostVisibilities(): Collection
+    {
+        return $this->boostVisibilities;
+    }
+
+    public function addBoostVisibility(BoostVisibility $boostVisibility): static
+    {
+        if (!$this->boostVisibilities->contains($boostVisibility)) {
+            $this->boostVisibilities->add($boostVisibility);
+            $boostVisibility->setPrestation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBoostVisibility(BoostVisibility $boostVisibility): static
+    {
+        if ($this->boostVisibilities->removeElement($boostVisibility)) {
+            // set the owning side to null (unless already changed)
+            if ($boostVisibility->getPrestation() === $this) {
+                $boostVisibility->setPrestation(null);
+            }
+        }
 
         return $this;
     }

@@ -6,6 +6,7 @@ use App\Entity\CandidateProfile;
 use App\Entity\Entreprise\JobListing;
 use App\Entity\EntrepriseProfile;
 use App\Entity\Prestation;
+use App\Entity\User;
 use App\Repository\BusinessModel\BoostVisibilityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -32,27 +33,31 @@ class BoostVisibility
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $type = null;
 
-    #[ORM\OneToMany(mappedBy: 'boostVisibility', targetEntity: Prestation::class)]
-    private Collection $prestation;
-
     #[ORM\OneToMany(mappedBy: 'boostVisibility', targetEntity: CandidateProfile::class)]
     private Collection $candidateProfile;
 
     #[ORM\OneToMany(mappedBy: 'boostVisibility', targetEntity: EntrepriseProfile::class)]
     private Collection $entrepriseProfile;
 
-    #[ORM\OneToMany(mappedBy: 'boostVisibility', targetEntity: JobListing::class, cascade: ['remove', 'persist'])]
-    private Collection $jobListing;
-
     #[ORM\ManyToOne(inversedBy: 'boostVisibilities')]
     private ?Boost $boost = null;
 
+    #[ORM\ManyToOne(inversedBy: 'boostVisibilities')]
+    private ?BoostFacebook $boostFacebook = null;
+
+    #[ORM\ManyToOne(inversedBy: 'boostVisibilities')]
+    private ?User $user = null;
+
+    #[ORM\ManyToOne(inversedBy: 'boostVisibilities', cascade: ['persist', 'remove'])]
+    private ?Prestation $prestation = null;
+
+    #[ORM\ManyToOne(inversedBy: 'boostVisibilities', cascade: ['persist', 'remove'])]
+    private ?JobListing $jobListing = null;
+
     public function __construct()
     {
-        $this->prestation = new ArrayCollection();
         $this->candidateProfile = new ArrayCollection();
         $this->entrepriseProfile = new ArrayCollection();
-        $this->jobListing = new ArrayCollection();
     }
 
     public function isExpired(): bool
@@ -110,36 +115,6 @@ class BoostVisibility
     public function setType(?string $type): static
     {
         $this->type = $type;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Prestation>
-     */
-    public function getPrestation(): Collection
-    {
-        return $this->prestation;
-    }
-
-    public function addPrestation(Prestation $prestation): static
-    {
-        if (!$this->prestation->contains($prestation)) {
-            $this->prestation->add($prestation);
-            $prestation->setBoostVisibility($this);
-        }
-
-        return $this;
-    }
-
-    public function removePrestation(Prestation $prestation): static
-    {
-        if ($this->prestation->removeElement($prestation)) {
-            // set the owning side to null (unless already changed)
-            if ($prestation->getBoostVisibility() === $this) {
-                $prestation->setBoostVisibility(null);
-            }
-        }
 
         return $this;
     }
@@ -204,36 +179,6 @@ class BoostVisibility
         return $this;
     }
 
-    /**
-     * @return Collection<int, JobListing>
-     */
-    public function getJobListing(): Collection
-    {
-        return $this->jobListing;
-    }
-
-    public function addJobListing(JobListing $jobListing): static
-    {
-        if (!$this->jobListing->contains($jobListing)) {
-            $this->jobListing->add($jobListing);
-            $jobListing->setBoostVisibility($this);
-        }
-
-        return $this;
-    }
-
-    public function removeJobListing(JobListing $jobListing): static
-    {
-        if ($this->jobListing->removeElement($jobListing)) {
-            // set the owning side to null (unless already changed)
-            if ($jobListing->getBoostVisibility() === $this) {
-                $jobListing->setBoostVisibility(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getBoost(): ?Boost
     {
         return $this->boost;
@@ -242,6 +187,54 @@ class BoostVisibility
     public function setBoost(?Boost $boost): static
     {
         $this->boost = $boost;
+
+        return $this;
+    }
+
+    public function getBoostFacebook(): ?BoostFacebook
+    {
+        return $this->boostFacebook;
+    }
+
+    public function setBoostFacebook(?BoostFacebook $boostFacebook): static
+    {
+        $this->boostFacebook = $boostFacebook;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function getPrestation(): ?Prestation
+    {
+        return $this->prestation;
+    }
+
+    public function setPrestation(?Prestation $prestation): static
+    {
+        $this->prestation = $prestation;
+
+        return $this;
+    }
+
+    public function getJobListing(): ?JobListing
+    {
+        return $this->jobListing;
+    }
+
+    public function setJobListing(?JobListing $jobListing): static
+    {
+        $this->jobListing = $jobListing;
 
         return $this;
     }

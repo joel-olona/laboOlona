@@ -188,13 +188,73 @@
     background-position: center;
     width: 250px;
     height: 250px;
-    border-radius: 50%; /* Pour rendre l'élément circulaire */
+    border-radius: 50%; 
 }
 .my-custom-btn {
-    background-color: rgba(255, 255, 255, 0.5); /* Changer 0.5 à la valeur de transparence que vous souhaitez, entre 0 (complètement transparent) et 1 (complètement opaque) */
+    background-color: rgba(255, 255, 255, 0.5); 
 }
-.card-body-candidat{
-    height: 110px!important;
+.card-image-wrapper {
+    position: relative;
+    width: 100%; 
+    aspect-ratio: 9 / 16; 
+    overflow: hidden; 
+    z-index: 1;
+}
+
+.job-image {
+    position: relative; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    height: 40%; /* 40% de la hauteur de .card-image-wrapper */
+    background-position: center; 
+    background-size: cover; 
+    background-repeat: no-repeat; 
+}
+
+.job-title {
+    width: 100%; 
+    font-weight: bold;
+    background-color: rgba(0, 0, 0, 0.6); 
+    color: white; 
     text-align: center;
-    justify-content: center;
+}
+
+.card-body-candidat {
+    height: 60%; 
+    width: 100%;
+    .desktop-margin{
+        margin: 1rem!important;
+    }
+    .job-h2{
+        min-height:3rem!important;
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+    }
+    h2 {
+        font-size: 1rem!important; 
+    }
+}
+
+.desktop .carousel-item .card-body-candidat{
+    font-size: 12px!important;
+    a{
+        font-size: 12px!important;
+    }
+    .badge{
+        font-size: 12px!important;
+    }
+    .job-h2{
+        min-height:1.75rem!important;
+    }
+    .desktop-none{
+        display:none!important;
+    }
+    .desktop-margin{
+        margin: 0.7rem!important;
+    }
+    h2 {
+        font-size: 0.65rem!important; 
+    }
 }

@@ -1,50 +1,36 @@
-    
-    <p class="mx-2">
-Votre recherche renvoie <strong>{{ result|length }}</strong> résultats.
-</p>
-<div class="navigation">
-{{ knp_pagination_render(aiTools, 'parts/_pagination.html.twig') }}
-</div>
 
-<div class="responsive-table">
+<div class="row row-cols-1 row-cols-md-3 g-4">
     {% for aitool in aiTools %}
-            {% set description = aitool.shortDescriptionFr ?? aitool.shortDescription %}
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 border-bottom pb-2">
-        <div class="p-2 w-100">
-            <figure>
-                <blockquote class="blockquote">
-                    <p>
-                        <a href="{{path('app_dashboard_moderateur_view_affiliate_tool', { 'slug': aitool.slug}) }}"> 
-                            {{ aitool.nom }} 
+    {% set description = aitool.shortDescriptionFr ?? aitool.shortDescription %}
+    <div class="col">
+        <div class="card">
+            <img src="{{ aitool.image }}" class="img-fluid rounded-top" alt="thumbail">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{{path('app_dashboard_moderateur_view_affiliate_tool', { 'slug': aitool.slug}) }}">
+                        {{ aitool.nom }}
+                    </a>
+                </h5>
+                <p class="small">
+                    {% set desc_words = description|striptags|split(' ') %}
+                    {% if desc_words|length > 12 %}
+                        {{ desc_words|slice(0, 12)|join(' ') }}...
+                        <a href="{{path('app_dashboard_moderateur_view_affiliate_tool', { 'slug': aitool.slug}) }}">
+                            En savoir plus
                         </a>
-                    </p>
-                </blockquote>
-                <figcaption class="blockquote-footer">
-                    <cite title="Source Title">{{ aitool.sloganFr ?? aitool.slogan }}</cite>
-                </figcaption>
-            </figure>
-            <a href="{{ aitool.lienAffiliation }}" class="btn btn-sm btn-primary rounded-pill px-3">Visiter le site <i class="bi bi-box-arrow-up-right"></i></a>
-        </div>
-        <div class="p-2 w-100">
-            {{ description|length > 150 ? (description|slice(0, 147) ~ '... <a href="' ~ path('app_dashboard_moderateur_view_affiliate_tool', { 'slug': aitool.slug}) ~ '" class="en-savoir-plus">En savoir plus</a>')|raw : description|raw }}
-        </div>
-        <div class="p-2 w-100">
-            {% for category in aitool.categories %}
-                <span class="badge text-bg-info">{{ category.nom }}</span>
-            {% endfor %}
-        </div>
-        <div class="p-2 w-100">
-            <img src="{{ aitool.image }}" class="img-fluid" alt="thumbail">
-        </div>
-        <div class="p-2 actions-col">
-            <a href="{{path('app_dashboard_moderateur_view_affiliate_tool', { 'slug': aitool.slug}) }}" class="btn btn-sm btn-secondary"><i class="bi bi-eye"></i></a>
-            {% if app.user.type is same as(constant('App\\Entity\\User::ACCOUNT_MODERATEUR')) %}
-                <a href="{{path('app_dashboard_moderateur_edit_affiliate_tool', { 'slug': aitool.slug}) }}" class="btn btn-sm btn-info"><i class="bi bi-pencil"></i></a>
-                <a href="{{path('app_dashboard_moderateur_delete_affiliate_tool', { 'slug': aitool.slug}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');"><i class="bi bi-trash"></i></a>
-            {% endif %}
+                    {% else %}
+                        {{ desc_words|join(' ') }}
+                    {% endif %}
+                </p>
+                <p class="card-text">
+                    <small class="text-body-secondary">
+                        {% for category in aitool.categories %}
+                        <span class="badge text-bg-info">{{ category.nom }}</span>
+                        {% endfor %}
+                    </small>
+                </p>
+            </div>
         </div>
     </div>
     {% endfor %}
 </div>
-
-

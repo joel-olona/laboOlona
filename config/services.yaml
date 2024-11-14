@@ -6,6 +6,7 @@
 parameters:
     cv_expert: /uploads/experts
     medias_prestation: /uploads/prestations
+    logo_company: /uploads/compagnies
     app.locales: [en, fr]
     cv_directory: '%kernel.project_dir%/public/uploads/cv'
     csv_directory: '%kernel.project_dir%/public/uploads/csv'
@@ -54,9 +55,9 @@ services:
         arguments:
             $apiKey: '%env(YOUTUBE_API_KEY)%'
 
-    App\EventListener\ExceptionListener:
-        tags: [kernel.event_listener]
-        arguments: ['@twig']
+    # App\EventListener\ExceptionListener:
+    #     tags: [kernel.event_listener]
+    #     arguments: ['@twig']
     
     App\Service\JitsiMeetService:
         arguments:
@@ -68,3 +69,13 @@ services:
 
     App\Service\ElasticsearchService:
         arguments: []
+        
+    App\Service\PaymentService:
+        arguments:
+            $clientId: '%env(PAYPAL_CLIENT_ID)%'
+            $clientSecret: '%env(PAYPAL_CLIENT_SECRET)%'
+            $mode: '%env(PAYPAL_MODE)%'
+            
+    App\Service\PdfService:
+        arguments:
+            $wkhtmltopdfPath: '%env(WKHTMLTOPDF_PATH)%'

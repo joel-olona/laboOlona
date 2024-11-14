@@ -25,7 +25,7 @@
 {% block body %}
 
 	<section class="">
-		<div class="shadow p-2 p-sm-4">
+		<div class="shadow-custom p-2 p-sm-4">
 			<h2 class="fs-4 fw-bolder text-center my-3 my-sm-5">
 				<i class="bi bi-envelope-at text-warning me-2"></i>
 				Contacter le support
@@ -37,13 +37,14 @@
                 Veuillez remplir le formulaire ci-dessous avec les détails de votre demande, et nous vous répondrons dans les plus brefs délais.
 			</p>
 
-                <div class="col-lg-6 col-md-10 col-sm-12 mx-auto">
+                <div class="col-lg-10 col-md-10 col-sm-12 mx-auto">
                     {% for message in app.flashes('success') %}
-                        <div class="alert alert-primary">
+                        <div class="alert alert-primary alert-dismissible fade show small" role="alert">
                             {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     {% endfor %}
-                    {{ form_start(form) }}
+                    {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
 
 
                     <div class="row">

@@ -163,9 +163,14 @@ class AffiliateToolController extends AbstractController
     #[Route('/tool/{slug}/view', name: 'app_dashboard_moderateur_view_affiliate_tool')]
     public function viewTool(Request $request, AffiliateTool $tool): Response
     {
+        return $this->redirectToRoute('app_v2_dashboard_ai_tool_view', ['slug' => $tool->getSlug()]);
+        
         $tools = $tool->getRelatedIds();
-        foreach ($tools as $key => $value) {
-            $relateds[] = $this->affiliateToolRepository->findOneBy(['customId' => $value]); 
+        $relateds = [];
+        if(!empty($tools)){
+            foreach ($tools as $key => $value) {
+                $relateds[] = $this->affiliateToolRepository->findOneBy(['customId' => $value]); 
+            }
         }
         return $this->render('dashboard/moderateur/affiliate_tool/view.html.twig', [
             'aiTool' => $tool,

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Entity\BusinessModel\Boost;
+use App\Entity\BusinessModel\BoostFacebook;
 use App\Entity\BusinessModel\BoostVisibility;
 use App\Entity\Candidate\CV;
 use App\Entity\Candidate\Langages;
@@ -206,6 +207,9 @@ class CandidateProfile
     #[ORM\ManyToOne(inversedBy: 'candidateProfiles', cascade: ['persist', 'remove'])]
     private ?Boost $boost = null;
 
+    #[ORM\ManyToOne(inversedBy: 'candidateProfiles')]
+    private ?BoostFacebook $boostFacebook = null;
+
     public function __construct()
     {
         $this->competences = new ArrayCollection();
@@ -233,21 +237,16 @@ class CandidateProfile
     
     public function __serialize(): array
     {
-        // Retournez ici les propriétés à sérialiser
         return [
             'id' => $this->id,
             'createdAt' => $this->createdAt,
-            // Ajoutez d'autres propriétés si nécessaire
-            // Notez que certaines propriétés, comme les objets et les collections d'entités, ne doivent pas être sérialisées
         ];
     }
 
     public function __unserialize(array $data): void
     {
-        // Restaurez l'état de l'objet à partir des données sérialisées
         $this->id = $data['id'] ?? null;
         $this->createdAt = $data['createdAt'] ?? null;
-        // Restaurez d'autres propriétés si elles étaient sérialisées
     }
 
     public function getId(): ?int
@@ -474,17 +473,6 @@ class CandidateProfile
         $this->fileName = $fileName;
 
         return $this;
-    }
-    
-    public function serialize()
-    {
-        $this->fileName = base64_encode($this->fileName);
-    }
-
-    public function unserialize($serialized)
-    {
-        $this->fileName = base64_decode($this->fileName);
-
     }
 
     public function getLocalisation(): ?string
@@ -1060,6 +1048,18 @@ class CandidateProfile
     public function setBoost(?Boost $boost): static
     {
         $this->boost = $boost;
+
+        return $this;
+    }
+
+    public function getBoostFacebook(): ?BoostFacebook
+    {
+        return $this->boostFacebook;
+    }
+
+    public function setBoostFacebook(?BoostFacebook $boostFacebook): static
+    {
+        $this->boostFacebook = $boostFacebook;
 
         return $this;
     }
