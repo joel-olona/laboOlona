@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Entity\Blog\Post;
 use App\Entity\Coworking\Contract;
 use App\Entity\Facebook\ContestEntry;
+use App\Entity\Marketing\Commission;
 use App\Entity\Marketing\Lead;
 use App\Entity\Vues\VideoVues;
 use Doctrine\DBAL\Types\Types;
@@ -28,6 +29,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+#[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(fields: ['email'], message: 'Il existe déjà un compte avec cette adresse e-mail.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -201,6 +203,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Lead::class)]
     private Collection $leads;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Commission::class)]
+    private Collection $commissions;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $affiliateCode = null;
+
     public function __construct()
     {
         $this->dateInscription = new \DateTime();
@@ -219,6 +227,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->contracts = new ArrayCollection();
         $this->contestEntries = new ArrayCollection();
         $this->leads = new ArrayCollection();
+        $this->commissions = new ArrayCollection();
+    }
+
+    #[ORM\PrePersist]
+    public function generateOrderNumber(): void
+    {
+        if ($this->affiliateCode === null) {
+            $this->affiliateCode = $this->generateUniqueOrderNumber();
+        }
+    }
+
+    private function generateUniqueOrderNumber(): string
+    {
+        return uniqid('aff_', true);
     }
 
     public function __toString()
@@ -1052,6 +1074,48 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $lead->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Commission>
+     */
+    public function getCommissions(): Collection
+    {
+        return $this->commissions;
+    }
+
+    public function addCommission(Commission $commission): static
+    {
+        if (!$this->commissions->contains($commission)) {
+            $this->commissions->add($commission);
+            $commission->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommission(Commission $commission): static
+    {
+        if ($this->commissions->removeElement($commission)) {
+            // set the owning side to null (unless already changed)
+            if ($commission->getUser() === $this) {
+                $commission->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getAffiliateCode(): ?string
+    {
+        return $this->affiliateCode;
+    }
+
+    public function setAffiliateCode(?string $affiliateCode): static
+    {
+        $this->affiliateCode = $affiliateCode;
 
         return $this;
     }

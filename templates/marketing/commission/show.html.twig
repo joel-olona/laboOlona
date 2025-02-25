@@ -1,0 +1,68 @@
+{% extends 'moderateur/base.html.twig' %}
+
+{% block title %}Détail commission{% endblock %} 
+
+{% block body %}
+    <h1 class="h3">Détail commission</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ commission.id }}</td>
+            </tr>
+            <tr>
+                <th>Montant</th>
+                <td>{{ commission.amount }} Ar</td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <td>{{ commission.createdAt ? commission.createdAt|date('d/m/Y') : '-' }}</td>
+            </tr>
+            <tr>
+                <th>Nom complet</th>
+                <td>{{ commission.user }}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>
+                    {{ commission.user.email }} 
+                </td>
+            </tr>
+            <tr>
+                <th>Télephone</th>
+                <td>{{ commission.user.telephone }}</td>
+            </tr>
+            <tr>
+                <th>Référence</th>
+                <td>{{ commission.saleReference }}</td>
+            </tr>
+            <tr>
+                <th>Type</th>
+                <td>{{ commission.typeLabels[commission.serviceType]|raw  }}</td>
+            </tr>
+            {% if commission.serviceType is same as constant('App\\Entity\\Marketing\\Commission::TYPE_SUBSCRIPTION') %}
+                <tr>
+                    <th>Période</th>
+                    <td>{{ commission.salesPeriod }}</td>
+                </tr>
+            {% endif %}
+            <tr>
+                <th>Pourcentage</th>
+                <td>{{ commission.commissionPercentage }} %</td>
+            </tr>
+            <tr>
+                <th>Statut</th>
+                <td>{{ commission.labels[commission.status]|raw }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ commission.description|raw }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-end w-100">
+        <a class="btn btn-secondary px-5 rounded-pill" href="{{ path('app_marketing_commission_edit', {'id': commission.id}) }}"><i class="bi me-2 bi-pencil"></i>Modifier</a>
+        {{ include('marketing/commission/_delete_form.html.twig') }}
+    </div>
+{% endblock %}

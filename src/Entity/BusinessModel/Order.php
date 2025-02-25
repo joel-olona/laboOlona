@@ -110,6 +110,12 @@ class Order
     #[ORM\OneToMany(targetEntity: OrderItem::class, mappedBy: 'command', cascade: ['persist', 'remove'])]
     private Collection $orderItems;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $saleType = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $affiliateCode = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
@@ -365,6 +371,30 @@ class Order
                 $orderItem->setCommand(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSaleType(): ?string
+    {
+        return $this->saleType;
+    }
+
+    public function setSaleType(?string $saleType): static
+    {
+        $this->saleType = $saleType;
+
+        return $this;
+    }
+
+    public function getAffiliateCode(): ?string
+    {
+        return $this->affiliateCode;
+    }
+
+    public function setAffiliateCode(?string $affiliateCode): static
+    {
+        $this->affiliateCode = $affiliateCode;
 
         return $this;
     }
