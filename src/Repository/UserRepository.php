@@ -221,4 +221,22 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ]
         );
     }
+
+    public function findOneByAffiliateCode(string $affiliateCode): ?User
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.affiliateCode = :affiliateCode')
+            ->setParameter('affiliateCode', $affiliateCode)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findLimitedWithNullAffiliateCode(int $limit = 200): array
+    {
+        return $this->createQueryBuilder('u')
+            ->where('u.affiliateCode IS NULL')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -2,10 +2,12 @@
 
 namespace App\Controller\Coworking;
 
+use App\Entity\User;
 use App\Manager\MailManager;
 use App\Entity\Finance\Devise;
 use Symfony\UX\Turbo\TurboBundle;
 use App\Entity\Coworking\Contract;
+use App\Entity\Marketing\Commission;
 use App\Form\Coworking\ContractType;
 use App\Entity\BusinessModel\Package;
 use App\Entity\Coworking\Reservation;
@@ -232,10 +234,20 @@ class MainController extends AbstractController
     public function contract(
         Request $request, 
         MailManager $mailManager, 
+        RequestStack $requestStack, 
         Security $security, 
         EntityManagerInterface $entityManager
     ): Response
     {
+        $session = $requestStack->getSession();
+        $affiliateCode = $request->query->get('aff', null);
+        if ($affiliateCode) {
+            $session->set('aff', $affiliateCode);
+            $affitiateBy = $entityManager->getRepository(User::class)->findOneByAffiliateCode($affiliateCode);
+        }else{
+            $affiliateCode = $session->get('aff');
+            $affitiateBy = $entityManager->getRepository(User::class)->findOneByAffiliateCode($affiliateCode);
+        }
         /** @var Package $package */
         $package = $entityManager->getRepository(Package::class)->findOneBy([
             'slug' => 'vip-coworking'
@@ -244,6 +256,18 @@ class MainController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if($affitiateBy instanceof User){
+                $commission = new Commission();
+                $commission->setUser($affitiateBy);
+                $commission->setSaleReference($package->getSlug());
+                $commission->setCommissionPercentage(0.05);
+                $commission->setAmount($package->getPrice() * 0.05);
+                $commission->setServiceType(Commission::TYPE_SUBSCRIPTION);
+                $commission->setSalesPeriod('Annuel');
+                $commission->setStatus(Commission::STATUS_PENDING);
+                $commission->setFixedAmount($package->getPrice() * 0.05);
+                $entityManager->persist($commission);
+            }
             $contract = $form->getData();
             if($security->getUser()){
                 $contract->setUser($security->getUser());
@@ -275,9 +299,19 @@ class MainController extends AbstractController
         Request $request, 
         MailManager $mailManager, 
         Security $security, 
+        RequestStack $requestStack,
         EntityManagerInterface $entityManager
     ): Response
     {
+        $session = $requestStack->getSession();
+        $affiliateCode = $request->query->get('aff', null);
+        if ($affiliateCode) {
+            $session->set('aff', $affiliateCode);
+            $affitiateBy = $entityManager->getRepository(User::class)->findOneByAffiliateCode($affiliateCode);
+        }else{
+            $affiliateCode = $session->get('aff');
+            $affitiateBy = $entityManager->getRepository(User::class)->findOneByAffiliateCode($affiliateCode);
+        }
         /** @var Package $package */
         $package = $entityManager->getRepository(Package::class)->findOneBy([
             'slug' => 'pack-flexi'
@@ -286,6 +320,18 @@ class MainController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if($affitiateBy instanceof User){
+                $commission = new Commission();
+                $commission->setUser($affitiateBy);
+                $commission->setSaleReference($package->getSlug());
+                $commission->setCommissionPercentage(0.05);
+                $commission->setAmount($package->getPrice() * 0.05);
+                $commission->setServiceType(Commission::TYPE_ONE_TIME);
+                $commission->setSalesPeriod('Mensuel');
+                $commission->setStatus(Commission::STATUS_PENDING);
+                $commission->setFixedAmount($package->getPrice() * 0.05);
+                $entityManager->persist($commission);
+            }
             $contract = $form->getData();
             if($security->getUser()){
                 $contract->setUser($security->getUser());

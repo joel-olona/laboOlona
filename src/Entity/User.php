@@ -240,7 +240,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     private function generateUniqueOrderNumber(): string
     {
-        return uniqid('aff_', true);
+        $letters = 'aff_';
+        $paddedId = sprintf('%05d', $this->id);
+
+        return $letters . $paddedId;
     }
 
     public function __toString()

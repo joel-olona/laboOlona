@@ -188,4 +188,12 @@ class UserService
     {
         return $this->encoder->isPasswordValid($user, $plainPassword);
     }
+
+    public function generateAffiliateCode(User $user)
+    {
+        $letters = 'aff_';
+        $paddedId = sprintf('%05d', $user->getId());
+
+        return $letters . $paddedId;
+    }
 }
