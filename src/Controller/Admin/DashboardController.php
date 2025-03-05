@@ -18,6 +18,7 @@ use App\Entity\Entreprise\JobListing;
 use App\Entity\EntrepriseProfile;
 use App\Entity\Finance\Employe;
 use App\Entity\Finance\Simulateur;
+use App\Entity\Marketing\Commission;
 use App\Service\User\UserService;
 use App\Entity\Moderateur\Metting;
 use Symfony\UX\Chartjs\Model\Chart;
@@ -144,6 +145,7 @@ class DashboardController extends AbstractDashboardController
                 MenuItem::linkToCrud('Type de Service', 'fas fa-layer-group', TypePrestation::class),
                 MenuItem::linkToCrud('Devise', 'fas fa-circle-dollar-to-slot', Devise::class),
             ]),
+            MenuItem::linkToCrud('Commissions', 'fas fa-money-bill-wheat', Commission::class),
             MenuItem::linkToCrud('Simulations', 'fas fa-vial-virus', Simulateur::class),
             MenuItem::linkToCrud('Modèles Email', 'fas fa-envelope', TemplateEmail::class),
             MenuItem::linkToCrud('Tâches Cron ', 'fas fa-clock-rotate-left', CronLog::class),

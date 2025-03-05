@@ -12,6 +12,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Entity\Marketing\Commission;
 
 /**
  * @extends ServiceEntityRepository<User>
@@ -238,5 +239,22 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+    }
+
+    public function paginateUsersWithTotalCommissions($page, $status = Commission::STATUS_PENDING): PaginationInterface
+    {
+        $queryBuilder = $this->createQueryBuilder('u')
+            ->select('u.nom as nom, u.prenom as prenom, c.status as status, COUNT(c.id) as nombre, SUM(c.amount) as totalCommission')
+            ->leftJoin('u.commissions', 'c')
+            ->where('c.status = :status')
+            ->setParameter('status', $status)
+            ->groupBy('u.id', 'u.nom', 'u.prenom')
+            ->orderBy('totalCommission', 'DESC');
+
+        return $this->paginator->paginate(
+            $queryBuilder,
+            $page,
+            20 
+        );
     }
 }

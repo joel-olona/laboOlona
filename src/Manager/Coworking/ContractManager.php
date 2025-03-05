@@ -2,10 +2,12 @@
 
 namespace App\Manager\Coworking;
 
+use App\Entity\User;
 use App\Service\PdfService;
 use Twig\Environment as Twig;
 use Symfony\Component\Form\Form;
 use App\Entity\Coworking\Contract;
+use App\Entity\Marketing\Commission;
 use App\Entity\BusinessModel\Invoice;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -41,6 +43,25 @@ class ContractManager
         /** @var Contract $contract */
         $contract = $form->getData();
         if($contract->getStatus() === Contract::STATUS_VALIDATED){
+            if($contract->getAffiliateCode() !== null){
+                $affiliateCode = $contract->getAffiliateCode();
+                $affiliateBy = $this->em->getRepository(User::class)->findOneByAffiliateCode($affiliateCode);
+                
+                if($affiliateBy instanceof User){
+                    $commission = new Commission();
+                    $commission->setUser($affiliateBy);
+                    $commission->setSaleReference($contract->getPackage()->getSlug());
+                    $commission->setCommissionPercentage(0.05);
+                    $commission->setAmount($contract->getPackage()->getPrice() * 0.05);
+                    if ($contract->getPackage()->getSlug() === 'vip-coworking') {
+                        $commission->setServiceType(Commission::TYPE_SUBSCRIPTION);
+                        $commission->setSalesPeriod('Annuel');
+                    }
+                    $commission->setStatus(Commission::STATUS_PENDING);
+                    $commission->setFixedAmount($contract->getPackage()->getPrice() * 0.05);
+                    $this->em->persist($commission);
+                }
+            }
             $contract->setExpiredAt(new \DateTime('+1 month'));
             $contract->setFlexi($contract->getPackage()->getCredit());
             $this->createInvoice($contract);

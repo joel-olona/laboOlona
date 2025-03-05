@@ -5,6 +5,7 @@ namespace App\Controller\Marketing;
 use App\Entity\Marketing\Commission;
 use App\Form\Marketing\CommissionType;
 use App\Repository\Marketing\CommissionRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +29,25 @@ class CommissionController extends AbstractController
             'count' => $commissionRepository->countAll(),
             'countStatus' => $commissionRepository->countStatus($status),
             'statuses' => array_merge(['Tous' => 'ALL' ],Commission::getStatuses()),
+            'selectedStatus' => $status,
+        ]);
+    }
+
+    #[Route('/users', name: 'app_marketing_commission_users', methods: ['GET'])]
+    public function users(
+        Request $request, 
+        CommissionRepository $commissionRepository,
+        UserRepository $userRepository,
+    ): Response
+    {
+        $page = $request->query->getInt('page', 1);
+        $status = $request->query->get('status', Commission::STATUS_PENDING);
+        
+        return $this->render('marketing/commission/users.html.twig', [
+            'users' => $userRepository->paginateUsersWithTotalCommissions($page, $status),
+            'count' => $commissionRepository->countAll(),
+            'countStatus' => $commissionRepository->countStatus($status),
+            'statuses' => Commission::getStatuses(),
             'selectedStatus' => $status,
         ]);
     }

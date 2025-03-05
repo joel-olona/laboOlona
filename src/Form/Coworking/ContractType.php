@@ -164,6 +164,13 @@ class ContractType extends AbstractType
                     ],
                     'help' => 'Status du contrat.',
                 ])
+                ->add('affiliateCode', TextType::class, [
+                    'label' => 'Code affiliation',
+                    'label_attr' => [
+                        'class' => 'fw-bold fs-6' 
+                    ],
+                    'help' => 'Code porteur d\'affaire. Ex: aff_00023',
+                ])
                 ->add('user', UserAutocompleteField::class, [])
             ;
         }else{

@@ -103,6 +103,9 @@ class Contract
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $expiredAt = null;
 
+    #[ORM\Column(length: 25, nullable: true)]
+    private ?string $affiliateCode = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
@@ -381,6 +384,18 @@ class Contract
     public function setExpiredAt(?\DateTimeInterface $expiredAt): static
     {
         $this->expiredAt = $expiredAt;
+
+        return $this;
+    }
+
+    public function getAffiliateCode(): ?string
+    {
+        return $this->affiliateCode;
+    }
+
+    public function setAffiliateCode(?string $affiliateCode): static
+    {
+        $this->affiliateCode = $affiliateCode;
 
         return $this;
     }
