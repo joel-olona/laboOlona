@@ -3,6 +3,10 @@
 namespace App\Service\MobileMoney;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 
 class AirtelMoneyService
 {
@@ -48,64 +52,105 @@ class AirtelMoneyService
 
         return $response->toArray();
     }
+    
+    private function encryptionKey()
+    {
+        $accessToken = $this->authenticate();
+        try {
+            $response = $this->client->request('GET', $this->apiUrl . '/v1/rsa/encryption-keys', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                    'X-Country' => 'MG', 
+                    'X-Currency' => 'MGA', 
+                ]
+            ]);
+
+            $data = $response->toArray();
+            dump("encriptionKey : ", $data);
+            return $data['data']['key']; 
+
+        } catch (\Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface $e) {
+            throw new \Exception('Erreur lors de la récupération de la clé de chiffrement : ' . $e->getMessage());
+        }
+    }
 
     public function payments($payload)
     {
-        // Example on how to call a specific API endpoint
         $accessToken = $this->authenticate();
         $security = $this->generateSignatureAndKey($payload);
-        $response = $this->client->request('POST', $this->apiUrl . '/merchant/v2/payments/', [
-            'headers' => [
-                'Accept' => '*/*',
-                'Content-Type' => 'application/json',
-                'X-Country' => 'MG',
-                'X-Currency' => 'MGA',
-                'Authorization' => 'Bearer ' . $accessToken,
-                'x-signature' => $security['x-signature'],
-                'x-key' => $security['x-key']
-            ],
-            'json' => $payload
-        ]);
 
-        return $response;
+        $headers = [
+            'Accept' => '*/* ',
+            'Content-Type' => 'application/json',
+            'X-Country' => 'MG',
+            'X-Currency' => 'MGA',
+            'Authorization' => 'Bearer ' . $accessToken,
+            ' x-signature' => $security['x-signature'],
+            ' x-key' => $security['x-key']
+        ];
+        dump("headers : " ,$headers);
+
+        try {
+            $response = $this->client->request('POST', 'https://openapiuat.airtel.africa/merchant/v2/payments/', array(
+              'headers' => $headers,
+              'json' => $payload,
+              )
+            );
+
+            $content = $response->getContent(); 
+        } catch (
+            TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
+        ) {
+            $content = $exception;
+        }
+
+        return $content;
     }
 
-    function generateSignatureAndKey($payload)
+    private function generateSignatureAndKey($payload)
     {
-        $rsaPublicKey = "-----BEGIN PUBLIC KEY-----\n" .
-                "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCYtZNZnPdBFqUIXoSJlvjhYH5m\n" .
-                "3Yq8OcK6OzQXxcE8nh7kRCwTvTpnNBIY+Dn1TQa9sq/iGuTfXgJABOzTH0Z4vT6V\n" .
-                "6vB6VlF4W469iH5u+BRwpV3YXYKm4dr5633UO1XBLdAc2X4aXm51HNkZKg+D0/zG\n" .
-                "OUFxwCAlYKr92kPHwQIDAQAB\n" .
-                "-----END PUBLIC KEY-----";
-
-        // Step 1: Generate random AES key and IV
-        $aesKey = openssl_random_pseudo_bytes(32); // 256 bits
-        $iv = openssl_random_pseudo_bytes(16); // 128 bits
-
-        // Step 2: Base64 encode the AES key and IV
+        $rsaPublicKey = $this->encryptionKey();
+        $formattedKey = "-----BEGIN PUBLIC KEY-----\n" .
+                        chunk_split($rsaPublicKey, 64, "\n") .
+                        "-----END PUBLIC KEY-----";
+    
+        // 1️⃣ Générer une clé AES 256 bits et un IV 128 bits
+        $aesKey = openssl_random_pseudo_bytes(32);
+        $iv = openssl_random_pseudo_bytes(16);
+    
+        if ($aesKey === false || $iv === false) {
+            throw new \Exception('Échec de la génération de la clé AES ou de l’IV.');
+        }
+    
+        // 2️⃣ Encoder la clé AES et l'IV en Base64
         $aesKeyBase64 = base64_encode($aesKey);
         $ivBase64 = base64_encode($iv);
-        
-        // Step 3: Encrypt the payload using AES key and IV
+    
+        // 3️⃣ Chiffrer le payload avec AES-256-CBC
         $encryptedPayload = openssl_encrypt($payload, 'aes-256-cbc', $aesKey, OPENSSL_RAW_DATA, $iv);
-
-        // Base64 encode the encrypted payload
+        if ($encryptedPayload === false) {
+            throw new \Exception('Échec du chiffrement AES du payload.');
+        }
+    
+        // 4️⃣ Encoder le payload chiffré en Base64
         $encryptedPayloadBase64 = base64_encode($encryptedPayload);
-
-        // Step 5: Concatenate the AES key and IV with a colon
+    
+        // 5️⃣ Concaténer la clé AES et l'IV avec ":"
         $keyIv = $aesKeyBase64 . ':' . $ivBase64;
-
-        // Step 6: Encrypt the concatenated key:IV using the RSA public key
-        openssl_public_encrypt($keyIv, $encryptedKeyIv, $rsaPublicKey, OPENSSL_PKCS1_OAEP_PADDING); // Use OAEP padding for RSA
+    
+        // 6️⃣ Chiffrer la clé AES et l'IV avec RSA
+        if (!openssl_public_encrypt($keyIv, $encryptedKeyIv, $formattedKey, OPENSSL_PKCS1_OAEP_PADDING)) {
+            throw new \Exception('Échec du chiffrement RSA de la clé AES.');
+        }
+    
+        // 7️⃣ Encoder la clé chiffrée en Base64
         $encryptedKeyIvBase64 = base64_encode($encryptedKeyIv);
-
-        // Return x-signature and x-key
+    
+        // Retourner les headers pour la requête sécurisée
         return [
             'x-signature' => $encryptedPayloadBase64,
             'x-key' => $encryptedKeyIvBase64,
         ];
     }
-
-    // Add more methods for each API endpoint you plan to use
+    
 }

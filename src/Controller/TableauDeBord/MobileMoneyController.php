@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Service\MobileMoney\AirtelMoneyService;
+use App\Service\MobileMoney\MvolaService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -19,6 +20,7 @@ class MobileMoneyController extends AbstractController
         private EntityManagerInterface $em,
         private UserService $userService,
         private AirtelMoneyService $airtelMoneyService,
+        private MvolaService $mvolaService,
     ){}
 
     #[Route('/airtel-money', name: 'app_mobile_money_airtel')]
@@ -41,7 +43,26 @@ class MobileMoneyController extends AbstractController
                 "id" => "test_id"
             ]
         ]);
-        dd($this->airtelMoneyService->generateSignatureAndKey($payload));
+        dump("payload : ", $payload);
+        dd("response : ", $this->airtelMoneyService->payments($payload));
+
+        return $this->render('tableau_de_bord/candidat/index.html.twig', []);
+    }
+
+    #[Route('/mvola', name: 'app_mobile_money_mvola')]
+    public function mvola(
+        Request $request
+    ): Response
+    {
+        $payload = [
+            'X-CorrelationID' => '123456789', 
+            'partnerMSISDN' => '0380842696', // Votre numéro de téléphone enregistré avec MVola
+            'partnerName' => 'olona-talents.com', 
+            'amount' => '10000', 
+            'description' => 'Achat crédit Olona Talents', 
+            'customerMSISDN' => '0340268554', 
+        ];
+        dd($this->mvolaService->mvolaPayment($payload));
         dd($this->airtelMoneyService->payments($payload));
 
         return $this->render('tableau_de_bord/candidat/index.html.twig', []);
