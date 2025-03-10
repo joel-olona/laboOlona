@@ -59,10 +59,11 @@ class ContractManager
                         $commission->setSalesPeriod('Annuel');
                     }
                     $commission->setStatus(Commission::STATUS_PENDING);
+                    $commission->setDescription("Commission de 5% sur le montant de la facture pour ". $affiliateBy .". Code affiliation : ". $affiliateCode);
                     $commission->setFixedAmount($contract->getPackage()->getPrice() * 0.05);
                     $this->em->persist($commission);
                 }
-                
+
                 if($ravaka instanceof User){
                     $commission = new Commission();
                     $commission->setUser($ravaka);
@@ -74,6 +75,7 @@ class ContractManager
                         $commission->setSalesPeriod('Annuel');
                     }
                     $commission->setStatus(Commission::STATUS_PENDING);
+                    $commission->setDescription("Commission de 3% sur le montant de la facture pour ". $ravaka .". Code affiliation : ". $ravaka->getAffiliateCode());
                     $commission->setFixedAmount($contract->getPackage()->getPrice() * 0.03);
                     $this->em->persist($commission);
                 }
