@@ -95,3 +95,10 @@ services:
             $clientId: '%env(AIRTEL_CLIENT_ID)%'
             $clientSecret: '%env(AIRTEL_CLIENT_SECRET)%'
             $apiUrl: '%env(AIRTEL_API_URL)%'
+        
+    App\Service\MobileMoney\MvolaService:
+        arguments:
+            $clientId: '%env(MVOLA_CLIENT_ID)%'
+            $clientSecret: '%env(MVOLA_CLIENT_SECRET)%'
+            $apiUrl: '%env(MVOLA_API_URL)%'
+            $scope: '%env(MVOLA_SCOPE)%'
