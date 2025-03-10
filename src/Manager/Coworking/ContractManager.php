@@ -46,6 +46,7 @@ class ContractManager
             if($contract->getAffiliateCode() !== null){
                 $affiliateCode = $contract->getAffiliateCode();
                 $affiliateBy = $this->em->getRepository(User::class)->findOneByAffiliateCode($affiliateCode);
+                $ravaka = $this->em->getRepository(User::class)->findOneByAffiliateCode("aff_00023");
                 
                 if($affiliateBy instanceof User){
                     $commission = new Commission();
@@ -61,6 +62,22 @@ class ContractManager
                     $commission->setFixedAmount($contract->getPackage()->getPrice() * 0.05);
                     $this->em->persist($commission);
                 }
+                
+                if($ravaka instanceof User){
+                    $commission = new Commission();
+                    $commission->setUser($ravaka);
+                    $commission->setSaleReference($contract->getPackage()->getSlug());
+                    $commission->setCommissionPercentage(0.03);
+                    $commission->setAmount($contract->getPackage()->getPrice() * 0.03);
+                    if ($contract->getPackage()->getSlug() === 'vip-coworking') {
+                        $commission->setServiceType(Commission::TYPE_SUBSCRIPTION);
+                        $commission->setSalesPeriod('Annuel');
+                    }
+                    $commission->setStatus(Commission::STATUS_PENDING);
+                    $commission->setFixedAmount($contract->getPackage()->getPrice() * 0.03);
+                    $this->em->persist($commission);
+                }
+
             }
             $contract->setExpiredAt(new \DateTime('+1 month'));
             $contract->setFlexi($contract->getPackage()->getCredit());

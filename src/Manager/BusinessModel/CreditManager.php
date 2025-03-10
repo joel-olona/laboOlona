@@ -96,11 +96,23 @@ class CreditManager
             $credit = $this->init();
             $credit->setUser($user);
         }
+        if($user->getAffiliateCode() === null){
+            $user->setAffiliateCode($this->generateAffiliateCode($user));
+        }
 
         $credit->setTotal($credit->getTotal() + $welcomeCredits);
         $credit->setExpireAt((new \DateTime())->modify('+60 days'));
+        $this->em->persist($user);
         $this->em->persist($credit);
         $this->em->flush();
+    }
+
+    private function generateAffiliateCode(User $user): string
+    {
+        $letters = 'aff_';
+        $paddedId = sprintf('%05d', $user->getId());
+
+        return $letters . $paddedId;
     }
 
     public function handleCreditPackagePurchase(User $user, int $packageId, bool $isRecruiter): bool

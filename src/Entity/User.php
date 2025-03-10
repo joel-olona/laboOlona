@@ -230,22 +230,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->commissions = new ArrayCollection();
     }
 
-    #[ORM\PrePersist]
-    public function generateOrderNumber(): void
-    {
-        if ($this->affiliateCode === null) {
-            $this->affiliateCode = $this->generateUniqueOrderNumber();
-        }
-    }
-
-    private function generateUniqueOrderNumber(): string
-    {
-        $letters = 'aff_';
-        $paddedId = sprintf('%05d', $this->id);
-
-        return $letters . $paddedId;
-    }
-
     public function __toString()
     {
         return $this->getFullName();

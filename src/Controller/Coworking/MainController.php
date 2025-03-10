@@ -240,13 +240,17 @@ class MainController extends AbstractController
     ): Response
     {
         $session = $requestStack->getSession();
-        $affiliateCode = $request->query->get('aff', null);
+        $affiliateCode = $request->query->get('aff');
+    
         if ($affiliateCode) {
             $session->set('aff', $affiliateCode);
-            $affitiateBy = $entityManager->getRepository(User::class)->findOneByAffiliateCode($affiliateCode);
-        }else{
+        } else {
             $affiliateCode = $session->get('aff');
-            $affitiateBy = $entityManager->getRepository(User::class)->findOneByAffiliateCode($affiliateCode);
+        }
+    
+        $affiliateBy = null;
+        if ($affiliateCode) {
+            $affiliateBy = $entityManager->getRepository(User::class)->findOneBy(['affiliateCode' => $affiliateCode]);
         }
         /** @var Package $package */
         $package = $entityManager->getRepository(Package::class)->findOneBy([
@@ -256,9 +260,9 @@ class MainController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if($affitiateBy instanceof User){
+            if($affiliateBy instanceof User){
                 $commission = new Commission();
-                $commission->setUser($affitiateBy);
+                $commission->setUser($affiliateBy);
                 $commission->setSaleReference($package->getSlug());
                 $commission->setCommissionPercentage(0.05);
                 $commission->setAmount($package->getPrice() * 0.05);
@@ -304,13 +308,17 @@ class MainController extends AbstractController
     ): Response
     {
         $session = $requestStack->getSession();
-        $affiliateCode = $request->query->get('aff', null);
+        $affiliateCode = $request->query->get('aff');
+    
         if ($affiliateCode) {
             $session->set('aff', $affiliateCode);
-            $affitiateBy = $entityManager->getRepository(User::class)->findOneByAffiliateCode($affiliateCode);
-        }else{
+        } else {
             $affiliateCode = $session->get('aff');
-            $affitiateBy = $entityManager->getRepository(User::class)->findOneByAffiliateCode($affiliateCode);
+        }
+    
+        $affiliateBy = null;
+        if ($affiliateCode) {
+            $affiliateBy = $entityManager->getRepository(User::class)->findOneBy(['affiliateCode' => $affiliateCode]);
         }
         /** @var Package $package */
         $package = $entityManager->getRepository(Package::class)->findOneBy([
@@ -320,9 +328,9 @@ class MainController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if($affitiateBy instanceof User){
+            if($affiliateBy instanceof User){
                 $commission = new Commission();
-                $commission->setUser($affitiateBy);
+                $commission->setUser($affiliateBy);
                 $commission->setSaleReference($package->getSlug());
                 $commission->setCommissionPercentage(0.05);
                 $commission->setAmount($package->getPrice() * 0.05);
