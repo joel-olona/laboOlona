@@ -28,8 +28,7 @@ class MobileMoneyController extends AbstractController
         Request $request
     ): Response
     {
-        // dd($this->airtelMoneyService->checkBalance());
-        $payload = json_encode([
+        $payload = [
             "reference" => "Testing transaction",
             "subscriber" => [
                 "country" => "MG",
@@ -40,13 +39,17 @@ class MobileMoneyController extends AbstractController
                 "amount" => "100",
                 "country" => "MG",
                 "currency" => "MGA",
-                "id" => "test_id"
+                "id" => "testid12"
             ]
-        ]);
-        dump("payload : ", $payload);
-        dd("response : ", $this->airtelMoneyService->payments($payload));
+        ];
 
-        return $this->render('tableau_de_bord/candidat/index.html.twig', []);
+        $response = json_decode($this->airtelMoneyService->payments($payload), true);
+
+        return $this->json(
+            $response, 
+            200, 
+            [], 
+        );
     }
 
     #[Route('/mvola', name: 'app_mobile_money_mvola')]
@@ -56,16 +59,22 @@ class MobileMoneyController extends AbstractController
     {
         $payload = [
             'X-CorrelationID' => '123456789', 
-            'partnerMSISDN' => '0380842696', // Votre numéro de téléphone enregistré avec MVola
-            'partnerName' => 'olona-talents.com', 
-            'amount' => '10000', 
-            'description' => 'Achat crédit Olona Talents', 
-            'customerMSISDN' => '0340268554', 
+            'partnerMSISDN' => '0343500003', 
+            'requestingOrganisationTransactionReference' => 'ABC123', 
+            'originalTransactionReference' => 'AZERTY', 
+            'partnerName' => 'olona_talents', 
+            'amount' => '100', 
+            'description' => 'credit_olona_talents', 
+            'customerMSISDN' => "0340268554", 
         ];
-        dd($this->mvolaService->mvolaPayment($payload));
-        dd($this->airtelMoneyService->payments($payload));
 
-        return $this->render('tableau_de_bord/candidat/index.html.twig', []);
+        $response = json_decode($this->mvolaService->mvolaPayment($payload), true);
+
+        return $this->json(
+            $response, 
+            200, 
+            [], 
+        );
     }
 
 }

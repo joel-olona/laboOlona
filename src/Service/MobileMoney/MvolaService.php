@@ -10,20 +10,13 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 
 class MvolaService
 {
-    private $client;
-    private $clientId;
-    private $clientSecret;
-    private $apiUrl;
-    private $scope;
-
-    public function __construct(HttpClientInterface $client, string $clientId, string $clientSecret, string $apiUrl, string $scope)
-    {
-        $this->client = $client;
-        $this->clientId = $clientId;
-        $this->clientSecret = $clientSecret;
-        $this->apiUrl = $apiUrl;
-        $this->scope = $scope;
-    }
+    public function __construct(
+        private HttpClientInterface $client, 
+        private string $clientId, 
+        private string $clientSecret, 
+        private string $apiUrl, 
+        private string $scope
+    ){}
 
     public function authenticate()
     {
@@ -40,7 +33,7 @@ class MvolaService
         ]);
 
         $data = $response->toArray();
-        dump($data);
+
         return $data['access_token'] ?? null;
     }
 
@@ -48,24 +41,25 @@ class MvolaService
     {
         $accessToken = $this->authenticate();
         $url = $this->apiUrl . '/mvola/mm/transactions/type/merchantpay/1.0.0/';
+        $date = new \DateTime("now", new \DateTimeZone("UTC"));
         $headers = [
             'Version' => '1.0',
             'X-CorrelationID' => $payload['X-CorrelationID'],
             'UserLanguage' => 'mg',
-            'UserAccountIdentifier' => 'msisdn;' . $payload['partnerMSISDN'],
+            'UserAccountIdentifier' => $payload['partnerMSISDN'],
             'partnerName' => $payload['partnerName'],
             'Content-Type' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,
-            'Cache-Control' => 'no-cache',
+            'Cache-Control' => 'no_cache',
         ];
 
         $data = [
             'amount' => $payload['amount'],
             'currency' => 'Ar',
             'descriptionText' => $payload['description'],
-            'requestingOrganisationTransactionReference' => '',
-            'requestDate' => '',
-            'originalTransactionReference' => '',
+            'requestingOrganisationTransactionReference' => $payload['requestingOrganisationTransactionReference'],
+            'originalTransactionReference' => $payload['originalTransactionReference'],
+            'requestDate' => $date->format("Y-m-d\TH:i:s.v\Z"),
             'debitParty' => [
                 [
                     'key' => 'msisdn',
@@ -93,7 +87,6 @@ class MvolaService
                 ]
             ]
         ];     
-        dump($headers, $data);
 
         try {
             $response = $this->client->request('POST', $url, [
@@ -109,6 +102,4 @@ class MvolaService
     
         return $content;
     }
-
-    // Add more methods for each API endpoint you plan to use 
 }
