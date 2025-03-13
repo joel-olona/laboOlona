@@ -10,13 +10,17 @@ use App\Service\User\UserService;
 use App\Entity\Entreprise\Favoris;
 use App\Entity\Entreprise\JobListing;
 use App\Entity\Candidate\Applications;
+use App\Entity\CandidateProfile;
+use App\Entity\Prestation;
 use App\Form\Entreprise\JobListingType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Manager\BusinessModel\CreditManager;
+use App\Manager\CandidatManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\BusinessModel\PackageRepository;
+use App\Twig\AppExtension;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/tableau-de-bord/entreprise')]
@@ -96,7 +100,7 @@ class EntrepriseController extends AbstractController
         $page = $request->query->get('page', 1);
         $params = $this->getData();
         $entreprise = $params['entreprise'];  
-        $favoris = $this->em->getRepository(Favoris::class)->paginateFavoris($page, $entreprise);
+        $favoris = $this->em->getRepository(Favoris::class)->paginateFavoris($entreprise, $page);
         $params['favoris'] = $favoris;
 
         return $this->render('tableau_de_bord/entreprise/favoris.html.twig', $params);
@@ -107,16 +111,36 @@ class EntrepriseController extends AbstractController
     {
         return $this->render('tableau_de_bord/entreprise/tarifs.html.twig', $this->getData());
     }
-    #[Route('/profil-candidat', name: 'app_tableau_de_bord_entreprise_profil_candidat')]
-    public function profilcandidat(): Response
+
+    #[Route('/profil-candidat/{id}', name: 'app_tableau_de_bord_entreprise_profil_candidat')]
+    public function profilcandidat(Request $request, int $id, CandidatManager $candidatManager, AppExtension $appExtension): Response
     {
-        return $this->render('tableau_de_bord/entreprise/profil_candidat.html.twig', $this->getData());
+        $candidat = $this->em->getRepository(CandidateProfile::class)->find($id);
+        if ($candidat === null || $candidat->getStatus() === CandidateProfile::STATUS_BANNISHED || $candidat->getStatus() === CandidateProfile::STATUS_PENDING) {
+            throw $this->createNotFoundException('Nous sommes désolés, mais le candidat demandé n\'existe pas.');
+        }
+        $candidatManager->incrementView($candidat, $request->getClientIp());
+        $data = $this->getData();
+        $this->activityLogger->logProfileViewActivity($data['currentUser'], $appExtension->generatePseudo($candidat));
+        $data['candidat'] = $candidat;
+        $data['experiences'] = $candidatManager->getExperiencesSortedByDate($candidat);
+        $data['competences'] = $candidatManager->getCompetencesSortedByNote($candidat);
+        $data['langages'] = $candidatManager->getLangagesSortedByNiveau($candidat);
+
+        return $this->render('tableau_de_bord/entreprise/profil_candidat.html.twig', $data);
     }
+
     #[Route('/annuaire-de-services', name: 'app_tableau_de_bord_entreprise_annuaire_de_services')]
-    public function annuaire(): Response
+    public function annuaire(Request $request): Response
     {
-        return $this->render('tableau_de_bord/entreprise/annuaire_de_services.html.twig', $this->getData());
+        $page = $request->query->get('page', 1);
+        $params = $this->getData();
+        $prestations = $this->em->getRepository(Prestation::class)->paginatePrestations(Prestation::STATUS_VALID, $page);
+        $params['prestations'] = $prestations;
+
+        return $this->render('tableau_de_bord/entreprise/annuaire_de_services.html.twig', $params);
     }
+    
     #[Route('/profil-public', name: 'app_tableau_de_bord_entreprise_profil_public')]
     public function profilpublic(): Response
     {
