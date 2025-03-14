@@ -2,6 +2,7 @@
 
 namespace App\Service\MobileMoney;
 
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -12,6 +13,7 @@ class MvolaService
 {
     public function __construct(
         private HttpClientInterface $client, 
+        private UrlGeneratorInterface $urlGenerator,
         private string $clientId, 
         private string $clientSecret, 
         private string $apiUrl, 
@@ -45,6 +47,7 @@ class MvolaService
         $headers = [
             'Version' => '1.0',
             'X-CorrelationID' => $payload['X-CorrelationID'],
+            'X-Callback-URL' => $this->urlGenerator->generate('mvola_callback', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'UserLanguage' => 'mg',
             'UserAccountIdentifier' => $payload['partnerMSISDN'],
             'partnerName' => $payload['partnerName'],
@@ -92,6 +95,36 @@ class MvolaService
             $response = $this->client->request('POST', $url, [
                 'headers' => $headers,
                 'json' => $data,
+            ]);
+            $content = $response->getContent(); 
+        } catch (
+            TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
+        ) {
+            $content = $exception;
+        }
+    
+        return $content;
+    }
+
+    public function transactionStatus(string $serverCorrelationId)
+    {
+        $accessToken = $this->authenticate();
+        $url = $this->apiUrl . '/mvola/mm/transactions/type/merchantpay/1.0.0/status/'. $serverCorrelationId;
+        
+        $headers = [
+            'Authorization' => 'Bearer ' . $accessToken,
+            'Version' => '1.0',
+            'X-CorrelationID' => '1234567890',
+            'UserLanguage' => 'mg',
+            'UserAccountIdentifier' => 'msisdn;0343500003',
+            'partnerName' => 'OlonaTalents',
+            'Content-Type' => 'application/json',
+            'Cache-Control' => 'no_cache',
+        ];
+
+        try {
+            $response = $this->client->request('GET', $url, [
+                'headers' => $headers,
             ]);
             $content = $response->getContent(); 
         } catch (

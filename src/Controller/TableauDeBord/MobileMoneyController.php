@@ -39,11 +39,28 @@ class MobileMoneyController extends AbstractController
                 "amount" => "100",
                 "country" => "MG",
                 "currency" => "MGA",
-                "id" => "testid12"
+                "id" => "testid23"
             ]
         ];
 
+        $data = [
+            'payee' => [
+                'msisdn' => '332046888',
+                'wallet_type' => 'NORMAL',
+            ],
+            'reference' => 'AB41',
+            'pin' => '2627',
+            'transaction' => [
+                'amount' => 1000,
+                'id' => 'AB141',
+                'type' => 'B2C',
+            ],
+        ];
+
+        // $response = json_decode($this->airtelMoneyService->kyc("332046888"), true);
         $response = json_decode($this->airtelMoneyService->payments($payload), true);
+        // $response = json_decode($this->airtelMoneyService->disbursements($data), true);
+        // dd($response);
 
         return $this->json(
             $response, 
@@ -58,8 +75,8 @@ class MobileMoneyController extends AbstractController
     ): Response
     {
         $payload = [
-            'X-CorrelationID' => '123456789', 
-            'partnerMSISDN' => '0343500003', 
+            'X-CorrelationID' => '12345678904', 
+            'partnerMSISDN' => '0380842696', 
             'requestingOrganisationTransactionReference' => 'ABC123', 
             'originalTransactionReference' => 'AZERTY', 
             'partnerName' => 'olona_talents', 
@@ -68,6 +85,7 @@ class MobileMoneyController extends AbstractController
             'customerMSISDN' => "0340268554", 
         ];
 
+        // $response = json_decode($this->mvolaService->transactionStatus('a0ac063b-9f26-402e-84fb-567ebb06c6d7'), true);
         $response = json_decode($this->mvolaService->mvolaPayment($payload), true);
 
         return $this->json(
@@ -75,6 +93,35 @@ class MobileMoneyController extends AbstractController
             200, 
             [], 
         );
+    }
+
+    #[Route('/mvola/callback', name: 'mvola_callback', methods: ['PUT'])]
+    public function callback(Request $request): Response
+    {
+        // Décoder le contenu JSON de la requête
+        $data = json_decode($request->getContent(), true);
+        dd($data);
+
+        // Vérifier les données reçues
+        if (isset($data['status']) && isset($data['serverCorrelationId'])) {
+            // Logique métier: Mettre à jour la base de données ou traiter le statut
+            // Par exemple, vous pouvez mettre à jour l'état d'une transaction
+            $status = $data['status'];
+            $serverCorrelationId = $data['serverCorrelationId'];
+            
+            // Exemple de retour en fonction du statut reçu
+            if ($status === 'success') {
+                // Code pour mettre à jour la transaction comme réussie
+            } elseif ($status === 'failed') {
+                // Code pour gérer une transaction échouée
+            }
+            
+            // Répondre à la requête MVola avec un succès
+            return $this->json(['message' => 'Notification received and processed successfully'], Response::HTTP_OK);
+        }
+
+        // Répondre avec une erreur si les données ne sont pas correctes
+        return $this->json(['error' => 'Invalid data received'], Response::HTTP_BAD_REQUEST);
     }
 
 }

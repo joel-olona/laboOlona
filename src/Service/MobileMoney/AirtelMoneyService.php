@@ -97,6 +97,20 @@ class AirtelMoneyService
         ];
     }
 
+    private function encryptPin($pin)
+    {
+        $rsaPublicKey = $this->encryptionKey();
+        $formattedKey = "-----BEGIN PUBLIC KEY-----\n" .
+                        chunk_split($rsaPublicKey, 64, "\n") .
+                        "-----END PUBLIC KEY-----";
+    
+        // Chiffrement du PIN avec OpenSSL
+        openssl_public_encrypt($pin, $encryptedPin, $formattedKey, OPENSSL_PKCS1_PADDING);
+
+        // Conversion du PIN chiffré en base64 pour le transmettre en toute sécurité
+        return base64_encode($encryptedPin);
+    }
+
     public function payments($payload)
     {
         $accessToken = $this->authenticate();
@@ -110,6 +124,62 @@ class AirtelMoneyService
             'X-Currency' => 'MGA',
             'x-signature' => $security['x-signature'],
             'x-key' => $security['x-key'],
+            'Content-Type' => 'application/json'
+        ];
+
+        try {
+            $response = $this->client->request('POST', $url, [
+                'headers' => $headers,
+                'json' => $payload,
+            ]);
+            $content = $response->getContent(); 
+        } catch (
+            TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
+        ) {
+            $content = $exception;
+        }
+
+        return $content;
+    }
+
+    public function kyc($msisdn)
+    {
+        $accessToken = $this->authenticate();
+        $url = $this->apiUrl . '/standard/v1/users/'. $msisdn;
+
+        $headers = [
+            'Accept' => '*/* ',
+            'X-Country' => 'MG',
+            'X-Currency' => 'MGA',
+            'Authorization' => 'Bearer ' . $accessToken
+        ];
+        dump($url, $headers);
+
+        try {
+            $response = $this->client->request('GET', $url, [
+                'headers' => $headers,
+            ]);
+            $content = $response->getContent(); 
+        } catch (
+            TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
+        ) {
+            $content = $exception;
+        }
+
+        return $content;
+    }
+
+    public function disbursements($payload)
+    {
+        $accessToken = $this->authenticate();
+        $url = $this->apiUrl . '/standard/v1/disbursements';
+        $payload['pin'] = $this->encryptPin($payload['pin']);
+
+        $headers = [
+            'Authorization' => 'Bearer ' . $accessToken,
+            'Accept' => '*/* ',
+            'X-Country' => 'MG',
+            'X-Currency' => 'MGA',
             'Content-Type' => 'application/json'
         ];
 
