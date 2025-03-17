@@ -45,14 +45,14 @@ class MvolaService
         $url = $this->apiUrl . '/mvola/mm/transactions/type/merchantpay/1.0.0/';
         $date = new \DateTime("now", new \DateTimeZone("UTC"));
         $headers = [
+            'Authorization' => 'Bearer ' . $accessToken,
             'Version' => '1.0',
             'X-CorrelationID' => $payload['X-CorrelationID'],
-            'X-Callback-URL' => $this->urlGenerator->generate('mvola_callback', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'UserLanguage' => 'mg',
+            // 'X-Callback-URL' => $this->urlGenerator->generate('mvola_callback', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'UserLanguage' => 'FR',
             'UserAccountIdentifier' => $payload['partnerMSISDN'],
             'partnerName' => $payload['partnerName'],
             'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . $accessToken,
             'Cache-Control' => 'no_cache',
         ];
 
@@ -60,9 +60,9 @@ class MvolaService
             'amount' => $payload['amount'],
             'currency' => 'Ar',
             'descriptionText' => $payload['description'],
+            'requestDate' => $date->format("Y-m-d\TH:i:s.v\Z"),
             'requestingOrganisationTransactionReference' => $payload['requestingOrganisationTransactionReference'],
             'originalTransactionReference' => $payload['originalTransactionReference'],
-            'requestDate' => $date->format("Y-m-d\TH:i:s.v\Z"),
             'debitParty' => [
                 [
                     'key' => 'msisdn',
