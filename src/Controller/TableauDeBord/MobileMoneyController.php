@@ -2,13 +2,14 @@
 
 namespace App\Controller\TableauDeBord;
 
+use Symfony\Component\Uid\Uuid;
 use App\Entity\Logs\ActivityLog;
 use App\Service\User\UserService;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\MobileMoney\MvolaService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Service\MobileMoney\AirtelMoneyService;
-use App\Service\MobileMoney\MvolaService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -74,19 +75,34 @@ class MobileMoneyController extends AbstractController
         Request $request
     ): Response
     {
+        $uuid = Uuid::v4()->toRfc4122();
+        $timestamp = time();
         $payload = [
-            'X-CorrelationID' => '12345678904', 
-            'partnerMSISDN' => '0380842696', 
-            'requestingOrganisationTransactionReference' => 'ABC123', 
+            'X-CorrelationID' => $uuid, 
+            'partnerMSISDN' => '0343500003', 
+            'requestingOrganisationTransactionReference' => 'order_' . $timestamp, 
             'originalTransactionReference' => 'AZERTY', 
             'partnerName' => 'olona_talents', 
             'amount' => '100', 
             'description' => 'credit_olona_talents', 
-            'customerMSISDN' => "0340268554", 
+            'customerMSISDN' => '0343500004', 
         ];
 
-        // $response = json_decode($this->mvolaService->transactionStatus('a0ac063b-9f26-402e-84fb-567ebb06c6d7'), true);
         $response = json_decode($this->mvolaService->mvolaPayment($payload), true);
+
+        return $this->json(
+            $response, 
+            200, 
+            [], 
+        );
+    }
+    #[Route('/mvola/status/{uuid}', name: 'app_mobile_money_mvola_status')]
+    public function mvolaStatus(
+        Request $request,
+        string $uuid
+    ): Response
+    {
+        $response = json_decode($this->mvolaService->transactionStatus($uuid), true);
 
         return $this->json(
             $response, 
