@@ -16,28 +16,30 @@
                     <a routerlink="{{ path('app_tableau_de_bord_entreprise')}}" class="d-inline-block position-relative" href="{{ path('app_tableau_de_bord_entreprise')}}">
                     <i class="ri-home-8-line"></i> Tableau de bord </a>
                 </li>
-                <li class="breadcrumb-item position-relative"> entreprise </li>
+                <li class="breadcrumb-item position-relative"> Entreprise </li>
             </ol>
         </div>
     </section>
+    {% if not entreprise.isIsPremium %}
     <section class="warning_freemium mb-4 d-flex align-items-center">
         <span><img src="{{ asset('v2/images/dashboard/warning_outline_icon.svg')}}" alt=""></span>
         <div class="warning-block">
             Vous êtes actuellement sur un plan gratuit. commencez notre <a routerlink="{{ path('app_tableau_de_bord_entreprise_tarifs')}}" class="btn-primary" href="{{ path('app_tableau_de_bord_entreprise_tarifs')}}">abonnement premium</a> pour accéder à notre CVthèque exclusive et publier des annonces en illimité !.
         </div>
     </section>
+    {% endif %}
     <section class="recruteur-container">
         <div class="recruteur-block recruteur-block-bg p-5 pb-3 mb-4">
             <div class="recruteur-top-item">
-                <h1>Trouvez et recrutez les bons entreprises</h1>
+                <h1>Trouvez et recrutez les talents idéales</h1>
                 <ul>
-                    <li>Trouvez les profis clés pour votre entreprise.</li>
+                    <li>Trouvez les profils clés pour votre entreprise.</li>
                     <li>Boostez votre offre et touchez les meilleurs talents.</li>
                     <li>Déposez vos annonces d'emploi en toute simplicité.</li>
                     <li>Découvrez un large réseau de profils compétents.</li>
                 </ul>
                 <div class="recruteur-btn">
-                    <a routerlink="{{ path('app_tableau_de_bord_entreprise_cvtheque')}}" class="d-inline-block position-relative btn btn-pdp" href="{{ path('app_tableau_de_bord_entreprise_cvtheque')}}">Commencer maintenant</a>
+                    <a routerlink="{{ path('app_tableau_de_bord_entreprise_creer_une_annonce')}}" class="d-inline-block position-relative btn btn-pdp" href="{{ path('app_tableau_de_bord_entreprise_creer_une_annonce')}}">Commencer maintenant</a>
                 </div>
             </div>
         </div>
@@ -48,16 +50,20 @@
                     <p>Sélectionnez l'offre qui correspond à vos besoins.</p>
                 </div>
                 <div class="recruteur-btn">
-                    <a routerlink="{{ path('app_tableau_de_bord_entreprise_tarifs')}}" class="d-inline-block position-relative btn btn-pdp" href="{{ path('app_tableau_de_bord_entreprise_tarifs')}}">Commencer maintenant</a>
+                    <a routerlink="{{ path('app_tableau_de_bord_entreprise_cvtheque')}}" class="d-inline-block position-relative btn btn-pdp" href="{{ path('app_tableau_de_bord_entreprise_cvtheque')}}">Commencer maintenant</a>
                 </div>
             </div>
         </div>
     </section>
-    <section class="detail_db d-md-flex bp_">
+    <section class="detail_db d-xl-flex bp_">
         <div class="detail_left">
             <div class="biographie-profil mb-4 p-4 ">
                 <div class="resume_profil text-center">
-                    <div class="rounded-circle profile-img bg-image-candidat-account" style="background-image: url('{{ entreprise.fileName ? asset('uploads/compagnies/' ~ entreprise.fileName) : asset('uploads/experts/company-default.jpg') }}');" alt="Avatar"></div>
+                    <a href="{{ path('app_tableau_de_bord_entreprise_mon_compte')}}">
+                    <div class="rounded-circle profile-img bg-image-candidat-account" style="background-image: url('{{ entreprise.fileName ? asset('uploads/compagnies/' ~ entreprise.fileName) : asset('uploads/experts/company-default.jpg') }}');" alt="Avatar">
+                        <div class="overlay-text">Changer de logo</div>
+                    </div>
+                    </a>
                     <div class="name_ fw-bold">
                         <span class="fs-5 mb-1 fw-bold lh-base st-title">{{ app.user.nom }} {{ app.user.prenom }}</span> 
                     </div>
@@ -148,7 +154,8 @@
                 <div class="biographie-profil mb-4 p-4 apparition_">
                     <strong>Profiles retenus</strong>
                     <div class="d-flex align-items-center">
-                    <span><img src="{{ asset('v2/images/dashboard/search-icon.svg')}}" alt=""></span>10
+                    <span><img src="{{ asset('v2/images/dashboard/search-icon.svg')}}" alt=""></span>
+                        {{ favorisCount }}
                     </div>
                 </div>
             </section>
@@ -158,7 +165,7 @@
                     <div class="item-espace-pub">
                         <h2>Démarquez-vous des autres recruteurs !</h2>
                         <p>Votre visibilité est importante pour trouver la perle rare.</p>
-                        <a routerlink="" class="d-inline-block position-relative btn  btn-primary btn-outline" href="">Commencer maintenant</a>
+                        <a routerlink="" class="d-inline-block position-relative btn  btn-primary btn-outline" href="{{ path('app_tableau_de_bord_entreprise_tarifs')}}">Commencer maintenant</a>
                     </div>
                     <div class="item-espace-pub img-espace-pub"><img src="{{ asset('images/dashboard/espace_pubs.webp')}}" alt="" width="360" height="184"></div>
                 </div>
@@ -168,7 +175,7 @@
             <div class="biographie-profil mb-4 p-4">
                 <div class="biographie-profil-title mb-4">
                     <h3>CVthèque</h3>
-                    <div class="d-md-flex justify-content-between">
+                    <div class="d-sm-flex justify-content-between">
                         <span class="fs-5 mb-3 fw-bold lh-base st-title">Deniers profiles consultés</span>
                         {% set last_query = app.request.query.get('q', '') %}
                         <div class="db-search">
@@ -187,58 +194,25 @@
                     </div>
                 </div>
                 <div class="biographie-profil-list">
-                    <div class="profil-list-item d-md-flex align-items-center justify-content-between">
-                        <div class="profil-list-name d-flex align-items-center">
-                            <span class="profil-photo_"><img src="{{ asset('v2/images/dashboard/.svg')}}" alt=""></span>
+                    {% for item in profileViews %}
+                    <div class="profil-list-item d-sm-flex align-items-center justify-content-between">
+                        <div class="profil-list-name d-md-flex align-items-center">
+                            <span class="profil-photo_"><img src="{{ item.candidat.fileName ? asset('uploads/experts/' ~ item.candidat.fileName) : asset('uploads/experts/avatar-default.jpg') }}" alt=""></span>
                             <div class="profil-info_">
-                                Nom & prénoms
-                                <span class="profil-titire_">Marketing</span>
+                                {{ generatePseudo(item.candidat) }}
+                                <span class="profil-titire_">{{ item.candidat.titre }}</span>
                             </div>
                         </div>
                         <div class="profil-list-link d-flex align-items-center">
-                            <button class="favoris-add"><i class="bi bi-star"></i></button>
-                            <a class="btn btn-outline" href="{{ path('app_tableau_de_bord_entreprise_profil_candidat', {'id': 3634 })}}">Voir son profil</a>
+                            {% if isLikedByRecruiter(entreprise, item.candidat.id) %}
+                            <span class="favoris-add" id="row_star_favorite_{{ item.candidat.id }}"><i class="bi bi-star-fill"></i></span>
+                            {% else %}
+                            <span class="favoris-add" id="row_star_favorite_{{ item.candidat.id }}"><i class="bi bi-star"></i></span>
+                            {% endif %}
+                            <a class="btn btn-outline" href="{{ path('app_tableau_de_bord_entreprise_profil_candidat', {'id': item.candidat.id })}}">Voir son profil</a>
                         </div>
                     </div>
-                    <div class="profil-list-item d-md-flex align-items-center justify-content-between">
-                        <div class="profil-list-name d-flex align-items-center">
-                            <span class="profil-photo_"><img src="{{ asset('v2/images/dashboard/.svg')}}" alt=""></span>
-                            <div class="profil-info_">
-                                Nom & prénoms
-                                <span class="profil-titire_">Marketing</span>
-                            </div>
-                        </div>
-                        <div class="profil-list-link d-flex align-items-center">
-                            <button class="favoris-add"><i class="bi bi-star"></i></button>
-                            <a class="btn btn-outline" href="{{ path('app_tableau_de_bord_entreprise_profil_candidat', {'id': 3634 })}}">Voir son profil</a>
-                        </div>
-                    </div>
-                    <div class="profil-list-item d-md-flex align-items-center justify-content-between">
-                        <div class="profil-list-name d-flex align-items-center">
-                            <span class="profil-photo_"><img src="{{ asset('v2/images/dashboard/.svg')}}" alt=""></span>
-                            <div class="profil-info_">
-                                Nom & prénoms
-                                <span class="profil-titire_">Marketing</span>
-                            </div>
-                        </div>
-                        <div class="profil-list-link d-flex align-items-center">
-                            <button class="favoris-add"><i class="bi bi-star"></i></button>
-                            <a class="btn btn-outline" href="{{ path('app_tableau_de_bord_entreprise_profil_candidat', {'id': 3634 })}}">Voir son profil</a>
-                        </div>
-                    </div> 
-                    <div class="profil-list-item d-md-flex align-items-center justify-content-between">
-                        <div class="profil-list-name d-flex align-items-center">
-                            <span class="profil-photo_"><img src="{{ asset('v2/images/dashboard/.svg')}}" alt=""></span>
-                            <div class="profil-info_">
-                                Nom & prénoms
-                                <span class="profil-titire_">Marketing</span>
-                            </div>
-                        </div>
-                        <div class="profil-list-link d-flex align-items-center">
-                            <button class="favoris-add"><i class="bi bi-star"></i></button>
-                            <a class="btn btn-outline" href="{{ path('app_tableau_de_bord_entreprise_profil_candidat', {'id': 3634 })}}">Voir son profil</a>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

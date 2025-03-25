@@ -214,6 +214,9 @@ class CandidateProfile
     #[ORM\OneToMany(mappedBy: 'candidateProfile', targetEntity: ContestEntry::class)]
     private Collection $contestEntries;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isPremium = null;
+
     public function __construct()
     {
         $this->competences = new ArrayCollection();
@@ -234,6 +237,7 @@ class CandidateProfile
         $this->status = self::STATUS_PENDING;
         $this->contestEntries = new ArrayCollection();
         $this->localisation = 'MG';
+        $this->isGeneretated = false;
     }
 
     public function __toString()
@@ -1098,5 +1102,32 @@ class CandidateProfile
         }
 
         return $this;
+    }
+
+    public function isIsPremium(): ?bool
+    {
+        return $this->isPremium;
+    }
+
+    public function setIsPremium(?bool $isPremium): static
+    {
+        $this->isPremium = $isPremium;
+
+        return $this;
+    }
+    
+    public function getProfileCompletion(): int
+    {
+        $score = 0;
+        $total = 6; 
+    
+        if ($this->resume) $score++;
+        if (!$this->competences->isEmpty()) $score++;
+        if (!$this->experiences->isEmpty()) $score++;
+        if (!$this->secteurs->isEmpty()) $score++;
+        if ($this->titre) $score++;
+        if ($this->cv) $score++;
+    
+        return intval(($score / $total) * 100);
     }
 }

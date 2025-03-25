@@ -3,6 +3,7 @@
 namespace App\Repository\Candidate;
 
 use App\Entity\Candidate\Applications;
+use App\Entity\CandidateProfile;
 use Doctrine\Persistence\ManagerRegistry;
 use Knp\Component\Pager\PaginatorInterface;
 use Knp\Component\Pager\Pagination\PaginationInterface;
@@ -41,13 +42,44 @@ class ApplicationsRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    public function countByEntrepriseProfile(int $entrepriseId): int
+    {
+        return (int) $this->createQueryBuilder('a')
+            ->join('a.annonce', 'j')
+            ->join('a.candidat', 'c')
+            ->join('j.entreprise', 'e')
+            ->where('e.id = :entrepriseId')
+            ->setParameter('entrepriseId', $entrepriseId)
+            ->select('COUNT(a.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function findByEntrepriseProfile(int $page, int $entrepriseId): PaginationInterface
     {
         $queryBuilder = $this->createQueryBuilder('a')
             ->join('a.annonce', 'j')
+            ->join('a.candidat', 'c')
             ->join('j.entreprise', 'e')
             ->where('e.id = :entrepriseId')
             ->setParameter('entrepriseId', $entrepriseId)
+            ->orderBy('a.dateCandidature', 'DESC');
+
+        return $this->paginator->paginate(
+            $queryBuilder,
+            $page,
+            10,
+            []
+        );
+    }
+
+    public function findByCandidateProfile(CandidateProfile $candidat, int $page): PaginationInterface
+    {
+        $queryBuilder = $this->createQueryBuilder('a')
+            ->select('a', 'j')
+            ->join('a.annonce', 'j')
+            ->where('a.candidat = :candidat')
+            ->setParameter('candidat', $candidat)
             ->orderBy('a.dateCandidature', 'DESC');
 
         return $this->paginator->paginate(
