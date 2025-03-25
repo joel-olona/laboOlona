@@ -32,6 +32,7 @@
                     <div class="title-light">Réserver votre espace dès maintenant</div>
                     <div class="btn-signUp">
                         <a href="{{path('app_coworking_main')}}#reservationForm" class="btn btn-primary">Voir les places disponibles</a>
+                         <a href="#JeReserve" class="btn btn-primary">Je reserve</a>
                     </div>
                     <div class="popular-search">
                         <span class="ot-title"><i class="bi bi-pin"></i> Ambatonakanga, Antananarivo, Madagascar</span>
@@ -60,7 +61,7 @@
 </header>
 <section class="presentation_bureau">
     <div class="container">
-        <div class="d-md-flex head_title">
+        <div class="d-lg-flex head_title">
             <h2 class="display-6 fw-bold">Votre bureau, <br/>comme vous l'imaginez</h2>
             <p>
                 Découvrez nos espaces de travail conçus pour votre confort et votre productivité. Profitez de chaises ergonomiques, d'une lumière naturelle abondante, d'une connexion Wi-Fi fibre ultra-rapide et d'une ambiance professionnelle stimulante avec coin café et espaces communs.
@@ -231,7 +232,7 @@
             <div class="time_right text-center">
                 <span class="fw-bold small ms-auto">
                     Réservez par téléphone au <i class="bi bi-phone"></i>
-                    <a href="tel:+261320373432">+261 32 03 734 32</a> <br>
+                    <a href="tel:+261320373431">+261 32 03 734 31</a> <br>
                     ou réservez en ligne (*)
                 </span>
                 <div id="liveDateTime" data-initial-date="{{ 'now'|date('Y-m-d H:i:s') }}"></div>
@@ -674,7 +675,7 @@
         </div>
     </div>
 </section>
-<div class="section-offre-coworking">      
+<div id="JeReserve" class="section-offre-coworking">      
     <div class="container">
         <div class="section-head left">
             <div class="ot-text-primary">
@@ -713,7 +714,7 @@
                                     </ul>
                                 </div>
                                 <div class="p-table-btn">
-                                    <a href="" class="btn btn-primary">Je choisis</a>
+                                    <a href="{{path('app_coworking_main')}}#reservationForm" class="btn btn-primary">Je choisis</a>
                                 </div>
                             </div>
                         </div>
@@ -721,7 +722,7 @@
 
                     <div class="col-lg-4 col-md-6 p-table-highlight m-b30">
                         <div class="pricing-table-1 circle-pink">
-                            <div class="p-table-recommended">Recommendé</div>
+                            <div class="p-table-recommended">Recommandé</div>
                             <div class="p-table-title">
                                 <h4 class="title">
                                     Abonnement VIP Coworking
@@ -793,7 +794,7 @@
                 </div>
                 <div class="col-12 col-sm-6">
                     <div class="block_contact_">
-                        <p class="lead"><i class="bi bi-phone"></i> <a href="tel:+261320373432">+261 32 03 734 32</a></p>
+                        <p class="lead"><i class="bi bi-phone"></i> <a href="tel:+261320373431">+261 32 03 734 31</a></p>
                         <p class="lead"><i class="bi bi-geo-alt"></i> Ambatonakanga, Antananarivo</p>
                         <div id="contactForm">
                             <h3 class="h4 mb-4 fw-bold">Contact rapide</h3>

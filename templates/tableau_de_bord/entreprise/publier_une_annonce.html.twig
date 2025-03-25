@@ -10,7 +10,11 @@
 
     <section class="">
         <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
-            <h5 class="mb-0"> Entreprise </h5>
+            <div class="d-flex align-items-center">
+                <a href="javascript:history.back()" class="d-block btn btn-info fw-semibold text-uppercase me-3 btn_retour">
+                <i class="mx-2 bi bi-arrow-left"></i>Retour</a>
+                <h5 class="mb-0"> Publier une annonce </h5>
+            </div>
             <ol class="breadcrumb list-unstyled mt-0 mb-0 pl-0"> 
                 <li class="breadcrumb-item position-relative">
                     <a routerlink="{{ path('app_tableau_de_bord_entreprise')}}" class="d-inline-block position-relative" href="{{ path('app_tableau_de_bord_entreprise')}}">
@@ -20,6 +24,14 @@
             </ol>
         </div>
     </section>
+    {% if not entreprise.isIsPremium %}
+    <section class="warning_freemium mb-4 d-flex align-items-center">
+        <span><img src="{{ asset('v2/images/dashboard/warning_outline_icon.svg')}}" alt=""></span>
+        <div class="warning-block">
+            Vous êtes actuellement sur un plan gratuit. commencez notre <a routerlink="{{ path('app_tableau_de_bord_entreprise_tarifs')}}" class="btn-primary" href="{{ path('app_tableau_de_bord_entreprise_tarifs')}}">abonnement premium</a> pour accéder à notre CVthèque exclusive et publier des annonces en illimité !.
+        </div>
+    </section>
+    {% endif %}
     <section class="recruteur-container">
         <div class="recruteur-block d-block p-5 mb-4">
             <div class="offre-emploi-item">
@@ -27,21 +39,47 @@
                     <h1>Publiez votre offre et recrutez les meilleurs talents</h1>
                     <p>Atteignez une vaste communauté de professionnels qualifiés avec Olona-Talents.com. En quelques étapes simples, décrivez votre poste, les compétences recherchées, le type de contrat et le lieu. Ajoutez des questions personnalisées pour affiner votre sélection dès le départ. Votre annonce sera visible par des milliers de candidats prêts à propulser votre entreprise. Commencez dès maintenant !</p>
                 </div>
-                {#{form(form) }#}
             </div>
+            {{ include('tableau_de_bord/flashes_message.html.twig') }}
             <div id="jobListingForm">
-                {{ form_start(form, {'attr': {'id': 'createJob'}}) }}
+                {{ form_start(form, {'attr': {'data-turbo': 'false', 'id': 'createJob'}}) }}
                 <div class="row">
                     <div class="col">
                         <div class="mb-3">
                             {{ form_row(form.titre)}}
-                            {{ form_row(form.secteur)}}
-                            {{ form_row(form.typeContrat)}}
-                            {{ form_row(form.lieu)}}
-                            {{ form_row(form.nombrePoste)}}
-                            {{ form_row(form.dateExpiration)}}
+                            <div class="row">
+                                <div class="col-lg-6 col-sm-12">
+                                {{ form_row(form.typeContrat)}}
+                                </div>
+                                <div class="col-lg-6 col-sm-12">
+                                {{ form_row(form.secteur)}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-sm-12">
+                                {{ form_row(form.lieu)}}
+                                </div>
+                                <div class="col-lg-6 col-sm-12">
+                                {{ form_row(form.nombrePoste)}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6 col-sm-12">
+                                {{ form_row(form.competences)}}
+                                </div>
+                                <div class="col-lg-6 col-sm-12">
+                                {{ form_row(form.dateExpiration)}}
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </div>
+                <div class="col-12">
+                    {{ form_label(form.budgetAnnonce, null, {
+                        'label_attr': {
+                            'class': 'fw-bold fs-6'
+                        }
+                    }) }}
                 </div>
                 <div class="row">
                     <div class="col-4">
@@ -63,57 +101,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    {{ form_row(form.description)}}
-                    {{ form_row(form.competences)}}
+                <div class="col-12">
+                    {{ form_help(form.budgetAnnonce) }}
                 </div>
                 <div class="row">
-                    <label class="fw-bold fs-4 form-label" for=""><i class="bi bi-rocket mx-1 h5"></i> Boost</label>
-                    <div id="annonce_boost">
-                        <fieldset class="mb-3">
-                            <div class="radio-grid">
-                                <div class="form-check selected">
-                                    <input type="radio" id="annonce_boost_placeholder" name="annonce[boost]" class="form-check-input" value="">
-                                    <label class="form-check-label fw-bold fs-6" for="annonce_boost_placeholder">Pas de boost</label>
-                                </div>
-                                <div class="form-check">
-                                    <input type="radio" id="annonce_boost_4" name="annonce[boost]" class="form-check-input" value="4" checked="checked">
-                                    <label class="form-check-label fw-bold fs-6" for="annonce_boost_4">Boost 1 jour (100 crédits)</label>
-                                </div>
-                                <div class="form-check">
-                                    <input type="radio" id="annonce_boost_5" name="annonce[boost]" class="form-check-input" value="5">
-                                    <label class="form-check-label fw-bold fs-6" for="annonce_boost_5">Boost 7 jours (600 crédits)</label>
-                                </div>
-                                <div class="form-check">
-                                    <input type="radio" id="annonce_boost_6" name="annonce[boost]" class="form-check-input" value="6">
-                                    <label class="form-check-label fw-bold fs-6" for="annonce_boost_6">Boost 15 jours (1000 crédits)</label>
-                                </div>
-                            </div>
-                        </fieldset>
-                        <fieldset class="mb-3">
-                            <div id="annonce_boostFacebook"  style="display:none;">
-                                <h4 class="text-center fw-bolder h5 my-3">Augmentez votre influence sur Facebook</h4>
-                                <div class="radio-grid" data-html="data-html">
-                                    <div class="form-check selected-facebook">
-                                        <input type="radio" id="annonce_boostFacebook_placeholder" name="annonce[boostFacebook]" class="form-check-input" value="" checked="checked">
-                                        <label class="form-check-label" for="annonce_boostFacebook_placeholder">Pas de boost <i class="bi bi-facebook mx-2 h5"></i></label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="radio" id="annonce_boostFacebook_1" name="annonce[boostFacebook]" class="form-check-input" value="1">
-                                        <label class="form-check-label" for="annonce_boostFacebook_1">Boost <i class="bi bi-facebook mx-2 h5"></i> 7 jours (2100 crédits)</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="radio" id="annonce_boostFacebook_2" name="annonce[boostFacebook]" class="form-check-input" value="2">
-                                        <label class="form-check-label" for="annonce_boostFacebook_2">Boost <i class="bi bi-facebook mx-2 h5"></i> 15 jours (4500 crédits)</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="radio" id="annonce_boostFacebook_3" name="annonce[boostFacebook]" class="form-check-input" value="3">
-                                        <label class="form-check-label" for="annonce_boostFacebook_3">Boost <i class="bi bi-facebook mx-2 h5"></i> 30 jours (9000 crédits)</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </fieldset>
-                    </div>
+                    {{ form_row(form.description)}}
                 </div>
                 <div class="row">
                     <div class="col">
@@ -122,7 +114,7 @@
                         </div>
                         <button type="submit" class="btn btn-primary btn-lg my-3 my-sm-4 fs-6 px-4 px-sm-5 fw-semibold text-uppercase">
                             <i class="bi bi-save"></i>
-                            Publier ( 20 crédits)
+                            Publier {% if not entreprise.isIsPremium %}( 20 crédits){% endif %}
                         </button>
                     </div>
                 

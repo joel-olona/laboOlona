@@ -24,13 +24,27 @@
     <body id="base-coworking">
         {% block header %}
             <!-- Boutons en haut à droite -->
-            {% include "coworking/_nav.html.twig" %}
+            {% if not is_granted('ROLE_COWORKING') %}
+                {% include "coworking/_nav.html.twig" %}
+            {% endif %}
             {% block admin %}
                 {% include "coworking/_nav_admin.html.twig" %}
             {% endblock %}
         {% endblock %}
 
         {% block body %}{% endblock %}
+        {% if not is_granted('ROLE_COWORKING') %}
+            <div class="contact_fixed_bottom">
+                <div class="contact_fixed_bottom_item">
+                    <h4>Réservez par téléphone</h4>
+                    <div class="whatsapp_item">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <a href="tel:+261320373431">+261 32 03 734 31</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         <footer class="footer-light bg-cover">
             <div class="container">
                 <div class="footer-top">
@@ -44,7 +58,8 @@
                                 <ul class="ftr-list">
                                     <li><p><span>Address :</span>Ambatonakanga, Antananarivo, Madagascar </p></li>
                                     <li><p><span>Horaire :</span>Lundi au Vendredi de 8h à 18h</p></li>
-                                    <li><p><span>Tel. :</span>+261 32 03 734 32</p></li>
+                                    <li><p><span>Tel. :</span>+261 32 03 734 31</p></li>
+                                    <li><p><span>Suivez-nous sur :</span><a href="https://www.facebook.com/olonatalents" target="_blank"><i class="bi bi-facebook"></i></a></p></li>
                                 </ul>
                             </div>                            
                             
@@ -57,10 +72,10 @@
                                     <div class="ot_services ftr-list-center">
                                         <h3 class="title">Pour les candidats</h3>
                                         <ul>
-                                            <li><a href="#">Tableau de bord utilisateur</a></li>
-                                            <li><a href="#">Alerte d'emploi</a></li>
-                                            <li><a href="#">Candidature</a></li>
-                                            <li><a href="#">Annonces de services</a></li>
+                                            <li><a href="{{ path('app_tableau_de_bord_candidat')}}">Tableau de bord utilisateur</a></li>
+                                            <li><a href="{{ path('app_tableau_de_bord_candidat_trouver_des_missions')}}">Alerte d'emploi</a></li>
+                                            <li><a href="{{ path('app_tableau_de_bord_candidat_mes_candidatures')}}">Candidature</a></li>
+                                            <li><a href="{{ path('app_tableau_de_bord_candidat_annuaire_de_services')}}">Annonces de services</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -69,10 +84,10 @@
                                     <div class="ot_services ftr-list-center">
                                         <h3 class="title">Pour les entreprises</h3>
                                         <ul>
-                                            <li><a href="#">Tableau de bord utilisateur</a></li>
-                                            <li><a href="#">Consultation CVthèque</a></li>
-                                            <li><a href="#">Offre d'emploi</a></li>
-                                            <li><a href="#">Contact</a></li>
+                                            <li><a href="{{ path('app_tableau_de_bord_entreprise')}}">Tableau de bord utilisateur</a></li>
+                                            <li><a href="{{ path('app_tableau_de_bord_entreprise_cvtheque')}}">Consultation CVthèque</a></li>
+                                            <li><a href="{{ path('app_tableau_de_bord_entreprise_offre_emploi')}}">Offre d'emploi</a></li>
+                                            <li><a href="{{ path('app_tableau_de_bord_entreprise_assistance')}}">Contact</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -91,11 +106,11 @@
                                     <div class="ot_services ftr-list-center">
                                         <h3 class="title">Liens divers</h3>
                                         <ul>
-                                            <li><a href="#">Accueil</a></li>
-                                            <li><a href="/portage-salarial">Portage salariale</a></li>
-                                            <li><a href="/coworking/">coworking</a></li>
+                                            <li><a href="{{ path('app_home')}}" target="_blank">Accueil</a></li>
+                                            <li><a href="{{ path('app_home_simulateur_portage')}}" target="_blank">Portage salariale</a></li>
+                                            <li><a href="{{ path('app_coworking_main')}}" target="_blank">Coworking</a></li>
                                             <li><a href="#">Prestations</a></li>
-                                            <li><a href="/blog/">Le Blog</a></li>
+                                            <li><a href="{{ path('app_blog_index')}}" target="_blank">Le Blog</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -140,5 +155,6 @@
     </body>
     {% block javascripts %}
         {{ encore_entry_script_tags('main') }}
+        {{ encore_entry_script_tags('iary') }}
     {% endblock %}
 </html>

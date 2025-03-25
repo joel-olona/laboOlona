@@ -40,20 +40,35 @@ $blue-primary: #3b5998;
             overflow: hidden;
             img {
                 width: 100%;
-                height: auto;
+                height: 100%;
                 object-fit: cover;
             }
         }
     }
 }
 .nav-top-right {
+    @include breakpoint_991{
+        display: none;
+        position: absolute;
+        top: 100%;
+        width: 100%;
+        left: 0;
+    }
     .nav-list-top {
         display: table;
         margin-bottom: 0;
+        @include breakpoint_991{
+            background: $white;
+            padding: 20px;
+            display: block;
+        }
         .nav-item-top {
             display: table-cell;
             vertical-align: middle;
             padding: 0 5px;
+            @include breakpoint_991{
+                display: block;
+            }
             &.nav_coworking {
                 .nav--link {
                     background:$yelow-primary;
@@ -102,6 +117,15 @@ $blue-primary: #3b5998;
                 font-weight: 300;
                 padding: 7px 10px;
                 border-radius: 3px;
+                @include breakpoint_991{
+                    display: block;
+                    width: 100%;
+                    color: $black !important;
+                    border-top: 1px dashed #ddd;
+                    border-radius: 0;
+                    border-bottom: 1px dashed #ddd;
+                    padding: 15px 0;
+                }
             }
         }
     }
@@ -117,8 +141,17 @@ $blue-primary: #3b5998;
     }
 }
 .home-header-top {
+    .navbar-toggler {
+        display: none;
+        @include breakpoint_991{
+            display: block;
+        }
+    }
     .login_home {
         background-color: transparent !important;
+        @include breakpoint_991{
+            margin-right: 0 !important;
+        }
         &:hover {
             background-color: transparent !important;
             text-decoration: none !important;
@@ -137,6 +170,9 @@ $blue-primary: #3b5998;
     .info-text {
         text-align: center;
         font-size: 24px;
+        @include breakpoint-991{
+            font-size: 14px;
+        }
     }
     .formBlock {
         background-color: $white;
@@ -144,5 +180,55 @@ $blue-primary: #3b5998;
     }
     .info__ {
         background-color: $yelow-primary !important;
+    }
+}
+
+.contact_fixed_bottom {
+    position: fixed;
+    z-index: 70;
+    bottom: 4rem;
+    left: 4rem;
+    .contact_fixed_bottom_item {
+        background: white;
+        padding: 20px;
+        border-radius: 25px;
+        box-shadow: 0px 0px 25px rgba(56, 152, 226, 0.3);
+        h4 {
+            color: #185d36;
+            font-size: 20px;
+        }
+        .whatsapp_item {
+            color: black;
+            .pulse-image {
+                display: block;
+                animation: pulse 1.5s infinite;
+                margin-left: 1rem;
+            }
+            i {
+                margin-right: 7px;
+                margin-top: 5px;
+                color: $white;
+            }
+            .mail_Block {
+                padding: 1px 7px !important;
+                line-height: 129%;
+                background-color: $blue-primary !important;
+                border: 0 !important;
+                &:hover {
+                    background-color: $blue-light !important;
+                }
+            }
+        }
+    }
+}
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
     }
 }
