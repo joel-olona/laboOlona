@@ -40,18 +40,16 @@
                   <div class="col-3">
                     <img src="{{ asset('/images/' ~ mobileMoney.slug ~ '.png') }}" class="img-fluid border" alt="{{ mobileMoney.name }}">
                   </div>
-                  <div class="col text-center">
+                  {# <div class="col text-center">
                     <span class="fw-light h5">Numéro</span><br>
                     <span class="fw-bolder h2">{{ mobileMoney.number }}</span>
-                  </div>
+                  </div> #}
                 </div>
                 <p class="">Veuillez envoyer le montant exact sur le numéro de mobile money indiqué ci-dessous. Une fois le paiement effectué, entrez la référence de transaction dans le champ prévu à cet effet et cliquez sur le bouton <span class="fw-bold">"Soumettre"</span> pour finaliser votre achat.</p>
-                <p class=" fw-lighter"><strong><i class="bi bi-info-circle"></i></strong> Assurez-vous d'utiliser la même référence indiquée lors de votre paiement pour éviter tout retard dans le traitement de votre commande.</p>      
+                {# <p class=" fw-lighter"><strong><i class="bi bi-info-circle"></i></strong> Assurez-vous d'utiliser la même référence indiquée lors de votre paiement pour éviter tout retard dans le traitement de votre commande.</p>       #}
                 </div>    
                 <div class="col-md-6">
                 {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
-                {{ form_row(form.amount) }}
-                {{ form_row(form.reference) }}
                 {{ form_row(form.telephone) }}
                 <div style="display:none;">
                 {{ form_widget(form)}}

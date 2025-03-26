@@ -29,18 +29,20 @@ class MobileMoneyController extends AbstractController
         Request $request
     ): Response
     {
+
+        $uuid = Uuid::v4()->toRfc4122();
         $payload = [
             "reference" => "Testing transaction",
             "subscriber" => [
                 "country" => "MG",
                 "currency" => "MGA",
-                "msisdn" => "332046888"
+                "msisdn" => "333798105"
             ],
             "transaction" => [
-                "amount" => "100",
+                "amount" => "300",
                 "country" => "MG",
                 "currency" => "MGA",
-                "id" => "testid23"
+                "id" => $uuid
             ]
         ];
 
@@ -58,10 +60,11 @@ class MobileMoneyController extends AbstractController
             ],
         ];
 
+        // $response = json_decode($this->airtelMoneyService->enquiry(), true);
         // $response = json_decode($this->airtelMoneyService->kyc("332046888"), true);
         $response = json_decode($this->airtelMoneyService->payments($payload), true);
         // $response = json_decode($this->airtelMoneyService->disbursements($data), true);
-        // dd($response);
+        dd($response);
 
         return $this->json(
             $response, 
@@ -96,6 +99,7 @@ class MobileMoneyController extends AbstractController
             [], 
         );
     }
+    
     #[Route('/mvola/status/{uuid}', name: 'app_mobile_money_mvola_status')]
     public function mvolaStatus(
         Request $request,
