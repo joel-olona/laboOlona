@@ -169,6 +169,59 @@ class AirtelMoneyService
         return $content;
     }
 
+    public function enquiryBalance()
+    {
+        $accessToken = $this->authenticate();
+        $url = $this->apiUrl . '/standard/v1/users/balance';
+
+        $headers = [
+            'Accept' => '*/* ',
+            'X-Country' => 'MG',
+            'X-Currency' => 'MGA',
+            'Authorization' => 'Bearer ' . $accessToken
+        ];
+        dump($url, $headers);
+
+        try {
+            $response = $this->client->request('GET', $url, [
+                'headers' => $headers,
+            ]);
+            $content = $response->getContent(); 
+        } catch (
+            TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
+        ) {
+            $content = $exception;
+        }
+
+        return $content;
+    }
+
+    public function enquiry($id)
+    {
+        $accessToken = $this->authenticate();
+        $url = $this->apiUrl . '/standard/v1/payments/'. $id;
+
+        $headers = [
+            'Accept' => '*/* ',
+            'X-Country' => 'MG',
+            'X-Currency' => 'MGA',
+            'Authorization' => 'Bearer ' . $accessToken
+        ];
+
+        try {
+            $response = $this->client->request('GET', $url, [
+                'headers' => $headers,
+            ]);
+            $content = $response->getContent(); 
+        } catch (
+            TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
+        ) {
+            $content = $exception;
+        }
+
+        return $content;
+    }
+
     public function disbursements($payload)
     {
         $accessToken = $this->authenticate();

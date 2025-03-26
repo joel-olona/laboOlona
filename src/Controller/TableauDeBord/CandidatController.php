@@ -43,6 +43,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Manager\BusinessModel\TransactionManager;
 use App\Repository\BusinessModel\PackageRepository;
 use App\Form\Profile\Candidat\Edit\EditCandidateProfile;
+use App\Manager\MobileMoney\MobileMoneyManager;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -298,7 +299,12 @@ class CandidatController extends AbstractController
     }
 
     #[Route('/mobile-money/{orderNumber}', name: 'app_tableau_de_bord_candidat_mobile_money_checkout')]
-    public function mobileMoney(Order $order, Request $request, TransactionManager $transactionManager): Response
+    public function mobileMoney(
+        Order $order, 
+        Request $request, 
+        TransactionManager $transactionManager,
+        MobileMoneyManager $mobileMoneyManager
+    ): Response
     {
         $params = $this->getData();
         $currentUser = $params['currentUser'];
@@ -318,6 +324,10 @@ class CandidatController extends AbstractController
             $transaction = $form->getData();
             $command = $form->getData()->getCommand();
             $command->setStatus(Order::STATUS_PROCESSING);
+            if($transaction->getTypeTransaction()->getSlug() == 'airtel-money'){
+                $response = $mobileMoneyManager->initAirtelMoney($transaction, $command);
+            }
+            dd($response);
             $transaction->setPackage($command->getPackage());
             $transaction->setUpdatedAt(new \DateTime());
             $transaction->setStatus(Transaction::STATUS_PROCESSING);
