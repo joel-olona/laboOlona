@@ -360,15 +360,19 @@ $(function() {
         // });
 
         // Initialisation de CKEditor
-        // let emailContentEditor;
-        // ClassicEditor
-        //     .create(document.querySelector('#notification_profile_contenu'))
-        //     .then(editor => {
-        //         emailContentEditor = editor;
-        //     })
-        //     .catch(error => {
-        //         console.error(error);
-        //     });
+        let emailContentEditor;
+        const editorElement = document.querySelector('#notification_profile_contenu');
+
+        if (editorElement) {
+            ClassicEditor
+                .create(editorElement)
+                .then(editor => {
+                    emailContentEditor = editor;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
 			
         $('#templateEmail').on('change', function() {
             console.log('change')
@@ -462,10 +466,10 @@ $(function() {
 
                 $('.invalid-feedback').remove();
                 $('.is-invalid').removeClass('is-invalid');
-                var successToast = new Toast($('#errorToast')[0]);
-                setTimeout(function() {
-                    successToast.show(); 
-                }, 1500);
+                // var successToast = new Toast($('#errorToast')[0]);
+                // setTimeout(function() {
+                //     successToast.show(); 
+                // }, 1500);
 
                 var modalElement = $(this).closest('.modal').get(0); 
                 if (modalElement) {
@@ -1003,15 +1007,15 @@ $(function() {
                 success: function(data) {
                     Turbo.renderStreamMessage(data);
                     if (data.success) {
-                        $('#successToast').find('.toast-body').text(data.message);
-                        var successToast = new Toast($('#successToast')[0]);
-                        successToast.show();
+                        // $('#successToast').find('.toast-body').text(data.message);
+                        // var successToast = new Toast($('#successToast')[0]);
+                        // successToast.show();
                         var boostProfileModal = Modal.getInstance($('#boostProfile')[0]) || new Modal($('#boostProfile')[0]);
                         boostProfileModal.hide();
                     } else {
-                        $('#errorToast').find('.toast-body').text('Erreur: ' + data.message);
-                        var errorToast = new Toast($('#errorToast')[0]);
-                        errorToast.show();
+                        // $('#errorToast').find('.toast-body').text('Erreur: ' + data.message);
+                        // var errorToast = new Toast($('#errorToast')[0]);
+                        // errorToast.show();
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
