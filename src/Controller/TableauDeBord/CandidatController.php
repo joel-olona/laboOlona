@@ -372,11 +372,17 @@ class CandidatController extends AbstractController
             if($transaction->getTypeTransaction()->getSlug() == 'airtel-money'){
                 $response = $mobileMoneyManager->initAirtelMoney($transaction, $command);
             }
-            dd($response);
-            $transaction->setPackage($command->getPackage());
-            $transaction->setUpdatedAt(new \DateTime());
-            $transaction->setStatus(Transaction::STATUS_PROCESSING);
-            $transactionManager->save($transaction);
+            if($transaction->getTypeTransaction()->getSlug() == 'mvola'){
+                $response = $mobileMoneyManager->initMvola($transaction, $command);
+            }
+
+            if(!empty($response) && !empty($response['status']) && $response['status']['success'] == true){
+                $transaction->setPackage($command->getPackage());
+                $transaction->setUpdatedAt(new \DateTime());
+                $transaction->setStatus(Transaction::STATUS_PROCESSING);
+                $transactionManager->save($transaction);
+            }
+            
 
             /** On envoi un mail */
             $this->mailerService->sendMultiple(
