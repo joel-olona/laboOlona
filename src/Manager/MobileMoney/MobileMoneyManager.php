@@ -2,27 +2,32 @@
 
 namespace App\Manager\MobileMoney;
 
-use App\Entity\BusinessModel\Transaction;
-use App\Entity\BusinessModel\Order;
-use App\Entity\BusinessModel\Package;
 use App\Entity\User;
 use App\Entity\Finance\Devise;
-use App\Entity\Logs\ActivityLog;
+use Symfony\Component\Uid\Uuid;
 use App\Entity\CandidateProfile;
+use App\Entity\Logs\ActivityLog;
 use App\Entity\EntrepriseProfile;
-use App\Service\MobileMoney\AirtelMoneyService;
+use App\Entity\BusinessModel\Order;
+use App\Entity\BusinessModel\Package;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\BusinessModel\Transaction;
+use App\Service\MobileMoney\MvolaService;
+use App\Service\MobileMoney\AirtelMoneyService;
 
 class MobileMoneyManager
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private AirtelMoneyService $airtelMoneyService
+        private AirtelMoneyService $airtelMoneyService,
+        private MvolaService $mvolaService,
     )
     {}
 
     public function initAirtelMoney(Transaction $transaction, Order $order): array
     {
+        $uuid = Uuid::v4()->toRfc4122();
+        $amount = 200000000;
         $payload = [
             "reference" => 'Achat ' . $transaction->getPackage()->getName(),
             "subscriber" => [
@@ -31,14 +36,48 @@ class MobileMoneyManager
                 "msisdn" => $this->formatAirtelNumber($transaction->getTelephone()),
             ],
             "transaction" => [
-                "amount" => (int) $transaction->getPackage()->getPrice(),
+                "amount" => $amount,
                 "country" => "MG",
                 "currency" => "MGA",
-                "id" => $order->getOrderNumber()
+                "id" => $uuid
             ]
         ];
 
         $response = json_decode($this->airtelMoneyService->payments($payload), true);
+        if (!empty($response) && !empty($response['status']) && !empty($response['data'])) {
+            $transaction->setStatus(Transaction::STATUS_PROCESSING);
+            $transaction->setReference($response['data']['transaction']['id']);
+            $transaction->setToken($uuid);
+            $transaction->setAmount($amount);
+            $this->em->persist($transaction);
+            $this->em->flush();
+            $order->setStatus(Order::STATUS_PROCESSING);
+            $this->em->persist($order);
+            $this->em->flush();
+
+            return $response;
+        } else {
+            return [];
+            dd(['error' => $response]);
+        }
+    }
+
+    public function initMvola(Transaction $transaction, Order $order): array
+    {
+        $uuid = Uuid::v4()->toRfc4122();
+        $payload = [
+            'X-CorrelationID' => $uuid, 
+            'partnerMSISDN' => '0343500003', 
+            'requestingOrganisationTransactionReference' => 'achat_' . $transaction->getPackage()->getSlug(), 
+            'originalTransactionReference' => $order->getOrderNumber(), 
+            'partnerName' => 'olona-talents.com', 
+            'amount' => '100', 
+            'description' => 'Achat ' . $transaction->getPackage()->getName(),
+            'customerMSISDN' => $transaction->getTelephone(), 
+        ];
+
+        $response = json_decode($this->mvolaService->payments($payload), true);
+        dd($payload, $response);
 
         if (!empty($response) && !empty($response['status']) && !empty($response['data'])) {
             $transaction->setStatus(Transaction::STATUS_PROCESSING);

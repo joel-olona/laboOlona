@@ -60,9 +60,9 @@ class MobileMoneyController extends AbstractController
             ],
         ];
 
-        // $response = json_decode($this->airtelMoneyService->enquiry(), true);
+        $response = json_decode($this->airtelMoneyService->enquiry("5506836a-846a-47ac-a463-b24206945708"), true);
         // $response = json_decode($this->airtelMoneyService->kyc("332046888"), true);
-        $response = json_decode($this->airtelMoneyService->payments($payload), true);
+        // $response = json_decode($this->airtelMoneyService->payments($payload), true);
         // $response = json_decode($this->airtelMoneyService->disbursements($data), true);
         dd($response);
 
@@ -91,7 +91,7 @@ class MobileMoneyController extends AbstractController
             'customerMSISDN' => '0343500004', 
         ];
 
-        $response = json_decode($this->mvolaService->mvolaPayment($payload), true);
+        $response = json_decode($this->mvolaService->payments($payload), true);
 
         return $this->json(
             $response, 

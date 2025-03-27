@@ -39,7 +39,7 @@ class MvolaService
         return $data['access_token'] ?? null;
     }
 
-    public function mvolaPayment(array $payload)
+    public function payments(array $payload)
     {
         $accessToken = $this->authenticate();
         $url = $this->apiUrl . '/mvola/mm/transactions/type/merchantpay/1.0.0/';
