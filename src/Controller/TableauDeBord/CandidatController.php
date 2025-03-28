@@ -314,7 +314,13 @@ class CandidatController extends AbstractController
     }
 
     #[Route('/credit/{slug}', name: 'app_tableau_de_bord_candidat_credit')]
-    public function credit(Package $package, OrderManager $orderManager, Request $request, FinanceExtension $financeExtension): Response
+    public function credit(
+        Package $package, 
+        OrderManager $orderManager, 
+        Request $request, 
+        TransactionManager $transactionManager,
+        FinanceExtension $financeExtension
+    ): Response
     {
         $params = $this->getData();
         $params['package'] = $package;
@@ -330,7 +336,16 @@ class CandidatController extends AbstractController
         $form->handleRequest($request);
         
         if ($form->isSubmitted() && $form->isValid()) {
-            $order = $orderManager->saveForm($form);
+            $order = $form->getData();
+            $transaction = $order->getTransaction();
+            if(!$transaction instanceof Transaction){
+                $transaction = $transactionManager->init();
+                $transaction->setCommand($order);
+            }
+            $transaction->setPackage($package);
+            $transaction->setAmount($package->getPrice());
+            $transactionManager->save($transaction);
+            $orderManager->save($order);
             
             return $this->redirectToRoute('app_tableau_de_bord_candidat_mobile_money_checkout', [
                 'orderNumber' => $order->getOrderNumber()
@@ -539,7 +554,13 @@ class CandidatController extends AbstractController
     }
     
     #[Route('/abonnement', name: 'app_tableau_de_bord_candidat_abonnement')]
-    public function subcription(OrderManager $orderManager, Request $request, FinanceExtension $financeExtension, DeviseRepository $deviseRepository): Response
+    public function subcription(
+        OrderManager $orderManager, 
+        Request $request, 
+        FinanceExtension $financeExtension, 
+        TransactionManager $transactionManager,
+        DeviseRepository $deviseRepository
+    ): Response
     {
         $params = $this->getData();
         $package = $this->em->getRepository(Package::class)->findOneBy(['slug' => 'abonnement-candidat']);
@@ -555,7 +576,16 @@ class CandidatController extends AbstractController
         $form->handleRequest($request);
         
         if ($form->isSubmitted() && $form->isValid()) {
-            $order = $orderManager->saveForm($form);
+            $order = $form->getData();
+            $transaction = $order->getTransaction();
+            if(!$transaction instanceof Transaction){
+                $transaction = $transactionManager->init();
+                $transaction->setCommand($order);
+            }
+            $transaction->setPackage($package);
+            $transaction->setAmount($package->getPrice());
+            $transactionManager->save($transaction);
+            $orderManager->save($order);
             
             return $this->redirectToRoute('app_tableau_de_bord_candidat_mobile_money_checkout', [
                 'orderNumber' => $order->getOrderNumber()
