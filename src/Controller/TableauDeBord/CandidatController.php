@@ -391,30 +391,24 @@ class CandidatController extends AbstractController
                 $response = $mobileMoneyManager->initMvola($transaction, $command);
             }
 
-            if(!empty($response) && !empty($response['status']) && $response['status']['success'] == true){
+            if(!empty($response) && !empty($response['status']) && !empty($response['data'])){
                 $transaction->setPackage($command->getPackage());
                 $transaction->setUpdatedAt(new \DateTime());
                 $transaction->setStatus(Transaction::STATUS_PROCESSING);
                 $transactionManager->save($transaction);
             }
-            
 
-            /** On envoi un mail */
-            $this->mailerService->sendMultiple(
-                ["contact@olona-talents.com", "admin@olona-talents.com", "aolonaprodadmi@gmail.com"],
-                "Paiement sur Olona Talents",
-                "notification_paiement.html.twig",
-                [
-                    'user' => $currentUser,
-                    'transaction' => $transaction,
-                    'order' => $order,
-                    'dashboard_url' => $this->generateUrl('app_dashboard_moderateur_business_model_transaction_view', [
-                        'transaction' => $transaction->getId(),
-                    ], UrlGeneratorInterface::ABSOLUTE_URL),
-                ]
-            );
+            if(empty($response) || empty($response['status'])){
+                return $this->json([
+                    'status' => 'error',
+                    'message' => 'Erreur lors de la vérification du paiement.',
+                ], 403, []);
+            }   
             
-            return $this->redirectToRoute('app_tableau_de_bord_candidat_mes_commandes');
+            return $this->json([
+                'status' => 'ok',
+                'message' => $response,
+            ], 200, []);
         }
         $params['status'] = 'Succès';
         $params['order'] = $order;

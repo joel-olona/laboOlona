@@ -6,11 +6,14 @@ use Symfony\Component\Uid\Uuid;
 use App\Entity\Logs\ActivityLog;
 use App\Service\User\UserService;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\BusinessModel\Transaction;
 use App\Service\MobileMoney\MvolaService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Service\MobileMoney\AirtelMoneyService;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Manager\BusinessModel\TransactionManager;
+use App\Repository\BusinessModel\TransactionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/mobile-payment')]
@@ -22,6 +25,8 @@ class MobileMoneyController extends AbstractController
         private UserService $userService,
         private AirtelMoneyService $airtelMoneyService,
         private MvolaService $mvolaService,
+        private TransactionManager $transactionManager,
+        private TransactionRepository $transactionRepository,
     ){}
 
     #[Route('/airtel-money', name: 'app_mobile_money_airtel')]
@@ -60,9 +65,9 @@ class MobileMoneyController extends AbstractController
             ],
         ];
 
-        $response = json_decode($this->airtelMoneyService->enquiry("5506836a-846a-47ac-a463-b24206945708"), true);
+        // $response = json_decode($this->airtelMoneyService->enquiry("b6247073-6e70-421f-bcb1-ac7b56311a5d"), true);
         // $response = json_decode($this->airtelMoneyService->kyc("332046888"), true);
-        // $response = json_decode($this->airtelMoneyService->payments($payload), true);
+        $response = json_decode($this->airtelMoneyService->payments($payload), true);
         // $response = json_decode($this->airtelMoneyService->disbursements($data), true);
         dd($response);
 
@@ -71,6 +76,81 @@ class MobileMoneyController extends AbstractController
             200, 
             [], 
         );
+    }
+
+    #[Route('/airtel-money/callback', name: 'app_mobile_money_airtel_callback', methods: ['POST'])]
+    public function airtelCallback(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['transaction'])) {
+            return $this->json([
+                    'error' => 'Invalid request'
+                ], 400, []);
+        }
+
+        $transaction = $data['transaction'];
+        $transactionId = $transaction['id'];
+        $message = $transaction['message'];
+        $statusCode = $transaction['status_code'];
+        $airtelMoneyId = $transaction['airtel_money_id'];
+        $transactionOT = $this->transactionRepository->findOneBy([ 'reference' => $transactionId]);
+
+        if(!$transactionOT instanceof Transaction){
+            return $this->json([
+                        'error' => 'Transaction not found'
+                    ], 404, []);
+        }
+        
+        // Exemple de logique simple
+        if ($statusCode === 'TS') {
+            // Transaction réussie
+            $transactionOT->setStatus(Transaction::STATUS_COMPLETED);
+            $transactionOT->setDetails($message);
+            $this->transactionManager->save($transactionOT);
+            return $this->json([
+                        'status' => 'success',
+                        'message' => 'Transaction approved',
+                    ], 200,[]);
+
+        } elseif ($statusCode === 'TF') {
+            // Transaction échouée
+            $transactionOT->setStatus(Transaction::STATUS_FAILED);
+            $transactionOT->setDetails($message);
+            $this->transactionManager->save($transactionOT);
+            return $this->json([
+                        'status' => 'failed',
+                        'message' => 'Transaction failed',
+                    ], 403, []);
+        }
+
+        return $this->json([
+                    'status' => 'success',
+                    'message' => 'Callback received and processed',
+                ], 200, []);
+    }
+    
+    #[Route('/transaction/status/{id}', name: 'app_transaction_status', methods: ['GET'])]
+    public function getStatus(Transaction $transaction): Response
+    {
+        $response = json_decode($this->airtelMoneyService->enquiry($transaction->getReference()), true);
+        if (isset($response['data']['transaction'])) {
+            if($response['data']['transaction']['status'] === 'TS'){
+                $transaction->setStatus(Transaction::STATUS_COMPLETED);
+            }
+            if($response['data']['transaction']['status'] === 'TF'){
+                $transaction->setStatus(Transaction::STATUS_FAILED);
+            }
+            if(isset($response['data']['transaction']['message'])){
+                $transaction->setDetails($response['data']['transaction']['message']);
+            }
+            $this->em->persist($transaction);
+            $this->em->flush();
+        }
+        return $this->json([
+            'status' => $transaction->getStatus(),
+            'message' => $transaction->getDetails(),
+        ]);
     }
 
     #[Route('/mvola', name: 'app_mobile_money_mvola')]

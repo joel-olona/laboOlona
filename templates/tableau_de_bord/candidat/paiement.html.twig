@@ -3,6 +3,13 @@
 {% block title %}Paiement{% endblock %}
 
 {% block body %}
+<style>
+    #payment-load {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+</style>
 <div class="loader-container" id="loader-container" style="display:none;">
     <span class="loader"></span>
 </div>
@@ -52,13 +59,106 @@
                 {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
                 {{ form_row(form.telephone) }}
                 <div style="display:none;">
-                {{ form_widget(form)}}
+                {{ form_rest(form)}}
                 </div>
-                <button type="submit" class="btn btn-lg text-uppercase fw-bold btn-primary px-5 my-4">Soumettre</button>
+                <button id="submit-btn" type="submit" class="btn btn-lg fw-bold btn-primary px-5 my-4" disabled>
+                    <span class="btn-text">Soumettre</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
                 {{ form_end(form)}}
-                </div>                                      
+                </div>   
+                </div>                                  
             </div>
         </div>
     </div>
 </section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector('form[name="transaction"]');
+        const submitBtn = document.getElementById("submit-btn");
+        const btnText = submitBtn.querySelector('.btn-text');
+        const spinner = submitBtn.querySelector('.spinner-border');
+        const transactionId = '{{ form.vars.data.id }}';
+
+        function toggleLoader(show = true) {
+            if (show) {
+                btnText.textContent = "Traitement...";
+                spinner.classList.remove('d-none');
+                submitBtn.disabled = true;
+            } else {
+                btnText.textContent = "Soumettre";
+                spinner.classList.add('d-none');
+                submitBtn.disabled = false;
+            }
+        }
+
+        function pollTransactionStatus() {
+            fetch(`/mobile-payment/transaction/status/${transactionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const status = data.status;
+
+                    if (status === '{{ constant("App\\Entity\\BusinessModel\\Transaction::STATUS_COMPLETED") }}') {
+                        window.location.href = "{{ path('app_tableau_de_bord_candidat_mes_commandes') }}";
+                    } else if (status === '{{ constant("App\\Entity\\BusinessModel\\Transaction::STATUS_FAILED") }}') {
+                        btnText.textContent = "Échec du paiement";
+                        spinner.classList.add('d-none');
+                        submitBtn.classList.remove("btn-primary");
+                        submitBtn.classList.add("btn-danger");
+                        submitBtn.disabled = false;
+                    } else {
+                        setTimeout(pollTransactionStatus, 3000);
+                    }
+                })
+                .catch(err => {
+                    console.error('Erreur AJAX :', err);
+                    btnText.textContent = "Erreur réseau";
+                    spinner.classList.add('d-none');
+                    submitBtn.classList.remove("btn-primary");
+                    submitBtn.classList.add("btn-warning");
+                    submitBtn.disabled = false;
+                });
+        }
+
+        if (form && submitBtn) {
+            form.addEventListener("submit", function (e) {
+                e.preventDefault(); // annule le submit normal
+                toggleLoader(true);
+
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Erreur lors de l'envoi du formulaire");
+                    }
+                    return response.json(); // ou .json() si ta route retourne du JSON
+                })
+                .then(() => {
+                    setTimeout(pollTransactionStatus, 3000); // on attend un peu avant polling
+                })
+                .catch(err => {
+                    console.error('Erreur soumission AJAX :', err);
+                    btnText.textContent = "Erreur envoi";
+                    spinner.classList.add('d-none');
+                    submitBtn.classList.remove("btn-primary");
+                    submitBtn.classList.add("btn-warning");
+                    submitBtn.disabled = false;
+                });
+            });
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("submit-btn").removeAttribute("disabled");
+    });
+</script>
+
+
 {% endblock %}
