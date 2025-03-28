@@ -24,10 +24,10 @@ class MobileMoneyManager
     )
     {}
 
-    public function initAirtelMoney(Transaction $transaction, Order $order): array
+    public function initAirtelMoney(Transaction $transaction, Order $order)
     {
         $uuid = Uuid::v4()->toRfc4122();
-        $amount = 200000000;
+        $amount = 300;
         $payload = [
             "reference" => 'Achat ' . $transaction->getPackage()->getName(),
             "subscriber" => [
@@ -44,7 +44,7 @@ class MobileMoneyManager
         ];
 
         $response = json_decode($this->airtelMoneyService->payments($payload), true);
-        if (!empty($response) && !empty($response['status']) && !empty($response['data'])) {
+        if (!empty($response) && isset($response['status']) && isset($response['data'])) {
             $transaction->setStatus(Transaction::STATUS_PROCESSING);
             $transaction->setReference($response['data']['transaction']['id']);
             $transaction->setToken($uuid);
@@ -57,8 +57,7 @@ class MobileMoneyManager
 
             return $response;
         } else {
-            return [];
-            dd(['error' => $response]);
+            return $response;
         }
     }
 

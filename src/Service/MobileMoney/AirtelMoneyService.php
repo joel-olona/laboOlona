@@ -2,6 +2,7 @@
 
 namespace App\Service\MobileMoney;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -240,6 +241,28 @@ class AirtelMoneyService
             $response = $this->client->request('POST', $url, [
                 'headers' => $headers,
                 'json' => $payload,
+            ]);
+            $content = $response->getContent(); 
+        } catch (
+            TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
+        ) {
+            $content = $exception;
+        }
+
+        return $content;
+    }
+
+    public function callback(Request $request)
+    {
+        $url = $this->apiUrl . '/callback_path';
+
+        $headers = [
+            'Content-Type' => 'application/json'
+        ];
+
+        try {
+            $response = $this->client->request('POST', $url, [
+                'headers' => $headers,
             ]);
             $content = $response->getContent(); 
         } catch (
