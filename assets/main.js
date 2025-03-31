@@ -353,11 +353,11 @@ $(function() {
     }
     
     function handleThemeChange() {
-        // $('#switch-theme').off('click').on('click', function() {
-        //     const newTheme = $('body').hasClass('bootstrap-light') ? 'bootstrap-dark' : 'bootstrap-light';
-        //     updateThemePreference(newTheme);
-        //     updateLogo();
-        // });
+        $('#switch-theme').off('click').on('click', function() {
+            const newTheme = $('body').hasClass('bootstrap-light') ? 'bootstrap-light' : 'bootstrap-light';
+            updateThemePreference(newTheme);
+            updateLogo();
+        });
 
         // Initialisation de CKEditor
         let emailContentEditor;
@@ -400,7 +400,8 @@ $(function() {
         if (currentTheme) {
             const themeName = currentTheme.split('=')[1];
             $('body').removeClass('bootstrap-dark bootstrap-light').addClass(themeName);
-            const mode = themeName.replace('bootstrap-', '');
+            // const mode = themeName.replace('bootstrap-', '');
+            const mode = 'light';
             $('html').attr('data-bs-theme', mode);
             updateLogo();
         }
