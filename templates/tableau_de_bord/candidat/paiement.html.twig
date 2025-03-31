@@ -80,6 +80,8 @@
         const btnText = submitBtn.querySelector('.btn-text');
         const spinner = submitBtn.querySelector('.spinner-border');
         const transactionId = '{{ form.vars.data.id }}';
+        const typeTransaction = '{{ mobileMoney.slug }}';
+        console.log(transactionId, typeTransaction);
 
         function toggleLoader(show = true) {
             if (show) {
@@ -94,7 +96,7 @@
         }
 
         function pollTransactionStatus() {
-            fetch(`/mobile-payment/transaction/status/${transactionId}`)
+            fetch(`/mobile-payment/transaction/${typeTransaction}/status/${transactionId}`)
                 .then(response => response.json())
                 .then(data => {
                     const status = data.status;
@@ -123,10 +125,12 @@
 
         if (form && submitBtn) {
             form.addEventListener("submit", function (e) {
-                e.preventDefault(); // annule le submit normal
+                e.preventDefault(); 
+                console.log('submit', form.action);
                 toggleLoader(true);
 
                 const formData = new FormData(form);
+                console.log(formData);
 
                 fetch(form.action, {
                     method: 'POST',

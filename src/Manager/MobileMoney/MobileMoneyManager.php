@@ -43,7 +43,8 @@ class MobileMoneyManager
             ]
         ];
 
-        $response = json_decode($this->airtelMoneyService->payments($payload), true);
+        $responseJson = $this->airtelMoneyService->payments($payload);
+        $response = json_decode($responseJson);
         if (!empty($response) && isset($response['status']) && isset($response['data'])) {
             $transaction->setStatus(Transaction::STATUS_PROCESSING);
             $transaction->setReference($response['data']['transaction']['id']);
@@ -76,11 +77,11 @@ class MobileMoneyManager
         ];
 
         $response = json_decode($this->mvolaService->payments($payload), true);
-        dd($payload, $response);
 
-        if (!empty($response) && !empty($response['status']) && !empty($response['data'])) {
+        if (!empty($response) && !empty($response['status']) && !empty($response['serverCorrelationId'])) {
             $transaction->setStatus(Transaction::STATUS_PROCESSING);
-            $transaction->setReference($response['data']['transaction']['id']);
+            $transaction->setReference($response['serverCorrelationId']);
+            $transaction->setToken($uuid);
             $this->em->persist($transaction);
             $this->em->flush();
             $order->setStatus(Order::STATUS_PROCESSING);

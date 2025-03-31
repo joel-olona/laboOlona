@@ -387,7 +387,7 @@ class CandidatController extends AbstractController
         $form->handleRequest($request);
         $this->activityLogger->logPageViewActivity($currentUser, '/mobile-money/_order');
         
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted()) {
             $transaction = $form->getData();
             $command = $form->getData()->getCommand();
             $command->setStatus(Order::STATUS_PROCESSING);
@@ -397,8 +397,7 @@ class CandidatController extends AbstractController
             if($transaction->getTypeTransaction()->getSlug() == 'mvola'){
                 $response = $mobileMoneyManager->initMvola($transaction, $command);
             }
-
-            if(!empty($response) && !empty($response['status']) && !empty($response['data'])){
+            if(!empty($response) && !empty($response['status'])){
                 $transaction->setPackage($command->getPackage());
                 $transaction->setUpdatedAt(new \DateTime());
                 $transaction->setStatus(Transaction::STATUS_PROCESSING);
