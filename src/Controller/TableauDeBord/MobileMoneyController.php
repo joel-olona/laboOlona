@@ -5,9 +5,11 @@ namespace App\Controller\TableauDeBord;
 use Symfony\Component\Uid\Uuid;
 use App\Entity\Logs\ActivityLog;
 use App\Service\User\UserService;
+use App\Entity\BusinessModel\Order;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\BusinessModel\Transaction;
 use App\Service\MobileMoney\MvolaService;
+use App\Manager\BusinessModel\CreditManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Service\MobileMoney\AirtelMoneyService;
@@ -130,7 +132,7 @@ class MobileMoneyController extends AbstractController
                 ], 200, []);
     }
     
-    #[Route('/transaction/status/{id}', name: 'app_transaction_status', methods: ['GET'])]
+    #[Route('/transaction/airtel-money/status/{id}', name: 'app_transaction_status_airtel_money', methods: ['GET'])]
     public function getStatus(Transaction $transaction): Response
     {
         $response = json_decode($this->airtelMoneyService->enquiry($transaction->getReference()), true);
@@ -178,6 +180,40 @@ class MobileMoneyController extends AbstractController
             200, 
             [], 
         );
+    }
+    
+    #[Route('/transaction/mvola/status/{id}', name: 'app_transaction_status_mvola', methods: ['GET'])]
+    public function getMvolaStatus(Transaction $transaction, TransactionManager $transactionManager, CreditManager $creditManager): Response
+    {
+        $responseJson = $this->mvolaService->transactionStatus($transaction->getReference());
+        $response = json_decode($responseJson, true);
+        if (isset($response['status'])) {
+            if($response['status'] === 'completed'){
+                $transaction->setStatus(Transaction::STATUS_COMPLETED);
+                $transaction->getCommand()->setStatus(Order::STATUS_COMPLETED);
+                $transactionManager->save($transaction);
+                $transactionManager->createInvoice($transaction);
+                $creditManager->notifyTransaction($transaction);
+                $creditManager->validateTransaction($transaction, $transaction->getTypeTransaction()->getName());
+            }
+            if($response['status'] === 'pending'){
+                $transaction->setStatus(Transaction::STATUS_PENDING);
+            }
+            if($response['status'] === ''){
+                $transaction->setStatus(Transaction::STATUS_PROCESSING);
+            }
+            if($response['status'] === 'failed'){
+                $transaction->setStatus(Transaction::STATUS_FAILED);
+            }
+            $transaction->setDetails($responseJson);
+            $this->em->persist($transaction);
+            $this->em->flush();
+        }
+
+        return $this->json([
+            'status' => $transaction->getStatus(),
+            'message' => $transaction->getDetails(),
+        ]);
     }
     
     #[Route('/mvola/status/{uuid}', name: 'app_mobile_money_mvola_status')]
