@@ -27,7 +27,7 @@ class MobileMoneyManager
     public function initAirtelMoney(Transaction $transaction, Order $order)
     {
         $uuid = Uuid::v4()->toRfc4122();
-        $amount = 300;
+        $amount = $transaction->getAmount();
         $payload = [
             "reference" => 'Achat ' . $transaction->getPackage()->getName(),
             "subscriber" => [
@@ -44,7 +44,7 @@ class MobileMoneyManager
         ];
 
         $responseJson = $this->airtelMoneyService->payments($payload);
-        $response = json_decode($responseJson);
+        $response = json_decode($responseJson, true);
         if (!empty($response) && isset($response['status']) && isset($response['data'])) {
             $transaction->setStatus(Transaction::STATUS_PROCESSING);
             $transaction->setReference($response['data']['transaction']['id']);
@@ -71,7 +71,7 @@ class MobileMoneyManager
             'requestingOrganisationTransactionReference' => 'achat_' . $transaction->getPackage()->getSlug(), 
             'originalTransactionReference' => $order->getOrderNumber(), 
             'partnerName' => 'olona-talents.com', 
-            'amount' => '100', 
+            'amount' => $transaction->getAmount(), 
             'description' => 'Achat ' . $transaction->getPackage()->getName(),
             'customerMSISDN' => $transaction->getTelephone(), 
         ];
