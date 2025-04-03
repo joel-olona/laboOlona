@@ -111,7 +111,7 @@ class AirtelMoneyService
         // Conversion du PIN chiffré en base64 pour le transmettre en toute sécurité
         return base64_encode($encryptedPin);
     }
-
+    
     public function payments($payload)
     {
         $accessToken = $this->authenticate();
@@ -120,12 +120,12 @@ class AirtelMoneyService
 
         $headers = [
             'Authorization' => 'Bearer ' . $accessToken,
-            'Accept' => '*/* ',
+            'Accept' => '*/*',
             'X-Country' => 'MG',
             'X-Currency' => 'MGA',
             'x-signature' => $security['x-signature'],
             'x-key' => $security['x-key'],
-            'Content-Type' => 'application/json'
+            'Content-Type' => 'application/json',
         ];
 
         try {
@@ -133,11 +133,15 @@ class AirtelMoneyService
                 'headers' => $headers,
                 'json' => $payload,
             ]);
-            $content = $response->getContent(); 
+            $content = json_decode($response->getContent(), true); 
         } catch (
             TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
         ) {
-            $content = $exception;
+            $content = [
+                'error' => true,
+                'message' => $exception->getMessage(),
+                'status_code' => method_exists($exception, 'getCode') ? $exception->getCode() : null
+            ];
         }
 
         return $content;
@@ -272,6 +276,5 @@ class AirtelMoneyService
         }
 
         return $content;
-    }
-    
+    }    
 }

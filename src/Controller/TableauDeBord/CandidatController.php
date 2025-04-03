@@ -416,9 +416,9 @@ class CandidatController extends AbstractController
 
             if(empty($response) || empty($response['status'])){
                 return $this->json([
-                    'status' => 'error',
-                    'message' => 'Erreur lors de la vérification du paiement.',
-                ], 403, []);
+                    'error' => $response['error'],
+                    'message' => $response['message'],
+                ], $response['status_code'], []);
             }   
             /** On envoi un mail */
             $this->mailerService->sendMultiple(
