@@ -74,9 +74,10 @@
                 </div>
             </div>
             <div class="offre-emploi-list">
+            <div class="container">
                 <div class="row">
-                    <div class="col-lg-8">
-                        {% for job in offres  %}
+                    <div class="col-lg-8 user-results ">
+                        {# {% for job in offres  %}
                         <article class="article-item_">
                             <div class="row">
                                 <div class="col-md-2 aside-left-item_">
@@ -112,49 +113,18 @@
                                 </div>
                             </div>
                         </article>
-                        <span data-annonce="{{ job.id }}" style="display:none">
-                            {% include "v2/preview/_prev_joblistings.html.twig" %}
-                        </span>
-                        {% endfor %}
+                        {% endfor %} #}
+                        <div id="joblistings-list">
+                            {% if joblistings|length > 0 %}
+                                {% include "v2/dashboard/result/parts/_part_joblistings_list.html.twig" %}
+                            {% else %}
+                                {% include "v2/dashboard/result/none/_none_joblistings.html.twig" %}
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="col-lg-4">
                         <div class="position-sticky" style="top: 2rem;">
                             <div class="theiaStickySidebar">
-                                <div class="side-bar">
-                                    <div class="sidebar-elements search-bx">								
-                                        <form>
-                                            <div class="form-group mb-4">
-                                                <h4 class="section-head-small mb-4">Afficher par</h4>
-                                                <div class="dropdown bootstrap-select">
-                                                    <select class="select-bar-large selectpicker" data-live-search="true" data-bv-field="size" tabindex="null">
-                                                        <option>10</option>
-                                                        <option>20</option>
-                                                        <option>30</option>
-                                                        <option>40</option>
-                                                        <option>50</option>
-                                                        <option>60</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="form-group mb-4">
-                                                <h4 class="section-head-small mb-4">Categories</h4>
-                                                <div class="dropdown bootstrap-select">
-                                                    <select class="select-bar-large selectpicker" data-live-search="true" data-bv-field="size" tabindex="null">
-                                                        <option>Toutes les Categories</option>
-                                                        <option>Web Designer</option>
-                                                        <option>Developpeur</option>
-                                                        <option>Marketing</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div class="m-4 card position-relative text-center d-block d-md-none">
-                                    <a href="{{ path('app_v2_view_recruiter_profile', {'id': 118 }) }}">
-                                        <img class="img-fluid" src="{{ asset('images/pubs/olona-talents-vertical.webp')}}">
-                                    </a>
-                                </div>
                                 <div class="pub_veticales mt-4 pt-1">
                                     <a href="">
                                         <img class="img-fluid" src="{{ asset('images/pubs/olona-talents-vertical.webp')}}">
@@ -169,7 +139,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
