@@ -8,6 +8,7 @@ use App\Twig\AppExtension;
 use App\Entity\Notification;
 use App\Form\PrestationType;
 use App\Data\QuerySearchData;
+use App\Service\FileUploader;
 use App\Entity\Finance\Devise;
 use App\Twig\FinanceExtension;
 use App\Manager\ProfileManager;
@@ -41,12 +42,15 @@ use App\Manager\BusinessModel\CreditManager;
 use App\Repository\Finance\DeviseRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\BusinessModel\PurchasedContact;
+use App\Entity\EntrepriseProfile;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Manager\BusinessModel\TransactionManager;
 use App\Repository\BusinessModel\PackageRepository;
 use App\Form\Profile\Candidat\Edit\EditCandidateProfile;
 use App\Manager\MobileMoney\MobileMoneyManager;
+use App\Repository\BusinessModel\PurchasedContactRepository;
+use App\Repository\Entreprise\JobListingRepository;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -339,13 +343,19 @@ class CandidatController extends AbstractController
     }
 
     #[Route('/mon-compte', name: 'app_tableau_de_bord_candidat_mon_compte')]
-    public function mycompte(Request $request): Response
+    public function mycompte(Request $request, FileUploader $fileUploader, ProfileManager $profileManager): Response
     {
         $params = $this->getData();
         $candidat = $params['candidat'];
         $form = $this->createForm(EditCandidateProfile::class, $candidat);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()){
+            $cvFile = $form->get('cv')->getData();
+            if ($cvFile) {
+                $fileName = $fileUploader->upload($cvFile, $candidat);
+                $candidat->setCv($fileName[0]);
+                $profileManager->saveCV($fileName, $candidat);
+            }
             $this->em->persist($candidat);
             $this->em->flush();
             $this->addFlash('success', 'Informations enregistrées');
@@ -410,6 +420,20 @@ class CandidatController extends AbstractController
                     'message' => 'Erreur lors de la vérification du paiement.',
                 ], 403, []);
             }   
+            /** On envoi un mail */
+            $this->mailerService->sendMultiple(
+                ["contact@olona-talents.com", "admin@olona-talents.com", "aolonaprodadmi@gmail.com", "partenaires@olona-talents.com"],
+                "Paiement sur Olona Talents",
+                "notification_paiement.html.twig",
+                [
+                    'user' => $currentUser,
+                    'transaction' => $transaction,
+                    'order' => $order,
+                    'dashboard_url' => $this->generateUrl('app_dashboard_moderateur_business_model_transaction_view', [
+                        'transaction' => $transaction->getId(),
+                    ], UrlGeneratorInterface::ABSOLUTE_URL),
+                ]
+            );
             
             return $this->json([
                 'status' => 'ok',
@@ -475,10 +499,48 @@ class CandidatController extends AbstractController
             ->setMaxResults($limit)
             ->setFirstResult(($page - 1) * $limit);
 
+        $qbboost = $this->em->getRepository(JobListing::class)->createQueryBuilder('j');
+        $qbboost->where('j.status = :status')
+            ->setParameter('status', JobListing::STATUS_FEATURED)
+            // ->andWhere('j.secteur IN (:secteurs)')
+            // ->setParameter('secteurs', $secteurs)
+            ->orderBy('j.id', 'DESC')
+            ->setMaxResults($limit)
+            ->setFirstResult(($page - 1) * $limit);
+
         $offres = $qb->getQuery()->getResult();
+        $boosts = $qbboost->getQuery()->getResult();
         $params['offres'] = $offres;
+        $params['joblistings'] = $offres;
+        $params['joblistings_boost'] = $boosts;
 
         return $this->render('tableau_de_bord/candidat/trouver_des_missions.html.twig', $params);
+    }
+
+    #[Route('/detail-entreprise/{id}', name: 'app_tableau_de_bord_candidat_view_recruiter')]
+    public function viewRecruiter(
+        Request $request, 
+        int $id, 
+        AppExtension $appExtension, 
+        ProfileManager $profileManager,
+        PurchasedContactRepository $contactRepository,
+        JobListingRepository $jobListingRepository,
+    ): Response
+    {
+        $entreprise = $this->em->getRepository(EntrepriseProfile::class)->find($id);
+        if ($entreprise === null || $entreprise->getStatus() === EntrepriseProfile::STATUS_BANNED || $entreprise->getStatus() === EntrepriseProfile::STATUS_PENDING) {
+            throw $this->createNotFoundException('Nous sommes désolés, mais l\'entreprise demandée n\'existe pas.');
+        }
+        $page = $request->query->get('page', 1);
+        $data = $this->getData();
+        $currentUser = $data['currentUser'];
+        $this->activityLogger->logEntrepriseViewActivity($data['currentUser'], $appExtension->generateReference($entreprise));
+        $data['entreprise'] = $entreprise;
+        $data['joblistings'] = $jobListingRepository->paginateJobListingsEntrepriseProfiles($entreprise, $page, JobListing::STATUS_PUBLISHED);
+        $data['show_recruiter_price'] = $profileManager->getCreditAmount(Credit::ACTION_VIEW_RECRUITER);
+        $data['purchasedContact'] = $contactRepository->findOneBy(['buyer' => $currentUser,'contact' => $entreprise->getEntreprise()]);
+
+        return $this->render('tableau_de_bord/candidat/view_entreprise.html.twig', $data);
     }
 
     #[Route('/detail-annonce/{id}', name: 'app_tableau_de_bord_candidat_view_job_offer')]
