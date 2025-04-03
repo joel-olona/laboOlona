@@ -43,8 +43,7 @@ class MobileMoneyManager
             ]
         ];
 
-        $responseJson = $this->airtelMoneyService->payments($payload);
-        $response = json_decode($responseJson, true);
+        $response = $this->airtelMoneyService->payments($payload);
         if (!empty($response) && isset($response['status']) && isset($response['data'])) {
             $transaction->setStatus(Transaction::STATUS_PROCESSING);
             $transaction->setReference($response['data']['transaction']['id']);
