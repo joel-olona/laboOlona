@@ -119,34 +119,45 @@ class AirtelMoneyService
         $security = $this->generateSignatureAndKey($payload);
 
         $headers = [
-            'Authorization' => 'Bearer ' . $accessToken,
-            'Accept' => '*/*',
-            'X-Country' => 'MG',
-            'X-Currency' => 'MGA',
-            'x-signature' => $security['x-signature'],
-            'x-key' => $security['x-key'],
-            'Content-Type' => 'application/json',
+            'Authorization: Bearer ' . $accessToken,
+            'Accept: */*',
+            'X-Country: MG',
+            'X-Currency: MGA',
+            'Content-Type: application/json',
+            'Cookie: incap_ses_1843_2967769=tha4JbDKC1/BMSwgHqeTGcwn7mcAAAAA8ZXkOpdaxbYntP2nLZuhkw==; nlbi_2967769=wnjfLuaPU1NZNy4nmeq1mAAAAACUSVzYC1Y+j3en4jI7kw+P; visid_incap_2967769=bzYhjKV6RsqHPeS0iWLqFvwm7mcAAAAAQUIPAAAAAABCE813xXotX60SGCbl8O1V'
         ];
 
-        try {
-            $response = $this->client->request('POST', $url, [
-                'headers' => $headers,
-                'json' => $payload,
-            ]);
-            $content = json_decode($response->getContent(), true); 
-        } catch (
-            TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
-        ) {
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
             $content = [
                 'error' => true,
-                'message' => $exception->getMessage(),
-                'status_code' => method_exists($exception, 'getCode') ? $exception->getCode() : null
+                'message' => curl_error($ch),
+                'status_code' => curl_getinfo($ch, CURLINFO_HTTP_CODE)
+            ];
+        } else {
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $decoded = json_decode($response, true);
+
+            $content = [
+                'error' => false,
+                'status_code' => $httpCode,
+                'response' => $decoded
             ];
         }
 
+        curl_close($ch);
+
         return $content;
     }
-
+    
     public function kyc($msisdn)
     {
         $accessToken = $this->authenticate();

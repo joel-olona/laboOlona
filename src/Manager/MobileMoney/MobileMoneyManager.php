@@ -27,13 +27,13 @@ class MobileMoneyManager
     public function initAirtelMoney(Transaction $transaction, Order $order)
     {
         $uuid = Uuid::v4()->toRfc4122();
-        $amount = $transaction->getAmount();
+        $amount = 300;
         $payload = [
-            "reference" => 'Achat ' . $transaction->getPackage()->getName(),
+            "reference" => "Testing transaction",
             "subscriber" => [
                 "country" => "MG",
                 "currency" => "MGA",
-                "msisdn" => $this->formatAirtelNumber($transaction->getTelephone()),
+                "msisdn" => "331101199",
             ],
             "transaction" => [
                 "amount" => $amount,
@@ -44,20 +44,44 @@ class MobileMoneyManager
         ];
 
         $response = $this->airtelMoneyService->payments($payload);
-        if (!empty($response) && isset($response['status']) && isset($response['data'])) {
+        
+        $statusCode = $response['status_code'] ?? null;
+        if (
+            !$response['error'] &&
+            isset($response['response']['status']) &&
+            isset($response['response']['data']['transaction']['id'])
+        ) {
             $transaction->setStatus(Transaction::STATUS_PROCESSING);
-            $transaction->setReference($response['data']['transaction']['id']);
+            $transaction->setReference($response['response']['data']['transaction']['id']);
             $transaction->setToken($uuid);
-            $transaction->setAmount($amount);
             $this->em->persist($transaction);
             $this->em->flush();
+        
             $order->setStatus(Order::STATUS_PROCESSING);
             $this->em->persist($order);
             $this->em->flush();
-
-            return $response;
+        
+            return [
+                'success' => true,
+                'error' => false,
+                'message' => 'Transaction en cours de traitement.',
+                'status_code' => $statusCode,
+                'data' => $response['response']
+            ];
         } else {
-            return $response;
+            $errorMessage = 'Échec de la transaction avec l’API Airtel Money.';
+        
+            if (!empty($response['message'])) {
+                $errorMessage .= ' Détail : ' . $response['message'];
+            }
+        
+            return [
+                'success' => false,
+                'error' => true,
+                'message' => $errorMessage,
+                'status_code' => $statusCode,
+                'data' => $response['response'] ?? null
+            ];
         }
     }
 

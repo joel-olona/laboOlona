@@ -67,9 +67,9 @@ class MobileMoneyController extends AbstractController
             ],
         ];
 
-        // $response = json_decode($this->airtelMoneyService->enquiry("b6247073-6e70-421f-bcb1-ac7b56311a5d"), true);
+        $response = json_decode($this->airtelMoneyService->enquiry("551e36cb-2560-4522-bc35-4e7475b1d80b"), true);
         // $response = json_decode($this->airtelMoneyService->kyc("332046888"), true);
-        $response = json_decode($this->airtelMoneyService->payments($payload), true);
+        // $response = json_decode($this->airtelMoneyService->payments($payload), true);
         // $response = json_decode($this->airtelMoneyService->disbursements($data), true);
         dd($response);
 
@@ -135,7 +135,8 @@ class MobileMoneyController extends AbstractController
     #[Route('/transaction/airtel-money/status/{id}', name: 'app_transaction_status_airtel_money', methods: ['GET'])]
     public function getStatus(Transaction $transaction): Response
     {
-        $response = json_decode($this->airtelMoneyService->enquiry($transaction->getReference()), true);
+        $response = json_decode($this->airtelMoneyService->enquiry($transaction->getToken()), true);
+        // dd($response, $transaction);
         if (isset($response['data']['transaction'])) {
             if($response['data']['transaction']['status'] === 'TS'){
                 $transaction->setStatus(Transaction::STATUS_COMPLETED);
@@ -152,6 +153,8 @@ class MobileMoneyController extends AbstractController
         return $this->json([
             'status' => $transaction->getStatus(),
             'message' => $transaction->getDetails(),
+            'token' => $transaction->getToken(),
+            'reference' => $transaction->getReference(),
         ]);
     }
 
