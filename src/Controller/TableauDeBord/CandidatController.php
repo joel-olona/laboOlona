@@ -488,7 +488,7 @@ class CandidatController extends AbstractController
                     'success' => true,
                     'message' => $response['message'],
                     'data' => $response['data']
-                ], $response['status_code']);
+                ], $response['status_code'] ?? 200);
             }
 
             return $this->json([

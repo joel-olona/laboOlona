@@ -11,7 +11,10 @@ use App\Manager\NotificationManager;
 use App\Entity\BusinessModel\Package;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\BusinessModel\Transaction;
+use App\Entity\CandidateProfile;
+use App\Entity\EntrepriseProfile;
 use App\Service\ActivityLogger;
+use App\Service\User\UserService;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -23,6 +26,7 @@ class CreditManager
         private NotificationManager $notificationManager,
         private RequestStack $requestStack,
         private ActivityLogger $activityLogger,
+        private UserService $userService,
         private Security $security
     ){}
 
@@ -156,17 +160,30 @@ class CreditManager
         }
 
         $user = $transaction->getUser();
-        $creditsToAdd = $transaction->getCreditsAdded();
-
-        $credit = $user->getCredit();
-
-        if (!$credit) {
-            $credit = $this->init();
-            $credit->setUser($user);
+        $packageType = $transaction->getPackage()->getType();
+        if($packageType === 'credit'){
+            $creditsToAdd = $transaction->getPackage()->getCredit();
+            $credit = $user->getCredit();
+            if (!$credit) {
+                $credit = $this->init();
+                $credit->setUser($user);
+            }    
+            $credit->setTotal($credit->getTotal() + $creditsToAdd);
+            $this->activityLogger->logCreditPurchased($user, $creditsToAdd, $context);
         }
 
-        $credit->setTotal($credit->getTotal() + $creditsToAdd);
-        $this->activityLogger->logCreditPurchased($user, $creditsToAdd, $context);
+        if($packageType === 'abonnement'){
+            $profile = $this->userService->checkProfile($user);
+            if($profile instanceof CandidateProfile && $profile->isIsPremium() === false){
+                $profile->setIsPremium(true);
+                $this->em->persist($profile);
+            }
+            if($profile instanceof EntrepriseProfile && $profile->isIsPremium() === false){
+                $profile->setIsPremium(true);
+                $this->em->persist($profile);
+            }
+        }
+
         
         $this->em->persist($credit);
         $this->em->persist($transaction);

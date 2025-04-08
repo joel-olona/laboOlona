@@ -94,12 +94,15 @@ class MobileMoneyManager
             'requestingOrganisationTransactionReference' => 'achat_' . $transaction->getPackage()->getSlug(), 
             'originalTransactionReference' => $order->getOrderNumber(), 
             'partnerName' => 'olona-talents.com', 
-            'amount' => $transaction->getAmount(), 
+            'amount' => (int) $transaction->getAmount(), 
             'description' => 'Achat ' . $transaction->getPackage()->getName(),
             'customerMSISDN' => $transaction->getTelephone(), 
         ];
 
-        $response = json_decode($this->mvolaService->payments($payload), true);
+        // $response = json_decode($this->mvolaService->paymentsCurl($payload), true);
+        $response = $this->mvolaService->paymentsCurl($payload);
+        
+        $statusCode = $response['status_code'] ?? null;
 
         if (!empty($response) && !empty($response['status']) && !empty($response['serverCorrelationId'])) {
             $transaction->setStatus(Transaction::STATUS_PROCESSING);
@@ -111,9 +114,28 @@ class MobileMoneyManager
             $this->em->persist($order);
             $this->em->flush();
 
-            return $response;
+        
+            return [
+                'success' => true,
+                'error' => false,
+                'message' => 'Transaction en cours de traitement.',
+                'status_code' => $statusCode,
+                'data' => $response
+            ];
         } else {
-            return [];
+            $errorMessage = 'Échec de la transaction avec l’API MVola.';
+        
+            if (!empty($response['message'])) {
+                $errorMessage .= ' Détail : ' . $response['message'];
+            }
+        
+            return [
+                'success' => false,
+                'error' => true,
+                'message' => $errorMessage,
+                'status_code' => $statusCode,
+                'data' => $response['response'] ?? null
+            ];
         }
     }
 
