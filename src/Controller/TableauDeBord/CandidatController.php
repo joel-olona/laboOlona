@@ -97,7 +97,6 @@ class CandidatController extends AbstractController
         $params['langages'] = $this->candidatManager->getLangagesSortedByNiveau($candidat);
         $params['activities'] = $this->em->getRepository(ActivityLog::class)->findUserLogs($currentUser);
 
-        $params['completion'] = $completion;
         $params['endX'] = $endX;
         $params['endY'] = $endY;
         $params['largeArcFlag'] = $largeArcFlag;
@@ -446,12 +445,20 @@ class CandidatController extends AbstractController
     public function notification(Request $request): Response
     {
         $page = $request->query->get('page', 1);
+        $isRead = $request->query->get('isRead', 0);
         $params = $this->getData();
         if ($params instanceof RedirectResponse) {
             return $params; 
         }
         $currentUser = $params['currentUser'];
-        $params['notifications'] = $this->em->getRepository(Notification::class)->findByDestinataire($currentUser,null, [], null, $page);
+        $params['notifications'] = $this->em->getRepository(Notification::class)->findByDestinataire(
+            $currentUser, 
+            $isRead,
+            ['id' => 'DESC'], 
+            Notification::STATUS_DELETED,
+            $page
+        );
+
         return $this->render('tableau_de_bord/candidat/notification.html.twig', $params);
     }
 
@@ -758,11 +765,12 @@ class CandidatController extends AbstractController
         $data = [];
         $data['currentUser'] = $currentUser;
         $data['candidat'] = $candidat;
+        $data['completion'] = $candidat->getProfileCompletion();
         $data['boost'] = $candidat->getBoost();
         $data['boostVisibility'] = $candidat->getBoostVisibility();
         $data['action'] = $this->urlGenerator->generate('app_olona_talents_joblistings', []);
         $data['credit'] = $currentUser->getCredit()->getTotal();
-        $data['notificationsCount'] = $this->em->getRepository(Notification::class)->countIsRead($currentUser,false);
+        $data['notificationsCount'] = $this->em->getRepository(Notification::class)->countIsRead($currentUser, true);
 
         return $data;
     }
