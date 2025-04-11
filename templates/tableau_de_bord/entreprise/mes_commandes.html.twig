@@ -47,7 +47,7 @@
                         <thead>
                             <tr>
                                 <td scope="col" class="fw-bolder">{{ knp_pagination_sortable(orders, 'Produit', 'p.name') }}</td>
-                                <td scope="col-1" class="fw-bolder text-center">{{ knp_pagination_sortable(orders, 'Montant', 'o.totalAmount') }}</td>
+                                <td scope="col-2" class="fw-bolder text-center">{{ knp_pagination_sortable(orders, 'Montant', 'o.totalAmount') }}</td>
                                 <td scope="col-2" class="fw-bolder text-center">{{ knp_pagination_sortable(orders, 'Paiement', 'type.name') }}</td>
                                 <td scope="col-1" class="fw-bolder text-center">{{ knp_pagination_sortable(orders, 'Date', 'o.createdAt') }}</td>
                                 <td scope="col-1" class="fw-bolder text-center">{{ knp_pagination_sortable(orders, 'Statut', 'o.status') }}</td>
@@ -101,7 +101,7 @@
                                             {{ item.orderNumber }}
                                         </span>
                                     </td>
-                                    <td class="col-1 small text-center">
+                                    <td class="col-2 small text-center">
                                         {{ amount }}
                                     </td>
                                     <td class="col-2 text-center">

@@ -161,7 +161,7 @@ class CreditManager
 
         $user = $transaction->getUser();
         $packageType = $transaction->getPackage()->getType();
-        if($packageType === 'credit'){
+        if($packageType === 'CREDIT'){
             $creditsToAdd = $transaction->getPackage()->getCredit();
             $credit = $user->getCredit();
             if (!$credit) {
@@ -169,10 +169,11 @@ class CreditManager
                 $credit->setUser($user);
             }    
             $credit->setTotal($credit->getTotal() + $creditsToAdd);
+            $this->em->persist($credit);
             $this->activityLogger->logCreditPurchased($user, $creditsToAdd, $context);
         }
 
-        if($packageType === 'abonnement'){
+        if($packageType === 'ABONNEMENT'){
             $profile = $this->userService->checkProfile($user);
             if($profile instanceof CandidateProfile && $profile->isIsPremium() === false){
                 $profile->setIsPremium(true);
@@ -184,8 +185,6 @@ class CreditManager
             }
         }
 
-        
-        $this->em->persist($credit);
         $this->em->persist($transaction);
         $this->em->flush();
 
