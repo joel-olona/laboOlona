@@ -1,0 +1,38 @@
+<turbo-stream action="update" target="current-user-credit">
+  <template>
+    {{ credit }}
+  </template>
+</turbo-stream>
+{% if (candidat is defined and candidat is not null) and (purchasedContact is defined and purchasedContact is not null)%}
+    <turbo-stream action="update" target="contactDetails">
+        <template>
+            <fieldset>
+                <strong>Email:</strong> {{ purchasedContact.contact.email }}<br>
+                <strong>Téléphone:</strong> {{ purchasedContact.contact.telephone }}<br>
+                <strong>Nom complet:</strong> {{ purchasedContact.contact.nom }} {{ purchasedContact.contact.prenom }}
+            </fieldset>
+        </template>
+    </turbo-stream>
+{% endif %}
+{% if (recruiter is defined and recruiter is not null) and (purchasedContact is defined and purchasedContact is not null) %}
+    <turbo-stream action="update" target="contactDetails">
+        <template>
+            <fieldset>
+                <strong>Email:</strong> {{ purchasedContact.contact.email }}<br>
+                <strong>Téléphone:</strong> {{ purchasedContact.contact.telephone }}<br>
+                <strong>Nom complet:</strong> {{ purchasedContact.contact.nom }} {{ purchasedContact.contact.prenom }}
+            </fieldset>
+        </template>
+    </turbo-stream>
+{% endif %}
+<turbo-stream action="update" target="errorToast">
+    <template>
+        <div class="toast-header">
+            <strong class="me-auto">{{ status|raw }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            {{ message }}
+        </div>
+    </template>
+</turbo-stream>

@@ -1,0 +1,65 @@
+{% extends 'base_blog.html.twig' %}
+{% block body %}
+<header class="header-home">
+    <div class="page-content">
+        <div class="home-banner-section bg-cover" style="background-image:url({{ asset('v2/images/home/home-olona-talents.webp')}})">
+            <div class="home-inner-section">
+                <div class="mid-section">
+                    <div class="title-large">Le blog</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<main id="blog-post">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-12">
+                {% for post in posts %}
+                <article class="liste_article"> 
+                    <div class="row">      
+                        <div class="col-md-4">
+                            <div class="bg-article-blog" style="background-image: url('{{ asset('images/blogs/' ~ post.imageName) }}');">
+                                <span class="datePosted">{{ post.createdAt|date('M Y')}}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-8">                        
+                            <div class="blog-post">
+                                <h2 class="display-6 link-body-emphasis mb-1"><a href="{{ path('app_blog_view', {'slug': post.slug})}}">{{ post.title }}</a></h2>
+                                <div class="blog-content">
+                                    {{ post.metaDescription|raw }}
+                                </div>
+                                <p class="blog-post-meta"> by <a href="#">{{ post.author }}</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+                <div class="pagination_">
+                    {{ knp_pagination_render(posts) }}
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-12 rightSidebar">
+                <div class="position-sticky sidebar" style="top: 2rem;">
+                    <div class="sidebar-ele-filter">
+                        <h4 class="section-head-small mb-4">Catégories</h4>
+                        <ul>
+                            {% for category in categories %}
+                            <li>
+                                {#{ path('app_blog_category', {'slug': category.slug}) }#}
+                                <div class=" form-check">
+                                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                                    <label class="form-check-label" for="exampleCheck1">{{ category.title }}</label>
+                                </div>
+                                <span class="job-type-count">{{ category.posts|length }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

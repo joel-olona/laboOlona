@@ -2,30 +2,64 @@
 
 namespace App\Service\Mailer;
 
+use App\Entity\Notification;
+use App\Entity\CandidateProfile;
+use App\Manager\ModerateurManager;
+use Symfony\Component\Mime\Address;
+use App\Manager\NotificationManager;
+use App\Repository\TemplateEmailRepository;
+use App\Service\User\UserService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
 use Symfony\Component\Notifier\Exception\TransportExceptionInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class MailerService 
 {
-    public function __construct(private MailerInterface $mailer){}
+    private $env;
+    public function __construct(
+        private MailerInterface $mailer,
+        private TemplateEmailRepository $templateEmailRepository,
+        private NotificationManager $notificationManager,
+        private ModerateurManager $moderateurManager,
+        private EntityManagerInterface $em,
+        private UserService $userService,
+        ParameterBagInterface $params
+    ){
+        $this->env = $params->get('app.env');
+    }
 
     public function send(
         string $to,
         string $subject,
         string $template,
-        array $context
+        array $context,
+        string $from = '',
+        string $replyTo = '',
     ): void
     {
         $email = new TemplatedEmail();
-        $email 
-            ->from(new Address('noreply@olona-talents.com', 'Olona Talents'))
-            ->to($to)
-            ->subject($subject)
+        $sender = $from === '' ? 'support@olona-talents.com': $from;
+        $env = 'Olona Talents';
+        if ($this->env === 'prod') {
+            $email->to($to);
+        } else {
+            $env = '[Preprod] Olona Talents';
+            $email->to('support@olona-talents.com'); 
+            $email->addTo('miandrisoa.olona@gmail.com');
+            $email->addTo('contact@olona-talents.com');
+        }
+        $email->from(new Address($sender, $env));
+        if ($replyTo !== '') {
+            $email->replyTo($replyTo);
+        }else{
+            $email->replyTo('contact@olona-talents.com');
+        }
+        $email->subject($subject)
             ->htmlTemplate("mails/$template")
             ->context($context)
-            ;
+        ;
 
         try{
 
@@ -45,21 +79,110 @@ class MailerService
         array $context
     ): void {
         $email = new TemplatedEmail();
+        $env = 'Olona Talents';
+        if ($this->env === 'prod') {
+            foreach ($to as $recipient) {
+                $email->addTo($recipient);
+            }
+        } else {
+            $env = '[Preprod] Olona Talents';
+            $email->to('support@olona-talents.com'); 
+            $email->addTo('contact@olona-talents.com');
+            $email->addTo('miandrisoa.olona@gmail.com');
+        }
         $email
-            ->from(new Address('noreply@olona-talents.com', 'Olona Talents'))
+            ->from(new Address('support@olona-talents.com', $env))
+            ->replyTo('contact@olona-talents.com')
             ->subject($subject)
             ->htmlTemplate("mails/$template")
             ->context($context);
-    
-        // Ajout de chaque destinataire
-        foreach ($to as $recipient) {
-            $email->addTo($recipient);
-        }
     
         try {
             $this->mailer->send($email);
         } catch (TransportExceptionInterface $transportException) {
             throw $transportException;
+        }
+    }
+
+    public function sendRelanceEmail(CandidateProfile $profile, string $type, string $categorie, string $compte)
+    {
+        $emailTemplate = $this->templateEmailRepository->findByTypeAndCategorieAndCompte($type, $categorie, $compte);
+        // dd($emailTemplate, $type, $categorie, $compte);
+
+        if ($emailTemplate) {
+            $email = new TemplatedEmail();
+            $sender = 'support@olona-talents.com';
+            $env = 'Olona Talents';
+            if ($this->env === 'prod') {
+                $email->to($profile->getCandidat()->getEmail());
+            } else {
+                $env = '[Preprod] Olona Talents';
+                $email->to('support@olona-talents.com'); 
+            }
+            $email 
+                ->from(new Address($sender, $env))
+                ->replyTo('contact@olona-talents.com')
+                ->subject($emailTemplate->getTitre())
+                ->htmlTemplate("mails/relance/profile/candidat.html.twig")
+                ->context([
+                    'user' => $profile->getCandidat(),
+                    'contenu' => '<p>Bonjour '.$profile->getCandidat()->getPrenom().',</p>'.$emailTemplate->getContenu(),
+                ])
+                ;
+    
+            try{
+    
+                $this->mailer->send($email);
+                $notification = $this->notificationManager->createNotification($this->moderateurManager->getModerateurs()[1], $profile->getCandidat(), Notification::TYPE_PROFIL, $emailTemplate->getTitre(), '<p>Bonjour '.$profile->getCandidat()->getPrenom().',</p>'.$emailTemplate->getContenu() );
+                $this->em->persist($notification);
+                $this->em->flush();
+    
+            }catch(TransportExceptionInterface $transportException){
+    
+                throw $transportException;
+    
+            }
+        }
+    }
+
+    public function sendMultipleRelanceEmail(CandidateProfile $profile, string $titre, string $contenu)
+    {
+        $email = new TemplatedEmail();
+        $sender = 'support@olona-talents.com';
+        $env = 'Olona Talents';
+        if ($this->env === 'prod') {
+            $email->to($profile->getCandidat()->getEmail());
+        } else {
+            $env = '[Preprod] Olona Talents';
+            $email->to('support@olona-talents.com'); 
+        }
+        $email 
+            ->from(new Address($sender, $env))
+            ->replyTo('contact@olona-talents.com')
+            ->subject($titre)
+            ->htmlTemplate("mails/relance/profile/candidat.html.twig")
+            ->context([
+                'user' => $profile->getCandidat(),
+                'contenu' => '<p>Bonjour '.$profile->getCandidat()->getPrenom().',</p>'.$contenu,
+            ])
+            ;
+
+        try{
+
+            $this->mailer->send($email);
+            $notification = 
+            $this->notificationManager->createNotification(
+                $this->userService->getCurrentUser(), 
+                $profile->getCandidat(), Notification::TYPE_PROFIL, $titre, 
+                '<p>Bonjour '.$profile->getCandidat()->getPrenom().',</p>'.$contenu 
+            );
+            $this->em->persist($notification);
+            $this->em->flush();
+
+        }catch(TransportExceptionInterface $transportException){
+
+            throw $transportException;
+
         }
     }
 }
