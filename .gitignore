@@ -28,3 +28,11 @@
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+# ignore Google config
+config/google/token.json
+config/google/credentials.json
+###< lexik/jwt-authentication-bundle ###
+public/uploads.tar.gz
