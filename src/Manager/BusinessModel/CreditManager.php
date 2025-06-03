@@ -5,16 +5,14 @@ namespace App\Manager\BusinessModel;
 use App\Entity\User;
 use App\Entity\Notification;
 use Twig\Environment as Twig;
+use App\Service\ActivityLogger;
 use Symfony\Component\Form\Form;
 use App\Entity\BusinessModel\Credit;
 use App\Manager\NotificationManager;
+use App\Entity\BusinessModel\Invoice;
 use App\Entity\BusinessModel\Package;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\BusinessModel\Transaction;
-use App\Entity\CandidateProfile;
-use App\Entity\EntrepriseProfile;
-use App\Service\ActivityLogger;
-use App\Service\User\UserService;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -26,7 +24,7 @@ class CreditManager
         private NotificationManager $notificationManager,
         private RequestStack $requestStack,
         private ActivityLogger $activityLogger,
-        private UserService $userService,
+        private TransactionManager $transactionManager,
         private Security $security
     ){}
 
@@ -159,32 +157,27 @@ class CreditManager
             return false;
         }
 
-        $user = $transaction->getUser();
-        $packageType = $transaction->getPackage()->getType();
-        if($packageType === 'CREDIT'){
-            $creditsToAdd = $transaction->getPackage()->getCredit();
+        if($transaction->getPackage()->getType() === 'ABONNEMENT'){
+            $invoice = $transaction->getCommand()->getInvoice();
+            if(!$invoice instanceof Invoice){
+                $this->transactionManager->createInvoice($transaction);
+            }
+            $this->activityLogger->logSubcriptionPurchased($transaction->getUser(), $transaction->getAmount(), $context);
+        }else{
+            $user = $transaction->getUser();
+            $creditsToAdd = $transaction->getCreditsAdded();
             $credit = $user->getCredit();
+    
             if (!$credit) {
                 $credit = $this->init();
                 $credit->setUser($user);
-            }    
+            }
+    
             $credit->setTotal($credit->getTotal() + $creditsToAdd);
-            $this->em->persist($credit);
             $this->activityLogger->logCreditPurchased($user, $creditsToAdd, $context);
+            $this->em->persist($credit);
         }
-
-        if($packageType === 'ABONNEMENT'){
-            $profile = $this->userService->checkProfile($user);
-            if($profile instanceof CandidateProfile && $profile->isIsPremium() === false){
-                $profile->setIsPremium(true);
-                $this->em->persist($profile);
-            }
-            if($profile instanceof EntrepriseProfile && $profile->isIsPremium() === false){
-                $profile->setIsPremium(true);
-                $this->em->persist($profile);
-            }
-        }
-
+        
         $this->em->persist($transaction);
         $this->em->flush();
 

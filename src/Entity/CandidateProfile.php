@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Entity\BusinessModel\Boost;
 use App\Entity\BusinessModel\BoostFacebook;
 use App\Entity\BusinessModel\BoostVisibility;
+use App\Entity\BusinessModel\Subcription;
 use App\Entity\Candidate\CV;
 use App\Entity\Candidate\Langages;
 use App\Entity\Candidate\Social;
@@ -38,6 +39,9 @@ class CandidateProfile
     const STATUS_VALID = 'VALID';
     const STATUS_FEATURED = 'FEATURED';
     const STATUS_RESERVED = 'RESERVED';
+    const GENDER_MALE = 'MALE';
+    const GENDER_FEMALE = 'FEMALE';
+    const GENDER_OTHER = 'OTHER';
 
     public static function getStatuses() {
         return [
@@ -56,6 +60,22 @@ class CandidateProfile
              self::STATUS_VALID ,
              self::STATUS_FEATURED ,
              self::STATUS_RESERVED ,
+        ];
+    }
+
+    public static function getGenderLabels() {
+        return [
+            'Masculin' => self::GENDER_MALE ,
+            'Féminin' => self::GENDER_FEMALE ,
+            'Autre' => self::GENDER_OTHER ,
+        ];
+    }
+
+    public static function getArrayGender() {
+        return [
+             self::GENDER_MALE ,
+             self::GENDER_FEMALE ,
+             self::GENDER_OTHER ,
         ];
     }
 
@@ -217,6 +237,21 @@ class CandidateProfile
     #[ORM\Column(nullable: true)]
     private ?bool $isPremium = null;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $gender = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $province = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $region = null;
+
+    /**
+     * @var Collection<int, Subcription>
+     */
+    #[ORM\OneToMany(mappedBy: 'candidat', targetEntity: Subcription::class)]
+    private Collection $subcriptions;
+
     public function __construct()
     {
         $this->competences = new ArrayCollection();
@@ -238,6 +273,7 @@ class CandidateProfile
         $this->contestEntries = new ArrayCollection();
         $this->localisation = 'MG';
         $this->isGeneretated = false;
+        $this->subcriptions = new ArrayCollection();
     }
 
     public function __toString()
@@ -1129,5 +1165,71 @@ class CandidateProfile
         if ($this->cv) $score++;
     
         return intval(($score / $total) * 100);
+    }
+
+    public function getGender(): ?string
+    {
+        return $this->gender;
+    }
+
+    public function setGender(?string $gender): static
+    {
+        $this->gender = $gender;
+
+        return $this;
+    }
+
+    public function getProvince(): ?string
+    {
+        return $this->province;
+    }
+
+    public function setProvince(?string $province): static
+    {
+        $this->province = $province;
+
+        return $this;
+    }
+
+    public function getRegion(): ?string
+    {
+        return $this->region;
+    }
+
+    public function setRegion(?string $region): static
+    {
+        $this->region = $region;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Subcription>
+     */
+    public function getSubcriptions(): Collection
+    {
+        return $this->subcriptions;
+    }
+
+    public function addSubcription(Subcription $subcription): static
+    {
+        if (!$this->subcriptions->contains($subcription)) {
+            $this->subcriptions->add($subcription);
+            $subcription->setCandidat($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSubcription(Subcription $subcription): static
+    {
+        if ($this->subcriptions->removeElement($subcription)) {
+            // set the owning side to null (unless already changed)
+            if ($subcription->getCandidat() === $this) {
+                $subcription->setCandidat(null);
+            }
+        }
+
+        return $this;
     }
 }

@@ -19,8 +19,8 @@
 
       </li>
       <li>
-        <a href="{{ path('app_contract_index')}}" 
-            class="nav-link {{ current_route == 'app_contract_index' ? 'active' : 'text-white' }}">
+        <a href="{{ path('app_moderateur_subcription_index')}}" 
+            class="nav-link {{ current_route == 'app_moderateur_subcription_index' ? 'active' : 'text-white' }}">
             <i class="h5 mx-2 bi bi-fire"></i>
             Abonnements    
         </a>
@@ -61,6 +61,13 @@
             Prestations   
         </a>
 
+      </li>
+      <li>
+        <a href="{{ path('app_moderateur_order_index')}}" 
+            class="nav-link {{ current_route == 'app_moderateur_order_index' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-cart3"></i>
+            Commandes  
+        </a>
       </li>
       <li>
         <a href="{{ path('app_dashboard_moderateur_business_model_transaction')}}" 

@@ -31,14 +31,17 @@ use App\Entity\BusinessModel\Package;
 use App\Entity\Entreprise\JobListing;
 use App\Form\BusinessModel\OrderType;
 use App\Service\Mailer\MailerService;
+use Google\Service\PeopleService\Url;
 use App\Entity\Candidate\Applications;
 use App\Entity\Moderateur\ContactForm;
+use App\Form\BusinessModel\CommandType;
 use App\Form\Entreprise\JobListingType;
 use App\Manager\Finance\EmployeManager;
 use App\Security\Voter\JobListingVoter;
 use App\Security\Voter\SimulationVoter;
 use App\Form\Profile\EditEntrepriseType;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\BusinessModel\Subcription;
 use App\Entity\BusinessModel\Transaction;
 use App\Form\TableauDeBord\AssistanceType;
 use App\Form\BusinessModel\TransactionType;
@@ -153,7 +156,7 @@ class EntrepriseController extends AbstractController
     }
 
     #[Route('/annuaire-de-services', name: 'app_tableau_de_bord_entreprise_annuaire_de_services')]
-    public function annuaire(Request $request): Response
+    public function annuaire(Request $request, UrlGeneratorInterface $urlGeneratorInterface): Response
     {
         $page = $request->query->get('page', 1);
         $size = $request->query->get('size', 10);
@@ -164,6 +167,7 @@ class EntrepriseController extends AbstractController
         $prestations = $this->em->getRepository(Prestation::class)->paginatePrestations(Prestation::STATUS_VALID, $page, $size);
         $params['prestations'] = $prestations;
         $params['size'] = $size;
+        $params['action'] = $urlGeneratorInterface->generate('app_olona_talents_prestations');
 
         return $this->render('tableau_de_bord/entreprise/annuaire_de_services.html.twig', $params);
     }
@@ -269,8 +273,15 @@ class EntrepriseController extends AbstractController
         $from = ($page - 1) * $size;
         $title = $request->query->get('filter-title', $filterTitle);
         $gender = $request->query->get('filter-gender', null);
-        $year = $request->query->get('filter-year', null);
-        $searchResults = $olonaTalentsManager->searchEntities('candidates', $from, $size, $title);
+        $province = $request->query->get('filter-province', null);
+        $experienceYears = $request->query->get('filter-experience-years', null);
+
+        $filters = [];
+        if ($gender) $filters['gender'] = $gender;
+        if ($province) $filters['province'] = $province;
+        if ($experienceYears) $filters['experience_years'] = $experienceYears;
+        
+        $searchResults = $olonaTalentsManager->searchEntities('candidates', $from, $size, $title, $filters);
         $totalPages = ceil($searchResults['totalResults'] / $size);
         $params['searchResults'] = $searchResults['entities'];
         $params['totalResults'] = $searchResults['totalResults'];
@@ -314,12 +325,49 @@ class EntrepriseController extends AbstractController
     }
     
     #[Route('/mes-commandes', name: 'app_tableau_de_bord_entreprise_mes_commandes')]
-    public function orders(): Response
+    public function orders(Request $request, OrderManager $orderManager, TransactionManager $transactionManager): Response
     {
         $params = $this->getData();
         if ($params instanceof RedirectResponse) {
             return $params; 
         }
+        $subcriptions = $this->em->getRepository(Subcription::class)->findBy(['entreprise' => $params['entreprise']]);
+        $package = $this->em->getRepository(Package::class)->findOneBy(['slug' => 'abonnement']);
+        $devise = $params['entreprise']->getDevise();
+        if(count($subcriptions) !== 0){
+            $typeTransaction = $subcriptions[0]->getLastTypeTransaction();
+            $order = $orderManager->init();
+            $order->setPackage($package);
+            $order->setCurrency($devise);
+            $order->setPaymentMethod($typeTransaction);
+            $order->setTotalAmount($package->getPrice());
+            $form = $this->createForm(CommandType::class, $order);
+            $form->handleRequest($request);
+            
+            if ($form->isSubmitted() && $form->isValid()) {
+                $order = $form->getData();
+                $order->setPaymentMethod($typeTransaction);
+                $transaction = $order->getTransaction();
+                if(!$transaction instanceof Transaction){
+                    $transaction = $transactionManager->init();
+                    $transaction->setCommand($order);
+                }
+                $transaction->setTypeTransaction($typeTransaction);
+                $transaction->setPackage($package);
+                $transaction->setAmount($package->getPrice());
+                $transactionManager->save($transaction);
+                $orderManager->save($order);
+                
+                return $this->redirectToRoute('app_tableau_de_bord_entreprise_mobile_money_checkout', [
+                    'orderNumber' => $order->getOrderNumber()
+                ]);
+            } 
+            $params['form'] = $form->createView();
+            $params['mobileMoney'] = $order->getPaymentMethod();
+            $params['typeTransaction'] = $typeTransaction;
+        }
+        $params['package'] = $package;
+        $params['subcriptions'] = $subcriptions;
         $params['orders'] = $this->em->getRepository(Order::class)->filterByUser(new QuerySearchData);
 
         return $this->render('tableau_de_bord/entreprise/mes_commandes.html.twig', $params);
@@ -545,6 +593,7 @@ class EntrepriseController extends AbstractController
         Request $request,
         JobListingManager $jobListingManager,
         EntityManagerInterface $em,
+        UrlGeneratorInterface $urlGenerator,
     ): Response
     {
         $params = $this->getData();
@@ -563,6 +612,18 @@ class EntrepriseController extends AbstractController
                 $em->persist($jobListing);
                 $em->flush();
                 $this->addFlash('success', 'Annonce créée avec succès');
+                /** send email to stephane */
+                $this->mailerService->sendMultiple(
+                    ["contact@olona-talents.com", "support@olona-talents.com", "miandrisoa.olona@gmail.com"],
+                    "Annonce publiée sur Olona Talents",
+                    "moderateur/notification_annonce_publie.html.twig",
+                    [
+                        'entreprise' => $jobListing->getEntreprise(),
+                        'objet' => "Annonce publiée",
+                        'details_annonce' => $jobListing,
+                        'dashboard_url' => $urlGenerator->generate('app_moderateur_job_listing_edit', ['id' => $jobListing->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                    ]
+                );
                 return $this->redirectToRoute('app_tableau_de_bord_entreprise_view_job_offer', ['id' => $jobListing->getId()]);
             }
             $this->addFlash('dark', 'Votre credit est insufisant');
@@ -682,7 +743,7 @@ class EntrepriseController extends AbstractController
     }
 
     #[Route('/trouver-des-missions', name: 'app_tableau_de_bord_entreprise_trouver_des_missions')]
-    public function searchmission(Request $request): Response
+    public function searchmission(Request $request, UrlGeneratorInterface $urlGeneratorInterface): Response
     {        
         $page = $request->query->getInt('page', 1);
         $size = $request->query->getInt('size', 10);
@@ -692,6 +753,7 @@ class EntrepriseController extends AbstractController
         }
         $params['joblistings'] = $this->em->getRepository(JobListing::class)->paginateJobListings(JobListing::STATUS_PUBLISHED, $page, $size);
         $params['joblistings_boost'] = $this->em->getRepository(JobListing::class)->paginateJobListings(JobListing::STATUS_FEATURED, $page, 6);
+        $params['action'] = $urlGeneratorInterface->generate('app_olona_talents_joblistings');
 
         return $this->render('tableau_de_bord/entreprise/trouver_des_missions.html.twig', $params);
     }
@@ -759,10 +821,9 @@ class EntrepriseController extends AbstractController
         return $this->render('tableau_de_bord/entreprise/publier_une_annonce.html.twig', $params);
     }
 
-    #[Route('/detail-prestation/{id}', name: 'app_tableau_de_bord_entreprise_view_prestation')]
-    public function viewPrestation(Request $request, int $id, PrestationManager $prestationManager, AppExtension $appExtension, PrestationExtension $prestationExtension, ProfileManager $profileManager): Response
+    #[Route('/detail-prestation/{prestation}', name: 'app_tableau_de_bord_entreprise_view_prestation')]
+    public function viewPrestation(Request $request, Prestation $prestation, UrlGeneratorInterface $urlGeneratorInterface, PrestationManager $prestationManager, AppExtension $appExtension, PrestationExtension $prestationExtension, ProfileManager $profileManager): Response
     {
-        $prestation = $this->em->getRepository(Prestation::class)->find($id);
         if ($prestation === null || $prestation->getStatus() === Prestation::STATUS_DELETED || $prestation->getStatus() === Prestation::STATUS_PENDING) {
             throw $this->createNotFoundException('Nous sommes désolés, mais le prestation demandé n\'existe pas.');
         }
@@ -782,6 +843,7 @@ class EntrepriseController extends AbstractController
         $params['owner'] = $owner;
         $params['creater'] = $creater;
         $params['showContactPrice'] = $profileManager->getCreditAmount(Credit::ACTION_VIEW_CANDIDATE);
+        $params['action'] = $urlGeneratorInterface->generate('app_olona_talents_prestations');
 
         return $this->render('tableau_de_bord/entreprise/view_prestation.html.twig', $params);
     }
