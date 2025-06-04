@@ -136,7 +136,6 @@ class MobileMoneyController extends AbstractController
     public function getStatus(Transaction $transaction): Response
     {
         $response = json_decode($this->airtelMoneyService->enquiry($transaction->getToken()), true);
-        // dd($response, $transaction);
         if (isset($response['data']['transaction'])) {
             if($response['data']['transaction']['status'] === 'TS'){
                 $transaction->setStatus(Transaction::STATUS_COMPLETED);
