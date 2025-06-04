@@ -47,7 +47,7 @@
                         <thead>
                             <tr>
                                 <td scope="col" class="fw-bolder">{{ knp_pagination_sortable(orders, 'Produit', 'p.name') }}</td>
-                                <td scope="col-1" class="fw-bolder text-center">{{ knp_pagination_sortable(orders, 'Montant', 'o.totalAmount') }}</td>
+                                <td scope="col-2" class="fw-bolder text-center">{{ knp_pagination_sortable(orders, 'Montant', 'o.totalAmount') }}</td>
                                 <td scope="col-2" class="fw-bolder text-center">{{ knp_pagination_sortable(orders, 'Paiement', 'type.name') }}</td>
                                 <td scope="col-1" class="fw-bolder text-center">{{ knp_pagination_sortable(orders, 'Date', 'o.createdAt') }}</td>
                                 <td scope="col-1" class="fw-bolder text-center">{{ knp_pagination_sortable(orders, 'Statut', 'o.status') }}</td>
@@ -64,7 +64,7 @@
                                             {{ item.orderNumber }}
                                         </span>
                                     </td>
-                                    <td class="col-1 small text-center">
+                                    <td class="col-2 small text-center">
                                         {{ item.totalAmount }} Ar
                                     </td>
                                     <td class="col-1 text-center">
@@ -96,7 +96,7 @@
                                             {{ item.orderNumber }}
                                         </span>
                                     </td>
-                                    <td class="col-1 small text-center">
+                                    <td class="col-2 small text-center">
                                         {{ amount }}
                                     </td>
                                     <td class="col-2 text-center">
@@ -108,12 +108,15 @@
                                     </td>
                                     <td class="col-1 text-center">
                                         {{ statusOrder(item)|raw }}<br>
+                                        {% if item.status is same as(constant('App\\Entity\\BusinessModel\\Order::STATUS_ON_HOLD'))%}
+                                        <small><a href="{{ path('app_tableau_de_bord_candidat_mobile_money_checkout', {'orderNumber': item.orderNumber})}}" class="small btn btn-sm btn-outline-primary text-white">Continuer</a></small>
+                                        {% endif %}
                                         {% if item.status is same as(constant('App\\Entity\\BusinessModel\\Order::STATUS_COMPLETED'))%}
                                         <a target=_blank href="{{ path('payment_facture', {'order': item.id})}}" class="small"><i class="bi bi-receipt"></i> Facture</a>
                                         {% endif %}
                                     </td>
                                 {% endif %}
-                                </tr>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>

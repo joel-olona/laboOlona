@@ -1,0 +1,53 @@
+{% extends 'dashboard/base.html.twig' %}
+
+{% block title %}Package index{% endblock %}
+
+{% block body %}
+<section class="p-0 m-0">
+    <div class="container">
+        <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center">
+            <div class="row mb-3">
+                <h1 class="h3">Gestion des Packs</h1>
+                <div>
+                    <a class="btn btn-primary my-3 px-5 rounded-pill" href="{{ path('app_moderateur_package_new') }}"><i class="bi me-2 bi-plus-lg"></i>Ajouter</a>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="col-1">{{ knp_pagination_sortable(packages, '#', 'p.id') }}</th>
+                            <th class="col">{{ knp_pagination_sortable(packages, 'Nom', 'p.name') }}</th>
+                            <th class="col-2">{{ knp_pagination_sortable(packages, 'Type', 'p.type') }}</th>
+                            <th class="col-1">{{ knp_pagination_sortable(packages, 'Prix', 'p.price') }}</th>
+                            <th class="col-1">{{ knp_pagination_sortable(packages, 'Crédit', 'p.credit') }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for package in packages %}
+                        <tr>
+                            <td>{{ package.id }}</td>
+                            <td>{{ package.name }}</td>
+                            <td>{{ package.type }}</td>
+                            <td>{{ package.price }}</td>
+                            <td>{{ package.credit }}</td>
+                            <td>
+                                <a class="btn btn-sm rounded-cirle btn-info" href="{{ path('app_moderateur_package_show', {'id': package.id}) }}"><i class="bi bi-eye"></i></a>
+                                <a class="btn btn-sm rounded-cirle btn-danger" href="{{ path('app_moderateur_package_edit', {'id': package.id}) }}"><i class="bi bi-pencil"></i></a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="10">no records found</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="navigation mt-5">
+                {{ knp_pagination_render(packages) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

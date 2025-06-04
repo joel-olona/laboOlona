@@ -100,7 +100,7 @@ class ActivityLogger
     }
 
     /**
-     * Log a joblisting view activity
+     * Log a entrepriseProfile view activity
      */
     public function logEntrepriseViewActivity(User $user, string $reference): void
     {
@@ -142,18 +142,18 @@ class ActivityLogger
     /**
      * Log a credit spending activity
      */
-    public function logCreditSpending(User $user, float $amount, string $context): void
+    public function logCreditSpending(User $user, int $amount, string $context): void
     {
-        $details = sprintf('%s crédit dépensé dans le contexte de "%s"', $amount, $context);
+        $details = sprintf('%d crédit dépensé dans le contexte de "%s"', $amount, $context);
         $this->logActivity($user, ActivityLog::ACTIVITY_CREDIT_SPENDING, $details, ActivityLog::LEVEL_INFO);
     }
     
     /**
      * Log a credit purchased activity
      */
-    public function logCreditPurchased(User $user, float $amount, string $context): void
+    public function logCreditPurchased(User $user, int $credit, string $context): void
     {
-        $details = sprintf('Achant crédit: %s via %s', $amount, $context);
+        $details = sprintf('Achant %d crédits via %s', $credit, $context);
         $this->logActivity($user, ActivityLog::ACTIVITY_CREDIT_SPENDING, $details, ActivityLog::LEVEL_INFO);
     }
     
@@ -162,7 +162,7 @@ class ActivityLogger
      */
     public function logSubcriptionPurchased(User $user, float $amount, string $context): void
     {
-        $details = sprintf('Abonnement Premium : %s via %s', $amount, $context);
+        $details = sprintf('Abonnement Premium via %s', $amount, $context);
         $this->logActivity($user, ActivityLog::ACTIVITY_PURCHASE, $details, ActivityLog::LEVEL_INFO);
     }
     /**

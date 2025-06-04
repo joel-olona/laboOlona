@@ -3,13 +3,24 @@
 {% block title %}Paiement{% endblock %}
 
 {% block body %}
+<style>
+    #payment-load {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+</style>
 <div class="loader-container" id="loader-container" style="display:none;">
     <span class="loader"></span>
 </div>
 
 <section class="">
     <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
-        <h5 class="mb-0"> Entreprise</h5>
+        <div class="d-flex align-items-center">
+            <a href="javascript:history.back()" class="d-block btn btn-info fw-semibold text-uppercase me-3 btn_retour">
+            <i class="mx-2 bi bi-arrow-left"></i>Retour</a>
+            <h5 class="mb-0"> Paiement {{ order.package.name }} </h5>
+        </div>
         <ol class="breadcrumb list-unstyled mt-0 mb-0 pl-0">
             <li class="breadcrumb-item position-relative">
                 <a routerlink="{{ path('app_tableau_de_bord_entreprise')}}" class="d-inline-block position-relative" href="{{ path('app_tableau_de_bord_entreprise')}}">
@@ -20,47 +31,152 @@
         </ol>
     </div>
 </section>
-{% if not candidat.isIsPremium %}
-<section class="warning_freemium mb-4 d-flex align-items-center">
-    <span><img src="{{ asset('v2/images/dashboard/warning_outline_icon.svg')}}" alt=""></span>
-    <div class="warning-block">
-        Vous êtes actuellement sur un plan gratuit. commencez notre <a routerlink="{{ path('app_tableau_de_bord_entreprise_tarifs')}}" class="btn-primary" href="{{ path('app_tableau_de_bord_entreprise_tarifs')}}">abonnement premium</a> pour accéder à notre CVthèque exclusive et publier des annonces en illimité !.
-    </div>
-</section>
-{% endif %}
+    {% if not candidat.isIsPremium %}
+    <section class="warning_freemium mb-4 d-flex align-items-center">
+        <span><img src="{{ asset('v2/images/dashboard/warning_outline_icon.svg')}}" alt=""></span>
+        <div class="warning-block">
+            Vous êtes actuellement sur un plan gratuit. <a routerlink="{{ path('app_tableau_de_bord_candidat_tarifs_standard')}}" class="btn-primary" href="{{ path('app_tableau_de_bord_candidat_tarifs_standard')}}">Achetez du credit</a> pour <a routerlink="{{ path('app_tableau_de_bord_candidat_boost')}}" class="btn-primary" href="{{ path('app_tableau_de_bord_candidat_boost')}}">booster la visibilité</a> de votre profil ou encore, passez à un <a routerlink="{{ path('app_tableau_de_bord_candidat_tarifs')}}" class="btn-primary" href="{{ path('app_tableau_de_bord_candidat_tarifs')}}">abonnement premium</a> pour profiter d’avantages supplémentaires, gagné de rang pour être au sommet du resultat de recherche.
+        </div>
+    </section>
+    {% endif %}
 <section class="tarfis-container d-block p-5 mb-4">
     <div class="wrapper-abonnement-c">
         <div class="title-abonnement-c">
-            <h1>Paiement par {{ mobileMoney.name }}</h1>
+            <h1>Paiement par <img src="{{ asset('/images/' ~ mobileMoney.slug ~ '.png') }}" class="img-fluid border" alt="{{ mobileMoney.name }}" width="75px"></h1>
         </div>
         <div class="pack_standard_list m-b30">
             <div class="row">
                 <div class="col-md-6">
-                <div class="row align-items-center p-3" >
-                  <div class="col-3">
-                    <img src="{{ asset('/images/' ~ mobileMoney.slug ~ '.png') }}" class="img-fluid border" alt="{{ mobileMoney.name }}">
-                  </div>
-                  <div class="col text-center">
-                    <span class="fw-light h5">Numéro</span><br>
-                    <span class="fw-bolder h2">{{ mobileMoney.number }}</span>
-                  </div>
-                </div>
-                <p class="">Veuillez envoyer le montant exact sur le numéro de mobile money indiqué ci-dessous. Une fois le paiement effectué, entrez la référence de transaction dans le champ prévu à cet effet et cliquez sur le bouton <span class="fw-bold">"Soumettre"</span> pour finaliser votre achat.</p>
-                <p class=" fw-lighter"><strong><i class="bi bi-info-circle"></i></strong> Assurez-vous d'utiliser la même référence indiquée lors de votre paiement pour éviter tout retard dans le traitement de votre commande.</p>      
+                    <div class="pack_standard_item m-b30">
+                        <div class="ps_media">
+                            <div class="flaticon-dashboard"><img src="{{ asset('images/dashboard/icon_premium_plus.svg')}}" alt="icon_premium_plus" width="70" height="70"></div>
+                        </div>                                   
+                        <div class="ps_content">
+                            <a class="btn btn-primary">{{ package.name }}</a>
+                            <div class="credit__">{{ package.credit }} <sup>crédits</sup></div>
+                            <span>{{ package.price|number_format(0, ',', '.') }} Ariary</span>
+                            <span class="euro_">{{ convertToEuro(package.price, devise)|number_format(2, '.', '') }} €</span>
+                        </div>                               
+                    </div>
+                    {% if mobileMoney.slug == 'virement-bancaire' %}
+                        <img src="{{ asset('images/image.png')}}" class="img-fluid border" alt="virement">
+                        <p class="fw-lighter">Une fois votre paiement effectué, entrez la référence de transaction dans le champ prévu à cet effet et cliquez sur le bouton <span class="fw-bold">"Soumettre"</span>.</p>
+                    {% endif %}
                 </div>    
                 <div class="col-md-6">
-                {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
-                {{ form_row(form.amount) }}
-                {{ form_row(form.reference) }}
-                {{ form_row(form.telephone) }}
-                <div style="display:none;">
-                {{ form_widget(form)}}
-                </div>
-                <button type="submit" class="btn btn-lg text-uppercase fw-bold btn-primary px-5 my-4">Soumettre</button>
-                {{ form_end(form)}}
-                </div>                                      
+                    {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
+                    {% if mobileMoney.slug == 'mvola' %}
+                    <label class="fw-bold fs-6 form-label" for="transaction_telephone">Veuillez insérer votre numéro sans le code du pays</label>
+                    {{ form_widget(form.telephone) }}
+                    <small class="fw-lighter">Numéro de téléphone du compte Mobile Money.</small>
+                    <button id="submit-btn" type="submit" class="btn btn-lg btn-primary px-5 my-4" disabled>
+                        <span class="btn-text">Soumettre</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    </button>
+                    <div id="instruction"></div>
+                    {% else %}
+                    {{ form_row(form.reference) }}
+                    {{ form_row(form.telephone) }}
+                    <button type="submit" class="btn btn-lg btn-primary px-5 my-4">
+                        <span class="btn-text">Soumettre</span>
+                    </button>
+                    {% endif %}
+                    <div style="display:none;">
+                    {{ form_rest(form)}}
+                    </div>
+                    {{ form_end(form)}}
+                    </div>   
+                </div>                                  
             </div>
         </div>
     </div>
 </section>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector('form[name="transaction"]');
+        const submitBtn = document.getElementById("submit-btn");
+        const instruction = document.getElementById("instruction");
+
+        if (!form || !submitBtn || !instruction) {
+            return;
+        }
+
+        const btnText = submitBtn.querySelector('.btn-text');
+        const spinner = submitBtn.querySelector('.spinner-border');
+        const transactionId = '{{ form.vars.data.id }}';
+        const typeTransaction = '{{ mobileMoney.slug }}';
+
+        const STATUS_COMPLETED = '{{ constant("App\\Entity\\BusinessModel\\Transaction::STATUS_COMPLETED") }}';
+        const STATUS_FAILED = '{{ constant("App\\Entity\\BusinessModel\\Transaction::STATUS_FAILED") }}';
+        const REDIRECT_URL = "{{ path('app_tableau_de_bord_candidat_mes_commandes') }}";
+
+        function toggleLoader(show = true) {
+            btnText.textContent = show ? "Traitement..." : "Soumettre";
+            instruction.textContent = show
+                ? "Une demande de paiement vous a été envoyée via MVola.\n" +
+                  "📱 Vérifiez votre téléphone, entrez votre code secret MVola puis validez.\n" +
+                  "⏳ Une fois le paiement validé, la page se mettra à jour automatiquement."
+                : "";
+            spinner.classList.toggle('d-none', !show);
+            submitBtn.disabled = show;
+        }
+
+        function handleStatusResponse(status) {
+            if (status === STATUS_COMPLETED) {
+                window.location.href = REDIRECT_URL;
+            } else if (status === STATUS_FAILED) {
+                btnText.textContent = "Échec du paiement";
+                instruction.textContent = "❌ Le paiement a échoué. Cela peut être dû à un code MVola incorrect, un solde insuffisant ou une annulation.\n" +
+                          "Veuillez réessayer ou contacter notre support si le problème persiste.";
+                spinner.classList.add('d-none');
+                submitBtn.classList.replace("btn-primary", "btn-danger");
+                submitBtn.disabled = false;
+            } else {
+                setTimeout(pollTransactionStatus, 3000);
+            }
+        }
+
+        function pollTransactionStatus() {
+            fetch(`/mobile-payment/transaction/${typeTransaction}/status/${transactionId}`)
+                .then(res => res.json())
+                .then(data => handleStatusResponse(data.status))
+                .catch(err => {
+                    console.error('Erreur AJAX :', err);
+                    btnText.textContent = "Erreur réseau";
+                    spinner.classList.add('d-none');
+                    submitBtn.classList.replace("btn-primary", "btn-warning");
+                    submitBtn.disabled = false;
+                });
+        }
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            toggleLoader(true);
+
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Erreur lors de l'envoi du formulaire");
+                return response.json();
+            })
+            .then(() => {
+                setTimeout(pollTransactionStatus, 3000);
+            })
+            .catch(err => {
+                console.error('Erreur soumission AJAX :', err);
+                btnText.textContent = "Erreur envoi";
+                spinner.classList.add('d-none');
+                submitBtn.classList.replace("btn-primary", "btn-warning");
+                submitBtn.disabled = false;
+            });
+        });
+
+        // Activation du bouton submit s’il était désactivé
+        submitBtn.removeAttribute("disabled");
+    });
+</script>
 {% endblock %}

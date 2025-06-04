@@ -136,6 +136,7 @@ class DashboardController extends AbstractDashboardController
                 MenuItem::linkToCrud('Boosts', 'fas fa-rocket', Boost::class),
                 MenuItem::linkToCrud('Boosts Facebook', 'fa-brands fa-facebook', BoostFacebook::class),
                 MenuItem::linkToCrud('Type transaction', 'fas fa-money-bill-trend-up', TypeTransaction::class),
+                MenuItem::linkToUrl('Logs MVola', 'fa fa-file-alt', $this->generateUrl('admin_logs_mvola')),
             ]),
             MenuItem::linkToCrud('Transaction', 'fas fa-money-check-dollar', Transaction::class),
             MenuItem::subMenu('Configuration', 'fa fa-gears')->setSubItems([

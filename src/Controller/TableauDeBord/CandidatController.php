@@ -55,6 +55,7 @@ use App\Entity\BusinessModel\BoostVisibility;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\BusinessModel\PurchasedContact;
 use Symfony\Component\HttpFoundation\Response;
+use App\Manager\MobileMoney\MobileMoneyManager;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Manager\BusinessModel\TransactionManager;
 use App\Repository\BusinessModel\PackageRepository;
@@ -501,8 +502,13 @@ class CandidatController extends AbstractController
         return $this->render('tableau_de_bord/candidat/notification.html.twig', $params);
     }
 
-    #[Route('/paiement/{orderNumber}', name: 'app_tableau_de_bord_candidat_mobile_money_checkout')]
-    public function mobileMoney(Order $order, Request $request, TransactionManager $transactionManager): Response
+    #[Route('/mobile-money/{orderNumber}', name: 'app_tableau_de_bord_candidat_mobile_money_checkout')]
+    public function mobileMoney(
+        Order $order, 
+        Request $request, 
+        TransactionManager $transactionManager,
+        MobileMoneyManager $mobileMoneyManager
+    ): Response
     {
         $params = $this->getData();
         if ($params instanceof RedirectResponse) {
@@ -521,34 +527,58 @@ class CandidatController extends AbstractController
         $form->handleRequest($request);
         $this->activityLogger->logPageViewActivity($currentUser, '/mobile-money/_order');
         
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted()) {
             $transaction = $form->getData();
             $command = $form->getData()->getCommand();
-            $command->setStatus(Order::STATUS_PROCESSING);
-            $transaction->setPackage($command->getPackage());
-            $transaction->setUpdatedAt(new \DateTime());
-            $transaction->setStatus(Transaction::STATUS_PROCESSING);
-            $transactionManager->save($transaction);
+            $command->setStatus(Order::STATUS_ON_HOLD);
+            if($transaction->getTypeTransaction()->getSlug() == 'mvola'){
+                $response = $mobileMoneyManager->initMvola($transaction, $command);
+                if (!empty($response) && $response['success'] === true && !empty($response['data'])) {
+                    $transaction->setPackage($command->getPackage());
+                    $transaction->setUpdatedAt(new \DateTime());
+                    $transaction->setStatus(Transaction::STATUS_PROCESSING);
+                    $transactionManager->save($transaction);
+                
+                    /** On envoi un mail */
+                    $this->mailerService->sendMultiple(
+                        ["contact@olona-talents.com", "admin@olona-talents.com", "aolonaprodadmi@gmail.com", "partenaires@olona-talents.com"],
+                        "Paiement sur Olona Talents",
+                        "notification_paiement.html.twig",
+                        [
+                            'user' => $currentUser,
+                            'transaction' => $transaction,
+                            'order' => $order,
+                            'dashboard_url' => $this->generateUrl('app_dashboard_moderateur_business_model_transaction_view', [
+                                'transaction' => $transaction->getId(),
+                            ], UrlGeneratorInterface::ABSOLUTE_URL),
+                        ]
+                    );
+                
+                    return $this->json([
+                        'success' => true,
+                        'message' => $response['message'],
+                        'data' => $response['data']
+                    ], $response['status_code'] ?? 200);
+                }
+                return $this->json([
+                    'success' => false,
+                    'error' => $response['error'] ?? true,
+                    'message' => $response['message'] ?? 'Une erreur est survenue lors de l’appel à Airtel Money.',
+                    'data' => $response['data'] ?? null
+                ], $response['status_code'] ?? 500);
+            }
+            $this->em->persist($transaction);
+            $this->em->flush();
+            $this->addFlash('success', 'Paiement enregistré');
 
-            /** On envoi un mail */
-            $this->mailerService->sendMultiple(
-                ["contact@olona-talents.com", "admin@olona-talents.com", "aolonaprodadmi@gmail.com", "partenaires@olona-talents.com"],
-                "Paiement sur Olona Talents",
-                "notification_paiement.html.twig",
-                [
-                    'user' => $currentUser,
-                    'transaction' => $transaction,
-                    'order' => $order,
-                    'dashboard_url' => $this->generateUrl('app_dashboard_moderateur_business_model_transaction_view', [
-                        'transaction' => $transaction->getId(),
-                    ], UrlGeneratorInterface::ABSOLUTE_URL),
-                ]
-            );
-            
             return $this->redirectToRoute('app_tableau_de_bord_candidat_mes_commandes');
         }
         $params['status'] = 'Succès';
         $params['order'] = $order;
+        $params['package'] = $order->getPackage();
+        $params['devise'] = $this->em->getRepository(Devise::class)->findOneBy([
+            'slug' => 'euro'
+        ]);
         $params['payment'] = true;
         $params['mobileMoney'] = $mobileMoney;
         $params['form'] = $form->createView();

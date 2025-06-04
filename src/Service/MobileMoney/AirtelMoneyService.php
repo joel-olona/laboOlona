@@ -2,24 +2,23 @@
 
 namespace App\Service\MobileMoney;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 
 class AirtelMoneyService
 {
-    private $client;
-    private $clientId;
-    private $clientSecret;
-    private $apiUrl;
+    public function __construct(
+        private HttpClientInterface $client, 
+        private string $clientId, 
+        private string $clientSecret, 
+        private string $apiUrl
+    ){}
 
-    public function __construct(HttpClientInterface $client, string $clientId, string $clientSecret, string $apiUrl)
-    {
-        $this->client = $client;
-        $this->clientId = $clientId;
-        $this->clientSecret = $clientSecret;
-        $this->apiUrl = $apiUrl;
-    }
-
-    public function authenticate()
+    private function authenticate()
     {
         $response = $this->client->request('POST', $this->apiUrl . '/auth/oauth2/token', [
             'body' => [
@@ -32,80 +31,261 @@ class AirtelMoneyService
         $data = $response->toArray();
         return $data['access_token'] ?? null;
     }
-
-    public function checkBalance()
+    
+    private function encryptionKey()
     {
-        // Example on how to call a specific API endpoint
         $accessToken = $this->authenticate();
-        $response = $this->client->request('GET', $this->apiUrl . '/standard/v1/users/balance', [
-            'headers' => [
-                'Accept' => '*/*',
-                'X-Country' => 'MG',
-                'X-Currency' => 'MGA',
-                'Authorization' => 'Bearer ' . $accessToken,
-            ]
-        ]);
+        try {
+            $response = $this->client->request('GET', $this->apiUrl . '/v1/rsa/encryption-keys', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                    'X-Country' => 'MG', 
+                    'X-Currency' => 'MGA', 
+                ]
+            ]);
 
-        return $response->toArray();
+            $data = $response->toArray();
+
+            return $data['data']['key']; 
+
+        } catch (\Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface $e) {
+            throw new \Exception('Erreur lors de la récupération de la clé de chiffrement : ' . $e->getMessage());
+        }
     }
 
-    public function payments($payload)
+    private function generateSignatureAndKey($payload)
     {
-        // Example on how to call a specific API endpoint
-        $accessToken = $this->authenticate();
-        $security = $this->generateSignatureAndKey($payload);
-        $response = $this->client->request('POST', $this->apiUrl . '/merchant/v2/payments/', [
-            'headers' => [
-                'Accept' => '*/*',
-                'Content-Type' => 'application/json',
-                'X-Country' => 'MG',
-                'X-Currency' => 'MGA',
-                'Authorization' => 'Bearer ' . $accessToken,
-                'x-signature' => $security['x-signature'],
-                'x-key' => $security['x-key']
-            ],
-            'json' => $payload
-        ]);
-
-        return $response;
-    }
-
-    function generateSignatureAndKey($payload)
-    {
-        $rsaPublicKey = "-----BEGIN PUBLIC KEY-----\n" .
-                "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCYtZNZnPdBFqUIXoSJlvjhYH5m\n" .
-                "3Yq8OcK6OzQXxcE8nh7kRCwTvTpnNBIY+Dn1TQa9sq/iGuTfXgJABOzTH0Z4vT6V\n" .
-                "6vB6VlF4W469iH5u+BRwpV3YXYKm4dr5633UO1XBLdAc2X4aXm51HNkZKg+D0/zG\n" .
-                "OUFxwCAlYKr92kPHwQIDAQAB\n" .
-                "-----END PUBLIC KEY-----";
-
-        // Step 1: Generate random AES key and IV
-        $aesKey = openssl_random_pseudo_bytes(32); // 256 bits
-        $iv = openssl_random_pseudo_bytes(16); // 128 bits
-
-        // Step 2: Base64 encode the AES key and IV
+        $rsaPublicKey = $this->encryptionKey();
+        $formattedKey = "-----BEGIN PUBLIC KEY-----\n" .
+                        chunk_split($rsaPublicKey, 64, "\n") .
+                        "-----END PUBLIC KEY-----";
+    
+        // Générer une clé AES 256 bits et un IV 128 bits
+        $aesKey = openssl_random_pseudo_bytes(32);
+        $iv = openssl_random_pseudo_bytes(16);
+    
+        if ($aesKey === false || $iv === false) {
+            throw new \Exception('Échec de la génération de la clé AES ou de l’IV.');
+        }
+    
+        // Encoder la clé AES et l'IV en Base64
         $aesKeyBase64 = base64_encode($aesKey);
         $ivBase64 = base64_encode($iv);
-        
-        // Step 3: Encrypt the payload using AES key and IV
-        $encryptedPayload = openssl_encrypt($payload, 'aes-256-cbc', $aesKey, OPENSSL_RAW_DATA, $iv);
-
-        // Base64 encode the encrypted payload
+    
+        // Chiffrer le payload avec AES-256-CBC
+        $encryptedPayload = openssl_encrypt(json_encode($payload), 'aes-256-cbc', $aesKey, OPENSSL_RAW_DATA, $iv);
+        if ($encryptedPayload === false) {
+            throw new \Exception('Échec du chiffrement AES du payload.');
+        }
+    
+        // Encoder le payload chiffré en Base64
         $encryptedPayloadBase64 = base64_encode($encryptedPayload);
-
-        // Step 5: Concatenate the AES key and IV with a colon
+    
+        // Concaténer la clé AES et l'IV avec ":"
         $keyIv = $aesKeyBase64 . ':' . $ivBase64;
-
-        // Step 6: Encrypt the concatenated key:IV using the RSA public key
-        openssl_public_encrypt($keyIv, $encryptedKeyIv, $rsaPublicKey, OPENSSL_PKCS1_OAEP_PADDING); // Use OAEP padding for RSA
+    
+        // Chiffrer la clé AES et l'IV avec RSA
+        if (!openssl_public_encrypt($keyIv, $encryptedKeyIv, $formattedKey, OPENSSL_PKCS1_OAEP_PADDING)) {
+            throw new \Exception('Échec du chiffrement RSA de la clé AES.');
+        }
+    
+        // Encoder la clé chiffrée en Base64
         $encryptedKeyIvBase64 = base64_encode($encryptedKeyIv);
-
-        // Return x-signature and x-key
+    
         return [
             'x-signature' => $encryptedPayloadBase64,
             'x-key' => $encryptedKeyIvBase64,
         ];
     }
 
-    // Add more methods for each API endpoint you plan to use
+    private function encryptPin($pin)
+    {
+        $rsaPublicKey = $this->encryptionKey();
+        $formattedKey = "-----BEGIN PUBLIC KEY-----\n" .
+                        chunk_split($rsaPublicKey, 64, "\n") .
+                        "-----END PUBLIC KEY-----";
+    
+        // Chiffrement du PIN avec OpenSSL
+        openssl_public_encrypt($pin, $encryptedPin, $formattedKey, OPENSSL_PKCS1_PADDING);
+
+        // Conversion du PIN chiffré en base64 pour le transmettre en toute sécurité
+        return base64_encode($encryptedPin);
+    }
+    
+    public function payments($payload)
+    {
+        $accessToken = $this->authenticate();
+        $url = $this->apiUrl . '/merchant/v1/payments/';
+        $security = $this->generateSignatureAndKey($payload);
+
+        $headers = [
+            'Authorization: Bearer ' . $accessToken,
+            'Accept: */*',
+            'X-Country: MG',
+            'X-Currency: MGA',
+            'Content-Type: application/json',
+            'Cookie: incap_ses_1843_2967769=tha4JbDKC1/BMSwgHqeTGcwn7mcAAAAA8ZXkOpdaxbYntP2nLZuhkw==; nlbi_2967769=wnjfLuaPU1NZNy4nmeq1mAAAAACUSVzYC1Y+j3en4jI7kw+P; visid_incap_2967769=bzYhjKV6RsqHPeS0iWLqFvwm7mcAAAAAQUIPAAAAAABCE813xXotX60SGCbl8O1V'
+        ];
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            $content = [
+                'error' => true,
+                'message' => curl_error($ch),
+                'status_code' => curl_getinfo($ch, CURLINFO_HTTP_CODE)
+            ];
+        } else {
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $decoded = json_decode($response, true);
+
+            $content = [
+                'error' => false,
+                'status_code' => $httpCode,
+                'response' => $decoded
+            ];
+        }
+
+        curl_close($ch);
+
+        return $content;
+    }
+    
+    public function kyc($msisdn)
+    {
+        $accessToken = $this->authenticate();
+        $url = $this->apiUrl . '/standard/v1/users/'. $msisdn;
+
+        $headers = [
+            'Accept' => '*/* ',
+            'X-Country' => 'MG',
+            'X-Currency' => 'MGA',
+            'Authorization' => 'Bearer ' . $accessToken
+        ];
+        dump($url, $headers);
+
+        try {
+            $response = $this->client->request('GET', $url, [
+                'headers' => $headers,
+            ]);
+            $content = $response->getContent(); 
+        } catch (
+            TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
+        ) {
+            $content = $exception;
+        }
+
+        return $content;
+    }
+
+    public function enquiryBalance()
+    {
+        $accessToken = $this->authenticate();
+        $url = $this->apiUrl . '/standard/v1/users/balance';
+
+        $headers = [
+            'Accept' => '*/* ',
+            'X-Country' => 'MG',
+            'X-Currency' => 'MGA',
+            'Authorization' => 'Bearer ' . $accessToken
+        ];
+        dump($url, $headers);
+
+        try {
+            $response = $this->client->request('GET', $url, [
+                'headers' => $headers,
+            ]);
+            $content = $response->getContent(); 
+        } catch (
+            TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
+        ) {
+            $content = $exception;
+        }
+
+        return $content;
+    }
+
+    public function enquiry($id)
+    {
+        $accessToken = $this->authenticate();
+        $url = $this->apiUrl . '/standard/v1/payments/'. $id;
+
+        $headers = [
+            'Accept' => '*/* ',
+            'X-Country' => 'MG',
+            'X-Currency' => 'MGA',
+            'Authorization' => 'Bearer ' . $accessToken
+        ];
+
+        try {
+            $response = $this->client->request('GET', $url, [
+                'headers' => $headers,
+            ]);
+            $content = $response->getContent(); 
+        } catch (
+            TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
+        ) {
+            $content = $exception;
+        }
+
+        return $content;
+    }
+
+    public function disbursements($payload)
+    {
+        $accessToken = $this->authenticate();
+        $url = $this->apiUrl . '/standard/v1/disbursements';
+        $payload['pin'] = $this->encryptPin($payload['pin']);
+
+        $headers = [
+            'Authorization' => 'Bearer ' . $accessToken,
+            'Accept' => '*/* ',
+            'X-Country' => 'MG',
+            'X-Currency' => 'MGA',
+            'Content-Type' => 'application/json'
+        ];
+
+        try {
+            $response = $this->client->request('POST', $url, [
+                'headers' => $headers,
+                'json' => $payload,
+            ]);
+            $content = $response->getContent(); 
+        } catch (
+            TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
+        ) {
+            $content = $exception;
+        }
+
+        return $content;
+    }
+
+    public function callback(Request $request)
+    {
+        $url = $this->apiUrl . '/callback_path';
+
+        $headers = [
+            'Content-Type' => 'application/json'
+        ];
+
+        try {
+            $response = $this->client->request('POST', $url, [
+                'headers' => $headers,
+            ]);
+            $content = $response->getContent(); 
+        } catch (
+            TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $exception
+        ) {
+            $content = $exception;
+        }
+
+        return $content;
+    }    
 }
