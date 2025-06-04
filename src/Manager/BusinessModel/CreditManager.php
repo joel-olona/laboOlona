@@ -165,7 +165,7 @@ class CreditManager
             $this->activityLogger->logSubcriptionPurchased($transaction->getUser(), $transaction->getAmount(), $context);
         }else{
             $user = $transaction->getUser();
-            $creditsToAdd = $transaction->getCreditsAdded();
+            $creditsToAdd = $transaction->getPackage()->getCredit();
             $credit = $user->getCredit();
     
             if (!$credit) {
@@ -174,6 +174,7 @@ class CreditManager
             }
     
             $credit->setTotal($credit->getTotal() + $creditsToAdd);
+            $transaction->setCreditsAdded($creditsToAdd);
             $this->activityLogger->logCreditPurchased($user, $creditsToAdd, $context);
             $this->em->persist($credit);
         }

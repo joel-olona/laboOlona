@@ -547,6 +547,10 @@ class EntrepriseController extends AbstractController
         }
         $params['status'] = 'Succès';
         $params['order'] = $order;
+        $params['package'] = $order->getPackage();
+        $params['devise'] = $this->em->getRepository(Devise::class)->findOneBy([
+            'slug' => 'euro'
+        ]);
         $params['payment'] = true;
         $params['mobileMoney'] = $mobileMoney;
         $params['form'] = $form->createView();

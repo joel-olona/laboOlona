@@ -530,51 +530,55 @@ class CandidatController extends AbstractController
         if ($form->isSubmitted()) {
             $transaction = $form->getData();
             $command = $form->getData()->getCommand();
-            $command->setStatus(Order::STATUS_PROCESSING);
-            if($transaction->getTypeTransaction()->getSlug() == 'airtel-money'){
-                $response = $mobileMoneyManager->initAirtelMoney($transaction, $command);
-            }
+            $command->setStatus(Order::STATUS_ON_HOLD);
             if($transaction->getTypeTransaction()->getSlug() == 'mvola'){
                 $response = $mobileMoneyManager->initMvola($transaction, $command);
-            }            
-            
-            if (!empty($response) && $response['success'] === true && !empty($response['data'])) {
-                $transaction->setPackage($command->getPackage());
-                $transaction->setUpdatedAt(new \DateTime());
-                $transaction->setStatus(Transaction::STATUS_PROCESSING);
-                $transactionManager->save($transaction);
-            
-                /** On envoi un mail */
-                $this->mailerService->sendMultiple(
-                    ["contact@olona-talents.com", "admin@olona-talents.com", "aolonaprodadmi@gmail.com", "partenaires@olona-talents.com"],
-                    "Paiement sur Olona Talents",
-                    "notification_paiement.html.twig",
-                    [
-                        'user' => $currentUser,
-                        'transaction' => $transaction,
-                        'order' => $order,
-                        'dashboard_url' => $this->generateUrl('app_dashboard_moderateur_business_model_transaction_view', [
-                            'transaction' => $transaction->getId(),
-                        ], UrlGeneratorInterface::ABSOLUTE_URL),
-                    ]
-                );
-            
+                if (!empty($response) && $response['success'] === true && !empty($response['data'])) {
+                    $transaction->setPackage($command->getPackage());
+                    $transaction->setUpdatedAt(new \DateTime());
+                    $transaction->setStatus(Transaction::STATUS_PROCESSING);
+                    $transactionManager->save($transaction);
+                
+                    /** On envoi un mail */
+                    $this->mailerService->sendMultiple(
+                        ["contact@olona-talents.com", "admin@olona-talents.com", "aolonaprodadmi@gmail.com", "partenaires@olona-talents.com"],
+                        "Paiement sur Olona Talents",
+                        "notification_paiement.html.twig",
+                        [
+                            'user' => $currentUser,
+                            'transaction' => $transaction,
+                            'order' => $order,
+                            'dashboard_url' => $this->generateUrl('app_dashboard_moderateur_business_model_transaction_view', [
+                                'transaction' => $transaction->getId(),
+                            ], UrlGeneratorInterface::ABSOLUTE_URL),
+                        ]
+                    );
+                
+                    return $this->json([
+                        'success' => true,
+                        'message' => $response['message'],
+                        'data' => $response['data']
+                    ], $response['status_code'] ?? 200);
+                }
                 return $this->json([
-                    'success' => true,
-                    'message' => $response['message'],
-                    'data' => $response['data']
-                ], $response['status_code'] ?? 200);
+                    'success' => false,
+                    'error' => $response['error'] ?? true,
+                    'message' => $response['message'] ?? 'Une erreur est survenue lors de l’appel à Airtel Money.',
+                    'data' => $response['data'] ?? null
+                ], $response['status_code'] ?? 500);
             }
+            $this->em->persist($transaction);
+            $this->em->flush();
+            $this->addFlash('success', 'Paiement enregistré');
 
-            return $this->json([
-                'success' => false,
-                'error' => $response['error'] ?? true,
-                'message' => $response['message'] ?? 'Une erreur est survenue lors de l’appel à Airtel Money.',
-                'data' => $response['data'] ?? null
-            ], $response['status_code'] ?? 500);
+            return $this->redirectToRoute('app_tableau_de_bord_candidat_mes_commandes');
         }
         $params['status'] = 'Succès';
         $params['order'] = $order;
+        $params['package'] = $order->getPackage();
+        $params['devise'] = $this->em->getRepository(Devise::class)->findOneBy([
+            'slug' => 'euro'
+        ]);
         $params['payment'] = true;
         $params['mobileMoney'] = $mobileMoney;
         $params['form'] = $form->createView();

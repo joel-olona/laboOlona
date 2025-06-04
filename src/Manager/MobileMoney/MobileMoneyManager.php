@@ -90,7 +90,7 @@ class MobileMoneyManager
         $uuid = Uuid::v4()->toRfc4122();
         $payload = [
             'X-CorrelationID' => $uuid, 
-            'partnerMSISDN' => '0343500003', 
+            'partnerMSISDN' => '0380842696', 
             'requestingOrganisationTransactionReference' => 'achat_' . $transaction->getPackage()->getSlug(), 
             'originalTransactionReference' => $order->getOrderNumber(), 
             'partnerName' => 'olona-talents.com', 
@@ -99,18 +99,15 @@ class MobileMoneyManager
             'customerMSISDN' => $transaction->getTelephone(), 
         ];
 
-        // $response = json_decode($this->mvolaService->paymentsCurl($payload), true);
-        $response = $this->mvolaService->paymentsCurl($payload);
-        
+        $response = $this->mvolaService->paymentsCurl($payload);        
         $statusCode = $response['status_code'] ?? null;
 
         if (!empty($response) && !empty($response['status']) && !empty($response['serverCorrelationId'])) {
             $transaction->setStatus(Transaction::STATUS_PROCESSING);
             $transaction->setReference($response['serverCorrelationId']);
             $transaction->setToken($uuid);
-            $this->em->persist($transaction);
-            $this->em->flush();
             $order->setStatus(Order::STATUS_PROCESSING);
+            $this->em->persist($transaction);
             $this->em->persist($order);
             $this->em->flush();
 
@@ -128,6 +125,12 @@ class MobileMoneyManager
             if (!empty($response['message'])) {
                 $errorMessage .= ' Détail : ' . $response['message'];
             }
+            $transaction->setStatus(Transaction::STATUS_FAILED);
+            $transaction->setDetails($errorMessage);
+            $order->setStatus(Order::STATUS_FAILED);
+            $this->em->persist($transaction);
+            $this->em->persist($order);
+            $this->em->flush();
         
             return [
                 'success' => false,

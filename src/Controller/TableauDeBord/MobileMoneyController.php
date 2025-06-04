@@ -157,39 +157,11 @@ class MobileMoneyController extends AbstractController
             'reference' => $transaction->getReference(),
         ]);
     }
-
-    #[Route('/mvola', name: 'app_mobile_money_mvola')]
-    public function mvola(
-        Request $request
-    ): Response
-    {
-        $uuid = Uuid::v4()->toRfc4122();
-        $timestamp = time();
-        $payload = [
-            'X-CorrelationID' => $uuid, 
-            'partnerMSISDN' => '0343500003', 
-            'requestingOrganisationTransactionReference' => 'order_' . $timestamp, 
-            'originalTransactionReference' => 'AZERTY', 
-            'partnerName' => 'olona_talents', 
-            'amount' => '100', 
-            'description' => 'credit_olona_talents', 
-            'customerMSISDN' => '0343500004', 
-        ];
-
-        $response = json_decode($this->mvolaService->payments($payload), true);
-
-        return $this->json(
-            $response, 
-            200, 
-            [], 
-        );
-    }
     
     #[Route('/transaction/mvola/status/{id}', name: 'app_transaction_status_mvola', methods: ['GET'])]
     public function getMvolaStatus(Transaction $transaction, TransactionManager $transactionManager, CreditManager $creditManager): Response
     {
-        $responseJson = $this->mvolaService->transactionStatus($transaction->getReference());
-        $response = json_decode($responseJson, true);
+        $response = $this->mvolaService->transactionStatus($transaction->getReference());
         if (isset($response['status'])) {
             if($response['status'] === 'completed'){
                 $transaction->setStatus(Transaction::STATUS_COMPLETED);
@@ -208,7 +180,7 @@ class MobileMoneyController extends AbstractController
             if($response['status'] === 'failed'){
                 $transaction->setStatus(Transaction::STATUS_FAILED);
             }
-            $transaction->setDetails($responseJson);
+            $transaction->setDetails(json_encode($response));
             $this->em->persist($transaction);
             $this->em->flush();
         }
@@ -217,21 +189,6 @@ class MobileMoneyController extends AbstractController
             'status' => $transaction->getStatus(),
             'message' => $transaction->getDetails(),
         ]);
-    }
-    
-    #[Route('/mvola/status/{uuid}', name: 'app_mobile_money_mvola_status')]
-    public function mvolaStatus(
-        Request $request,
-        string $uuid
-    ): Response
-    {
-        $response = json_decode($this->mvolaService->transactionStatus($uuid), true);
-
-        return $this->json(
-            $response, 
-            200, 
-            [], 
-        );
     }
 
     #[Route('/mvola/callback', name: 'mvola_callback', methods: ['PUT'])]

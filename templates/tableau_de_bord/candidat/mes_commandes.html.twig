@@ -108,6 +108,9 @@
                                     </td>
                                     <td class="col-1 text-center">
                                         {{ statusOrder(item)|raw }}<br>
+                                        {% if item.status is same as(constant('App\\Entity\\BusinessModel\\Order::STATUS_ON_HOLD'))%}
+                                        <small><a href="{{ path('app_tableau_de_bord_candidat_mobile_money_checkout', {'orderNumber': item.orderNumber})}}" class="small btn btn-sm btn-outline-primary text-white">Continuer</a></small>
+                                        {% endif %}
                                         {% if item.status is same as(constant('App\\Entity\\BusinessModel\\Order::STATUS_COMPLETED'))%}
                                         <a target=_blank href="{{ path('payment_facture', {'order': item.id})}}" class="small"><i class="bi bi-receipt"></i> Facture</a>
                                         {% endif %}

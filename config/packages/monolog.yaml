@@ -1,6 +1,7 @@
 monolog:
     channels:
         - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+        - mvola 
 
 when@dev:
     monolog:
@@ -18,6 +19,13 @@ when@dev:
             #chromephp:
             #    type: chromephp
             #    level: info
+            mvola:
+                type: rotating_file
+                path: '%kernel.logs_dir%/mvola'
+                level: info
+                filename_format: 'mvola-{date}.log'
+                date_format: 'Y-m-d'
+                channels: [mvola]
             console:
                 type: console
                 process_psr_3_messages: false
@@ -36,6 +44,13 @@ when@test:
                 type: stream
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
+            mvola:
+                type: rotating_file
+                path: '%kernel.logs_dir%/mvola'
+                level: info
+                filename_format: 'mvola-{date}.log'
+                date_format: 'Y-m-d'
+                channels: [mvola]
 
 when@prod:
     monolog:
@@ -51,6 +66,14 @@ when@prod:
                 path: '%kernel.logs_dir%/%kernel.environment%.log'
                 level: debug
                 formatter: monolog.formatter.json
+            mvola:
+                type: rotating_file
+                path: '%kernel.logs_dir%/mvola'
+                level: info
+                max_files: 30
+                filename_format: 'mvola-{date}.log'
+                date_format: 'Y-m-d'
+                channels: [mvola]
             console:
                 type: console
                 process_psr_3_messages: false
