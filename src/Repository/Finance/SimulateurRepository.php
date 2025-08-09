@@ -25,6 +25,19 @@ class SimulateurRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Simulateur::class);
     }
+    
+    /**
+     * Compte le nombre total de Simulations dans la base de données.
+     *
+     * @return int Le nombre total de Simulations.
+     */
+    public function countAll(): int
+    {
+        return (int) $this->createQueryBuilder('s')
+            ->select('COUNT(s.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 
     public function findSimulateursNotDeletedForEmploye(Employe $employe)
     {
@@ -159,13 +172,23 @@ class SimulateurRepository extends ServiceEntityRepository
        ;
    }
 
-//    public function findOneBySomeField($value): ?Simulateur
-//    {
-//        return $this->createQueryBuilder('s')
-//            ->andWhere('s.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function paginatesimulations(User $user, int $page): PaginationInterface
+    {
+        if(!$user->getEmploye() instanceof Employe){
+            return $this->paginatorInterface->paginate([], $page, 10);
+        }
+
+        $query = $this->createQueryBuilder('s')
+            ->andWhere('s.employe = :val')
+            ->setParameter('val', $user->getEmploye())
+            ->orderBy('s.id', 'DESC')
+            ->getQuery()
+        ;
+
+        return $this->paginatorInterface->paginate(
+            $query,
+            $page,
+            10
+        );
+    }
 }

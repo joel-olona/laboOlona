@@ -73,14 +73,7 @@ class InvitationController extends AbstractController
             $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
             $this->tokenStorage->setToken($token);
 
-
-            $refered = $this->em->getRepository(Referral::class)->findOneBy(['referredEmail' => $user->getEmail()]);
-            if($refered instanceof Referral){
-                $refered->setStep(2);
-                $this->em->persist($refered);
-                $this->em->flush();
-            }
-            return $this->redirectToRoute('app_connect');
+            return $this->redirectToRoute('app_event_index');
         }
 
         return $this->render('invitation/index.html.twig', [
@@ -147,30 +140,9 @@ class InvitationController extends AbstractController
             );
         }
 
-
-        //     return $this->redirectToRoute('app_connect');
-        // }
-
         return $this->render('invitation/cooptation.html.twig', [
             'annonce' => $annonce,
             'form' => $form->createView(),
         ]);
-    }
-
-    #[Route('/invitation/entreprise/test', name: 'app_invitation')]
-    public function emailTest(Request $request): Response
-    {
-        $this->mailerService->send(
-            'jrandriamalala.olona@gmail.com',
-            "Mail TEST pour entreprise Olona Talents",
-            "entreprise/welcome.html.twig",
-            [
-                'user' => 'Nirina',
-                'dashboard_url' => $this->urlGenerator->generate('app_connect', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            ]
-        );
-        $this->addFlash('success', 'Mail Test envoyé');
-
-        return $this->redirectToRoute('app_connect');
     }
 }

@@ -36,13 +36,15 @@
 				Découvrez ou proposez des solutions professionnelles sur mesure. Boostez votre entreprise, avancez dans votre carrière et valorisez vos compétences. Trouvez le partenaire idéal pour votre réussite.
 			</p>
 			<div class="row">
-				<div class="col-12 col-sm-8 desktop" id="prestations-list">
-					{% if prestations|length > 0 %}
-                    	{% include "v2/dashboard/result/parts/_part_prestations_list.html.twig" %}
-					{% else %}
-                    	{% include "v2/dashboard/result/none/_none_prestations.html.twig" %}
-					{% endif %}
-                </div>
+				<div class="user-results col-12 col-sm-8">
+					<div id="prestations-list">
+						{% if prestations|length > 0 %}
+							{% include "v2/dashboard/result/parts/_part_prestations_list.html.twig" %}
+						{% else %}
+							{% include "v2/dashboard/result/none/_none_prestations.html.twig" %}
+						{% endif %}
+					</div>
+				</div>
 				<div class="col-12 col-sm-4 d-none d-md-block">
 					<div class="d-flex flex-column flex-shrink-0 py-3 position-sticky top-0">
 						<div class="card mb-3">
@@ -59,15 +61,10 @@
 							</div>
 						</div>
 						<div class="card mb-3" id="candidate-card-container">
-							<img src="{{ asset('images/mailing/thumbnail.png')}}" class="" alt="Premium Olona Talents">
-							<div class="card-body small">
-								<h3 class="card-title h5">Passez à la Version Premium!</h3>
-								<p class="card-text">Profitez d'un accès illimité aux contacts candidats, de la mise en avant de vos annonces et bien plus encore.</p>
-								<div id="checkBoost">
-									<button class="btn btn-sm btn-danger text-uppercase fw-bold px-2" data-bs-toggle="modal" data-bs-target="#boostProfile" data-bs-whatever="@mdo">
-										<i class="bi bi-rocket-takeoff me-2"></i>
-										Booster l'entreprise</button>
-								</div>
+							<div class="m-4 position-relative text-center">
+								<a href="{{ path('app_v2_view_recruiter_profile', {'id': 5 }) }}">
+									<img class="img-fluid" src="{{ asset('images/pubs/olona-talents-vertical.webp')}}">
+								</a>
 							</div>
 						</div>
 					</div>

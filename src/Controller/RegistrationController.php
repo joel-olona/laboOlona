@@ -9,6 +9,7 @@ use App\Security\EmailVerifier;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
 use App\Security\AppAuthenticator;
+use App\Service\User\UserService;
 use Symfony\Component\Mime\Address;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -29,11 +30,15 @@ class RegistrationController extends AbstractController
     public function __construct(
         private EmailVerifier $emailVerifier,
         private EntityManagerInterface $em,
+        private UserService $userService,
     ) {}
 
-    #[Route('/register', name: 'app_register')]
+    #[Route('/v2/olona-register', name: 'app_register')]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, UserAuthenticatorInterface $userAuthenticator, AppAuthenticator $authenticator, EntityManagerInterface $entityManager): Response
     {
+
+        return $this->redirectToRoute('app_olona_talents_register');
+
         $user = new User();
         $user->setDateInscription(new DateTime());
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -75,6 +80,58 @@ class RegistrationController extends AbstractController
             'registrationForm' => $form->createView(),
         ]);
     }
+
+    #[Route('/coworking/register', name: 'app_coworking_register')]
+    public function registerCoworking(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        UserAuthenticatorInterface $userAuthenticator,
+        AppAuthenticator $authenticator,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $user = new User();
+        $user->setDateInscription(new DateTime());
+        $form = $this->createForm(RegistrationFormType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Encode the plain password
+            $user->setPassword(
+                $userPasswordHasher->hashPassword(
+                    $user,
+                    $form->get('plainPassword')->getData()
+                )
+            );
+
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            // Send confirmation email
+            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+                (new TemplatedEmail())
+                    ->from(new Address('support@olona-talents.com', 'Olona Talents'))
+                    ->to($user->getEmail())
+                    ->subject('Veuillez confirmer votre inscription sur olona-talents.com')
+                    ->htmlTemplate('registration/confirmation_email.html.twig')
+                    ->context(['user' => $user])
+            );
+
+            // Authenticate the user
+            $response = $userAuthenticator->authenticateUser(
+                $user,
+                $authenticator,
+                $request
+            );
+
+            // Redirect explicitly
+            return $this->redirectToRoute('app_coworking_main');
+        }
+
+        return $this->render('registration/register_coworking.html.twig', [
+            'registrationForm' => $form->createView(),
+        ]);
+    }
+
 
     #[Route('/verify/email', name: 'app_verify_email')]
     public function verifyUserEmail(Request $request, TranslatorInterface $translator, UserRepository $userRepository, TokenStorageInterface $tokenStorage): Response
@@ -119,6 +176,9 @@ class RegistrationController extends AbstractController
     #[Route('/email/sending', name: 'app_email_sending')]
     public function emailSending(): Response
     {        
+        if($this->userService->getCurrentUser() instanceof User){
+            return $this->redirectToRoute('app_connect');
+        }
         return $this->render('registration/email-sending.html.twig', []);
     }
 }

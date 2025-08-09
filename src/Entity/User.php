@@ -2,24 +2,29 @@
 
 namespace App\Entity;
 
-use App\Entity\BusinessModel\BoostVisibility;
-use App\Entity\BusinessModel\Credit;
-use App\Entity\BusinessModel\History;
-use App\Entity\BusinessModel\Order;
-use App\Entity\BusinessModel\PurchasedContact;
-use App\Entity\BusinessModel\Transaction;
+use App\Entity\Blog\Post;
+use App\Entity\Coworking\Contract;
+use App\Entity\Facebook\ContestEntry;
+use App\Entity\Marketing\Lead;
+use App\Entity\Vues\VideoVues;
+use Doctrine\DBAL\Types\Types;
+use App\Entity\Coworking\Event;
 use App\Entity\Finance\Employe;
 use App\Entity\Logs\ActivityLog;
-use App\Entity\Vues\VideoVues;
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\UserRepository;
+use App\Entity\BusinessModel\Order;
+use App\Entity\BusinessModel\Credit;
+use App\Entity\BusinessModel\History;
+use App\Entity\BusinessModel\Transaction;
+use Doctrine\Common\Collections\Collection;
+use App\Entity\BusinessModel\BoostVisibility;
+use App\Entity\BusinessModel\PurchasedContact;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -178,8 +183,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ActivityLog::class)]
     private Collection $activityLogs;
 
+    #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'user')]
+    private Collection $events;
+
+    #[ORM\OneToMany(mappedBy: 'author', targetEntity: Post::class)]
+    private Collection $posts;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Contract::class)]
+    private Collection $contracts;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $facebookId = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ContestEntry::class)]
+    private Collection $contestEntries;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Lead::class)]
+    private Collection $leads;
+
     public function __construct()
     {
+        $this->dateInscription = new \DateTime();
         $this->envois = new ArrayCollection();
         $this->recus = new ArrayCollection();
         $this->searchHistories = new ArrayCollection();
@@ -190,6 +214,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->orders = new ArrayCollection();
         $this->boostVisibilities = new ArrayCollection();
         $this->activityLogs = new ArrayCollection();
+        $this->events = new ArrayCollection();
+        $this->posts = new ArrayCollection();
+        $this->contracts = new ArrayCollection();
+        $this->contestEntries = new ArrayCollection();
+        $this->leads = new ArrayCollection();
     }
 
     public function __toString()
@@ -859,6 +888,168 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($activityLog->getUser() === $this) {
                 $activityLog->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+    
+    /**
+     * @return Collection<int, Event>
+     */
+    public function getEvents(): Collection
+    {
+        return $this->events;
+    }
+
+    public function addEvent(Event $event): static
+    {
+        if (!$this->events->contains($event)) {
+            $this->events->add($event);
+            $event->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEvent(Event $event): static
+    {
+        if ($this->events->removeElement($event)) {
+            // set the owning side to null (unless already changed)
+            if ($event->getUser() === $this) {
+                $event->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Post>
+     */
+    public function getPosts(): Collection
+    {
+        return $this->posts;
+    }
+
+    public function addPost(Post $post): static
+    {
+        if (!$this->posts->contains($post)) {
+            $this->posts->add($post);
+            $post->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removePost(Post $post): static
+    {
+        if ($this->posts->removeElement($post)) {
+            // set the owning side to null (unless already changed)
+            if ($post->getAuthor() === $this) {
+                $post->setAuthor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Contract>
+     */
+    public function getContracts(): Collection
+    {
+        return $this->contracts;
+    }
+
+    public function addContract(Contract $contract): static
+    {
+        if (!$this->contracts->contains($contract)) {
+            $this->contracts->add($contract);
+            $contract->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContract(Contract $contract): static
+    {
+        if ($this->contracts->removeElement($contract)) {
+            // set the owning side to null (unless already changed)
+            if ($contract->getUser() === $this) {
+                $contract->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getFacebookId(): ?string
+    {
+        return $this->facebookId;
+    }
+
+    public function setFacebookId(?string $facebookId): static
+    {
+        $this->facebookId = $facebookId;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ContestEntry>
+     */
+    public function getContestEntries(): Collection
+    {
+        return $this->contestEntries;
+    }
+
+    public function addContestEntry(ContestEntry $contestEntry): static
+    {
+        if (!$this->contestEntries->contains($contestEntry)) {
+            $this->contestEntries->add($contestEntry);
+            $contestEntry->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContestEntry(ContestEntry $contestEntry): static
+    {
+        if ($this->contestEntries->removeElement($contestEntry)) {
+            // set the owning side to null (unless already changed)
+            if ($contestEntry->getUser() === $this) {
+                $contestEntry->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Lead>
+     */
+    public function getLeads(): Collection
+    {
+        return $this->leads;
+    }
+
+    public function addLead(Lead $lead): static
+    {
+        if (!$this->leads->contains($lead)) {
+            $this->leads->add($lead);
+            $lead->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLead(Lead $lead): static
+    {
+        if ($this->leads->removeElement($lead)) {
+            // set the owning side to null (unless already changed)
+            if ($lead->getUser() === $this) {
+                $lead->setUser(null);
             }
         }
 

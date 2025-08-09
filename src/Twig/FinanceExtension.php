@@ -2,17 +2,18 @@
 
 namespace App\Twig;
 
-use App\Entity\CandidateProfile;
 use DateTime;
 use Twig\TwigFilter;
 use DateTimeInterface;
 use IntlDateFormatter;
 use Twig\TwigFunction;
+use App\Entity\Finance\Devise;
 use App\Entity\Finance\Contrat;
 use App\Entity\Finance\Employe;
+use App\Entity\CandidateProfile;
 use App\Entity\Finance\Simulateur;
-use App\Manager\Finance\EmployeManager;
 use Twig\Extension\AbstractExtension;
+use App\Manager\Finance\EmployeManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use App\Repository\ReferrerProfileRepository;
@@ -63,11 +64,17 @@ class FinanceExtension extends AbstractExtension
             new TwigFunction('getSalaireBrut', [$this, 'getSalaireBrut']),
             new TwigFunction('getSalaireNet', [$this, 'getSalaireNet']),
             new TwigFunction('getSalaireNetRounded', [$this, 'getSalaireNetRounded']),
+            new TwigFunction('convertToEuro', [$this, 'convertToEuro']),
             new TwigFunction('convertToDevise', [$this, 'convertToDevise']),
             new TwigFunction('convertToAriary', [$this, 'convertToAriary']),
             new TwigFunction('getFraisPortage', [$this, 'getFraisPortage']),
             new TwigFunction('isFavorite', [$this, 'isFavorite']),
         ];
+    }
+
+    public function convertToEuro(float $price, Devise $currency): float 
+    {
+        return number_format($price / $currency->getTaux(), 2, '.', '');
     }
 
     public function contratStatus(Contrat $contrat):string
@@ -177,10 +184,10 @@ class FinanceExtension extends AbstractExtension
     private function getCoeffSocial(float $salaireBrut) : float
     {
         $coeff = 0;
-        if($salaireBrut < 1910400){
+        if($salaireBrut < 2101440){
             $coeff = $salaireBrut / 100;
         }else{
-            $coeff = 19104;
+            $coeff = 21014.4;
         }
 
         return $coeff;

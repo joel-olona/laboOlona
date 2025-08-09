@@ -40,7 +40,6 @@ class AnnonceController extends AbstractController
         $this->em->getConnection()->close();
         try {
             /** Generate OpenAI resume */
-            // $parsePdf = $this->pdfProcessor->processPdf($candidat);
             $openai = $this->openAITranslator->metaDescription($annonce);
             [$short, $clean] = $this->openaiManager->extractCleanAndShortText($openai);
             // dd($metaDescription, $resumeCandidat, $tools, $technologies, $text, $json);
@@ -76,13 +75,13 @@ class AnnonceController extends AbstractController
         try {
             /** Generate OpenAI resume */
             $openai = $this->openAITranslator->resumePrestation($prestation);
-            [$short, $clean] = $this->openaiManager->extractCleanAndShortText($openai);
+            $json = $this->openaiManager->extractJsonAndText($openai);
 
             $this->em->getConnection()->connect();
             $this->em->getConnection()->beginTransaction();
             
-            $prestation->setOpenai($short);
-            $prestation->setCleanDescription($clean);
+            $prestation->setOpenai($json['shortDescription']);
+            $prestation->setCleanDescription($json['cleanDescription']);
             $prestation->setIsGenerated(true);
 
             $this->em->persist($prestation);

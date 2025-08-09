@@ -2,14 +2,15 @@
 
 namespace App\Service\User;
 
-use App\Entity\{CandidateProfile, EntrepriseProfile, ModerateurProfile, User};
-use App\Repository\{CandidateProfileRepository, EntrepriseProfileRepository, UserRepository};
 use DateTime;
 use Symfony\Component\Form\Form;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use App\Entity\{CandidateProfile, EntrepriseProfile, ModerateurProfile, User};
+use App\Repository\UserRepository;
 
 class UserService
 {
@@ -182,5 +183,95 @@ class UserService
 
         return $user;
 
+    }
+
+    public function checkUserPassword(User $user, string $plainPassword):bool
+    {
+        return $this->encoder->isPasswordValid($user, $plainPassword);
+    }
+    
+    public function getRedirectRoute(User $user, Request $request): array
+    {
+        $profile = $this->checkProfile($user);
+        $route = $request->attributes->get('_route');
+    
+        $routeParams = $request->query->all(); 
+        $routes = [
+            'app_v2_prestation' => [
+                CandidateProfile::class => 'app_tableau_de_bord_candidat_annuaire_de_services',
+                EntrepriseProfile::class => 'app_tableau_de_bord_entreprise_annuaire_de_services',
+            ],
+            'app_v2_view_prestation' => [
+                CandidateProfile::class => ['route' => 'app_tableau_de_bord_candidat_view_prestation', 'params' => $routeParams],
+                EntrepriseProfile::class => ['route' => 'app_tableau_de_bord_entreprise_view_prestation', 'params' => $routeParams],
+            ],
+            'app_v2_job_offer' => [
+                CandidateProfile::class => 'app_tableau_de_bord_candidat_trouver_des_missions',
+                EntrepriseProfile::class => 'app_tableau_de_bord_entreprise_offre_emploi',
+            ],
+            'app_v2_job_offer_view' => [
+                CandidateProfile::class => ['route' => 'app_tableau_de_bord_candidat_view_job_offer', 'params' => $routeParams],
+                EntrepriseProfile::class => ['route' => 'app_tableau_de_bord_entreprise_offre_emploi', 'params' => $routeParams],
+            ],
+            'app_v2_contacts' => [
+                CandidateProfile::class => ['route' => 'app_tableau_de_bord_candidat_reseaux_professionnelles', 'params' => $routeParams],
+                EntrepriseProfile::class => ['route' => 'app_tableau_de_bord_entreprise', 'params' => $routeParams],
+            ],
+            'app_v2_dashboard_notification' => [
+                CandidateProfile::class => ['route' => 'app_tableau_de_bord_candidat_notification', 'params' => $routeParams],
+                EntrepriseProfile::class => ['route' => 'app_tableau_de_bord_entreprise_notification', 'params' => $routeParams],
+            ],
+            'app_v2_user_order' => [
+                CandidateProfile::class => ['route' => 'app_tableau_de_bord_candidat_mes_commandes', 'params' => $routeParams],
+                EntrepriseProfile::class => ['route' => 'app_tableau_de_bord_entreprise_mes_commandes', 'params' => $routeParams],
+            ],
+            'app_v2_dashboard_formation' => [
+                CandidateProfile::class => ['route' => 'app_tableau_de_bord_candidat', 'params' => $routeParams],
+                EntrepriseProfile::class => ['route' => 'app_tableau_de_bord_entreprise', 'params' => $routeParams],
+            ],
+            'app_v2_credit' => [
+                CandidateProfile::class => ['route' => 'app_tableau_de_bord_candidat_tarifs_standard', 'params' => $routeParams],
+                EntrepriseProfile::class => ['route' => 'app_tableau_de_bord_entreprise_tarifs_standard', 'params' => $routeParams],
+            ],
+            'app_v2_credit_view' => [
+                CandidateProfile::class => ['route' => 'app_tableau_de_bord_candidat_credit', 'params' => $routeParams],
+                EntrepriseProfile::class => ['route' => 'app_tableau_de_bord_entreprise_credit', 'params' => $routeParams],
+            ],
+            'app_v2_contact' => [
+                CandidateProfile::class => ['route' => 'app_tableau_de_bord_candidat_assistance', 'params' => $routeParams],
+                EntrepriseProfile::class => ['route' => 'app_tableau_de_bord_entreprise_assistance', 'params' => $routeParams],
+            ],
+            'app_v2_view_recruiter_profile' => [
+                CandidateProfile::class => ['route' => 'app_tableau_de_bord_candidat_view_recruiter', 'params' => $routeParams],
+                EntrepriseProfile::class => ['route' => 'app_tableau_de_bord_entreprise', 'params' => $routeParams],
+            ],
+            'app_v2_profile_view' => [
+                CandidateProfile::class => ['route' => 'app_tableau_de_bord_candidat_view_recruiter', 'params' => $routeParams],
+                EntrepriseProfile::class => ['route' => 'app_tableau_de_bord_entreprise_profil_candidat', 'params' => $routeParams],
+            ],
+            'app_v2_recruiter_view_profile' => [
+                CandidateProfile::class => ['route' => 'app_tableau_de_bord_candidat_view_recruiter', 'params' => $routeParams],
+                EntrepriseProfile::class => ['route' => 'app_tableau_de_bord_entreprise_profil_candidat', 'params' => $routeParams],
+            ]
+        ];
+    
+        if ($route && array_key_exists($route, $routes)) {
+            $routeConfig = $routes[$route];
+            
+            if (array_key_exists(get_class($profile), $routeConfig)) {
+                $selectedRoute = $routeConfig[get_class($profile)];
+                
+                return is_array($selectedRoute) ? $selectedRoute : ['route' => $selectedRoute, 'params' => []];
+            }
+        }
+    
+        if ($profile instanceof CandidateProfile) {
+            return ['route' => 'app_tableau_de_bord_candidat', 'params' => []];
+        }
+        if ($profile instanceof EntrepriseProfile || $profile instanceof ModerateurProfile) {
+            return ['route' => 'app_tableau_de_bord_entreprise', 'params' => []];
+        }
+    
+        return ['route' => 'app_v2_dashboard_create_profile', 'params' => ['id' => $user->getId()]];
     }
 }

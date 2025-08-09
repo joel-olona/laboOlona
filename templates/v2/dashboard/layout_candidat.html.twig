@@ -32,10 +32,10 @@
           <div class="profile-cards row">
             <div class="col">
                 <div class="card shadow">
-                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PRO</span>
+                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PREMIUM</span>
                   <div class="card-img-top bg-image-candidat" style="background-image: url('{{ app.user.candidateProfile.fileName ? asset('uploads/experts/' ~ app.user.candidateProfile.fileName) : asset('uploads/experts/avatar-default.jpg') }}');" alt="{{ app.user.prenom }}"></div>
                   <p class="card-title h6 bg-dark text-white text-center py-2">{{ generatePseudo(app.user.candidateProfile) }}</p>
-                  <div class="card-body-candidat">
+                  <div class="card-body-candidat text-center mb-3">
                       <small class="mt-auto">
                           <small class="card-text text-uppercase">{{ app.user.candidateProfile.titre }}</small><br>
                           <small class="card-text"><i class="mx-1 bi bi-trophy"></i> {{ app.user.candidateProfile.experiences|length }} {{ 'app_catalog_expert.realised'|trans }}</small><br>
@@ -46,10 +46,10 @@
             </div>
             <div class="col">
                 <div class="card shadow card position-relative text-center">
-                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PRO</span>
+                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PREMIUM</span>
                   <div class="card-img-top bg-image-candidat" style="background-image: url('/uploads/experts/avatar-default.jpg');" alt="{{ app.user.prenom }}"></div>
                   <p class="card-title h6 bg-dark text-white text-center py-2">OT0013</p>
-                  <div class="card-body-candidat">
+                  <div class="card-body-candidat text-center mb-3">
                       <small class="mt-auto">
                           <small class="card-text text-uppercase">Développeuse web</small><br>
                           <small class="card-text"><i class="mx-1 bi bi-trophy"></i> 3 projets réalisés</small><br>
@@ -60,10 +60,10 @@
             </div>
             <div class="col">
                 <div class="card shadow">
-                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PRO</span>
+                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PREMIUM</span>
                   <div class="card-img-top bg-image-candidat" style="background-image: url('/uploads/experts/avatar-default.jpg');" alt="Avatar"></div>
                   <p class="card-title h6 bg-dark text-white text-center py-2">OT00740</p>
-                  <div class="card-body-candidat">
+                  <div class="card-body-candidat text-center mb-3">
                       <small class="mt-auto">
                           <small class="card-text text-uppercase">Superviseur Senior</small><br>
                           <small class="card-text"><i class="mx-1 bi bi-trophy"></i> 7 {{ 'app_catalog_expert.realised'|trans }}</small><br>
@@ -74,10 +74,10 @@
             </div>
             <div class="col">
                 <div class="card shadow">
-                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PRO</span>
+                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PREMIUM</span>
                   <div class="card-img-top bg-image-candidat" style="background-image: url('/uploads/experts/avatar-default.jpg');" alt="{{ app.user.prenom }}"></div>
                   <p class="card-title h6 bg-dark text-white text-center py-2">OT0652</p>
-                  <div class="card-body-candidat">
+                  <div class="card-body-candidat text-center mb-3">
                       <small class="mt-auto">
                           <small class="card-text text-uppercase">Analyste vidéo</small><br>
                           <small class="card-text"><i class="mx-1 bi bi-trophy"></i> 10 {{ 'app_catalog_expert.realised'|trans }}</small><br>
@@ -93,7 +93,7 @@
             <fieldset class="mb-3">
               <div id="candidate_boost_boost" class="radio-grid">
                 <div class="form-check selected">
-                  <input type="radio" id="candidate_boost_boost_placeholder" name="candidate_boost[boost]" value="" >
+                  <input type="radio" id="candidate_boost_boost_placeholder" name="candidate_boost[boost]" value="" checked>
                   <label for="candidate_boost_boost_placeholder">Pas de boost</label>
                 </div>
                 <div class="form-check">
@@ -241,11 +241,6 @@
           </a>
         </li>
         <li class="nav-item">
-          <a href="{{ path('app_v2_dashboard_ai_tools') }}" class="nav-link {{ current_route in ['app_v2_dashboard_ai_tools', 'app_v2_dashboard_ai_tool_view', 'app_v2_dashboard_ai_tool_category', 'app_v2_dashboard_ai_tool_tag'] ? 'underline' : '' }}" aria-current="page">
-              <i class="bi bi-magic me-2"></i> Ai Tools
-          </a>
-        </li>
-        <li class="nav-item">
           <a href="{{ path('app_v2_dashboard_formation')}}" class="nav-link {{ (current_route == 'app_v2_dashboard_formation' or current_route == 'app_v2_dashboard_formation_playlist_view') ? 'underline' : '' }}" aria-current="page">
             <i class="bi bi-layers me-2"></i></span> Centre de formations
           </a>
@@ -267,6 +262,13 @@
         <i class="bi bi-bookmark-star fw-bold"></i>
         Recharger mes crédits
       </a>
+      <hr>
+      <div class="nav-item">
+        <a href="{{ path('app_logout')}}" class="nav-link">
+          <i class="bi bi-box-arrow-right fw-bold"></i>
+          Se deconnecter
+        </a>
+      </div>
     </div>
   </div>
 </div>
@@ -354,11 +356,6 @@
         <li class="nav-item">
           <a href="{{ path('app_v2_user_order')}}" class="nav-link {{ (current_route == 'app_v2_user_order' or current_route == 'app_v2_user_order_show') ? 'underline' : '' }}" aria-current="page">
             <i class="bi bi-bookmark-star me-2"></i><span class="link-text"> Mes commandes</span> 
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="{{ path('app_v2_dashboard_ai_tools') }}" class="nav-link {{ current_route in ['app_v2_dashboard_ai_tools', 'app_v2_dashboard_ai_tool_view', 'app_v2_dashboard_ai_tool_category', 'app_v2_dashboard_ai_tool_tag'] ? 'underline' : '' }}" aria-current="page">
-              <i class="bi bi-magic me-2"></i> Ai Tools
           </a>
         </li>
         <li class="nav-item">

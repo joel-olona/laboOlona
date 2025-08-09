@@ -45,8 +45,21 @@ class DashboardController extends AbstractController
     #[Route('/', name: 'app_v2_candidate_dashboard')]
     public function index(Request $request): Response
     {
+
+        return $this->redirectToRoute('app_tableau_de_bord_candidat');
+
+        /** @var User $currentUser */
+        $currentUser = $this->userService->getCurrentUser();
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
         $this->denyAccessUnlessGranted('CANDIDAT_ACCESS', null, 'Vous n\'avez pas les permissions nécessaires pour accéder à cette partie du site. Cette section est réservée aux candidats uniquement. Veuillez contacter l\'administrateur si vous pensez qu\'il s\'agit d\'une erreur.');
         $candidat = $this->userService->checkProfile();
+        $creditAmount = 0;
+        if($candidat->isIsGeneretated()){
+            $creditAmount = $this->profileManager->getCreditAmount(Credit::ACTION_UPLOAD_CV);
+        }
         /** @var User $currentUser */
         $currentUser = $this->userService->getCurrentUser();
         $formOne = $this->createForm(EditStepOneType::class, $candidat);
@@ -69,10 +82,6 @@ class DashboardController extends AbstractController
             $success = true;
             $status = 'Succès';
             $upload = false;
-            $creditAmount = 0;
-            if($candidat->isIsGeneretated()){
-                $creditAmount = $this->profileManager->getCreditAmount(Credit::ACTION_UPLOAD_CV);
-            }
 
             if($this->profileManager->canApplyAction($currentUser, Credit::ACTION_UPLOAD_CV)){
                 $responseOpenai = $this->candidatController->analyse(new \Symfony\Component\HttpFoundation\Request(), $candidat);
@@ -136,6 +145,7 @@ class DashboardController extends AbstractController
             'form' => $form->createView(),
             'form_one' => $formOne->createView(),
             'candidat' => $candidat,
+            'creditAmount' => $creditAmount,
             'experiences' => $this->candidatManager->getExperiencesSortedByDate($candidat),
             'competences' => $this->candidatManager->getCompetencesSortedByNote($candidat),
             'langages' => $this->candidatManager->getLangagesSortedByNiveau($candidat),
@@ -155,6 +165,7 @@ class DashboardController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $boostOption = $form->get('boost')->getData(); 
+            dd($boostOption);
             $boostOptionFacebook = $form->get('boostFacebook')->getData(); 
             $candidat = $form->getData();
             if ($boostOptionFacebook === 0) {
@@ -170,7 +181,11 @@ class DashboardController extends AbstractController
             ];
 
             // Vérifier si les boosts peuvent être appliqués
-            $canApplyBoost = $this->profileManager->canApplyBoost($currentUser, $boostOption);
+            if($boostOption === null){
+                $canApplyBoost = false;
+            }else{
+                $canApplyBoost = $this->profileManager->canApplyBoost($currentUser, $boostOption);
+            }
             $canApplyBoostFacebook = $this->profileManager->canApplyBoostFacebook($currentUser, $boostOptionFacebook);
 
             // Vérification des crédits

@@ -52,6 +52,17 @@ class JobOfferController extends AbstractController
     #[Route('/job-offers', name: 'app_v2_job_offer')]
     public function index(Request $request): Response
     {
+        $routeInfo = $this->userService->getRedirectRoute($this->getUser(), $request);
+        $routeInfo['params'] = [];
+        
+        return $this->redirectToRoute($routeInfo['route'], $routeInfo['params']);
+
+        /** @var User $currentUser */
+        $currentUser = $this->userService->getCurrentUser();
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
         $profile = $this->userService->checkProfile();
         $secteurs = $profile->getSecteurs();
         $page = $request->query->get('page', 1);
@@ -96,9 +107,17 @@ class JobOfferController extends AbstractController
             ->setFirstResult(($page - 1) * $limit);
 
         $joblistings = $qb->getQuery()->getResult();
-
-        return $this->render('v2/dashboard/result/parts/_part_joblistings_list.html.twig', [
-            'joblistings' => $joblistings,
+        $html = "";
+        if(count($joblistings) > 0){
+            $html = $this->renderView('v2/dashboard/result/parts/_part_joblistings_list.html.twig', [
+                'joblistings' => $joblistings,
+            ]);
+        }
+    
+        return $this->json([
+            'html' => $html,
+            'hasMore' => count($joblistings) == $limit,
+            'count' => count($joblistings) ,
         ]);
     }
 
@@ -106,8 +125,18 @@ class JobOfferController extends AbstractController
     public function viewJobOffer(Request $request, int $id): Response
     {
         $annonce = $this->em->getRepository(JobListing::class)->find($id);
+        $routeInfo = $this->userService->getRedirectRoute($this->getUser(), $request);
+        $routeInfo['params'] = ['id' => $annonce->getId()];
+        
+        return $this->redirectToRoute($routeInfo['route'], $routeInfo['params']);
+        
         /** @var User $currentUser */
         $currentUser = $this->userService->getCurrentUser();
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        $showRecruiterPrice = $this->profileManager->getCreditAmount(Credit::ACTION_VIEW_RECRUITER);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
         $candidat = $this->userService->checkProfile();
         if($candidat instanceof CandidateProfile){
             return $this->redirectToRoute('app_v2_candidate_view_job_offer', ['id' => $id]);
@@ -145,6 +174,7 @@ class JobOfferController extends AbstractController
 
         return $this->render('v2/dashboard/job_offer/view.html.twig', [
             'annonce' => $annonce,
+            'show_recruiter_price' => $showRecruiterPrice,
             'purchasedContact' => $purchasedContact,
         ]);
     }
@@ -152,14 +182,23 @@ class JobOfferController extends AbstractController
     #[Route('/job-offer/candidate/view/{id}', name: 'app_v2_candidate_view_job_offer')]
     public function candidateViewJobOffer(Request $request, int $id): Response
     {
+        return $this->redirectToRoute('app_tableau_de_bord_candidat_view_job_offer', [
+            'id' => $id
+        ]);
+
+        /** @var User $currentUser */
+        $currentUser = $this->userService->getCurrentUser();
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        $showRecruiterPrice = $this->profileManager->getCreditAmount(Credit::ACTION_VIEW_RECRUITER);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
         $annonce = $this->em->getRepository(JobListing::class)->find($id);
         $candidat = $this->userService->checkProfile();
         if(!$candidat instanceof CandidateProfile){
             return $this->redirectToRoute('app_v2_job_offer_view', ['id' => $id]);
         }
         $recruiter = $annonce->getEntreprise();
-        /** @var User $currentUser */
-        $currentUser = $this->userService->getCurrentUser();
         if(!$annonce instanceof JobListing){
             $this->addFlash('error', 'Annonce introuvable.');
             return $this->redirectToRoute('app_v2_job_offer');
@@ -249,7 +288,7 @@ class JobOfferController extends AbstractController
                     'candidat' => $candidat,
                     'objet' => "mise à jour",
                     'details_annonce' => $annonce,
-                    'dashboard_url' => $this->urlGeneratorInterface->generate('app_dashboard_moderateur_candidature_annonce_view_default', ['id' => $annonce->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                    'dashboard_url' => $this->urlGeneratorInterface->generate('app_v2_recruiter_view_profile', ['id' => $candidat->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
                 ]
             );
 
@@ -290,6 +329,8 @@ class JobOfferController extends AbstractController
             'annonce' => $annonce,
             'candidat' => $candidat,
             'applied' => $applied,
+            'show_recruiter_price' => $showRecruiterPrice,
+            'apply_job_price' => $this->profileManager->getCreditAmount(Credit::ACTION_APPLY_JOB),
             'action' => $this->urlGeneratorInterface->generate('app_olona_talents_joblistings'),
             'purchasedContact' => $purchasedContact,
             'form' => $form,

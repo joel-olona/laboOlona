@@ -3,8 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\EntrepriseProfile;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Knp\Component\Pager\PaginatorInterface;
+use Knp\Component\Pager\Pagination\PaginationInterface;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @extends ServiceEntityRepository<EntrepriseProfile>
@@ -16,9 +18,52 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class EntrepriseProfileRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private PaginatorInterface $paginator)
     {
         parent::__construct($registry, EntrepriseProfile::class);
+    }
+
+    public function countAll(): int
+    {
+        return (int) $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+    
+    public function countStatus(?string $status): int
+    {
+        if (!$status || $status == 'ALL') {
+            return $this->countAll();
+        }
+        return (int) $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->where('e.status = :status')
+            ->setParameter('status', $status)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function paginateEntrepriseProfiles($page, string $status = null): PaginationInterface
+    {
+        $queryBuilder = $this->createQueryBuilder('e')
+            ->select('e, COUNT(j.id) AS jobCount, e.isPremium AS premium')
+            ->leftJoin('e.jobListings', 'j') 
+            ->groupBy('e.id') 
+            ->addOrderBy('e.id', 'DESC');
+            
+        if ($status && $status != 'ALL') {
+            $queryBuilder
+                ->andWhere('e.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        return $this->paginator->paginate(
+            $queryBuilder,
+            $page,
+            20,
+            []
+        );
     }
 
     public function findTopRanked(): array
@@ -79,8 +124,9 @@ class EntrepriseProfileRepository extends ServiceEntityRepository
     public function findExpiredPremium()
     {
         return $this->createQueryBuilder('e')
-            ->innerJoin('e.boostVisibility', 'b') 
-            ->andWhere('b.endDate < :now')        
+            ->innerJoin('e.boost', 'b') 
+            ->innerJoin('b.boostVisibilities', 'bv') 
+            ->andWhere('bv.endDate < :now')        
             ->setParameter('now', new \DateTime())
             ->getQuery()                          
             ->getResult(); 

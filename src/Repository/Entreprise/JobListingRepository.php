@@ -26,6 +26,94 @@ class JobListingRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, JobListing::class);
     }
+
+    public function countAll(): int
+    {
+        return (int) $this->createQueryBuilder('j')
+            ->select('COUNT(j.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+    
+    public function countPending(): int
+    {
+        return (int) $this->createQueryBuilder('j')
+            ->select('COUNT(j.id)')
+            ->where('j.status = :pending')
+            ->setParameter('pending', JobListing::STATUS_PENDING)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countAllByEntreprise(EntrepriseProfile $entrepriseProfile): int
+    {
+        return (int) $this->createQueryBuilder('j')
+            ->select('COUNT(j.id)')
+            ->andWhere('j.entreprise = :entreprise')
+            ->setParameter('entreprise', $entrepriseProfile)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+    
+    public function countStatusByEntreprise(EntrepriseProfile $entrepriseProfile, ?string $status): int
+    {
+        if (!$status || $status == 'ALL') {
+            return $this->countAllByEntreprise($entrepriseProfile);
+        }
+        return (int) $this->createQueryBuilder('j')
+            ->select('COUNT(j.id)')
+            ->where('j.status = :status')
+            ->andWhere('j.entreprise = :entreprise')
+            ->setParameter('status', $status)
+            ->setParameter('entreprise', $entrepriseProfile)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function paginateJobListingsEntrepriseProfiles(EntrepriseProfile $entrepriseProfile, $page, string $status = null): PaginationInterface
+    {
+        $queryBuilder = $this->createQueryBuilder('j')
+            ->select('j, COUNT(a.id) AS applicationCount')
+            ->leftJoin('j.applications', 'a') 
+            ->groupBy('j.id') 
+            ->addOrderBy('j.id', 'DESC')
+            ->andWhere('j.entreprise = :entreprise')
+            ->setParameter('entreprise', $entrepriseProfile);
+
+        if ($status && $status != 'ALL') {
+            $queryBuilder
+                ->andWhere('j.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        return $this->paginator->paginate(
+            $queryBuilder,
+            $page,
+            20,
+            []
+        );
+    }
+
+    public function paginateJobListings(?string $status = null, $page = 1, $size = 10): PaginationInterface
+    {
+        $queryBuilder = $this->createQueryBuilder('j')
+            ->select('j')
+            ->leftJoin('j.applications', 'a') 
+            ->groupBy('j.id') 
+            ->addOrderBy('j.id', 'DESC');
+
+            if($status){
+                $queryBuilder->andWhere('j.status = :status')
+                ->setParameter('status', $status);
+            }
+
+        return $this->paginator->paginate(
+            $queryBuilder,
+            $page,
+            $size,
+            []
+        );
+    }
     
     public function findAllOrderedByIdDesc()
     {
@@ -129,7 +217,64 @@ class JobListingRepository extends ServiceEntityRepository
             ->getQuery();
             
         return $query->getResult();
-    }    
+    }   
+    
+    public function findJoblistingsForNotification()
+    {
+        $queryBuilder = $this->createQueryBuilder('j');
+
+        $orConditions = $queryBuilder->expr()->orX(
+            $queryBuilder->expr()->eq('j.status', ':statusValid'),
+            $queryBuilder->expr()->eq('j.status', ':statusFeatured')
+        );
+
+        $isNotifiedCondition = $queryBuilder->expr()->orX(
+            $queryBuilder->expr()->eq('j.isNotified', ':isNotifiedFalse'),
+            $queryBuilder->expr()->isNull('j.isNotified')
+        );
+
+        $start = new \DateTimeImmutable('yesterday 00:00:00');
+        $end = new \DateTimeImmutable('yesterday 23:59:59');
+
+        $query = $queryBuilder
+            ->andWhere($orConditions)
+            ->andWhere('j.updatedAt BETWEEN :start AND :end')
+            ->andWhere($isNotifiedCondition)
+            ->setParameter('statusValid', JobListing::STATUS_PUBLISHED)
+            ->setParameter('statusFeatured', JobListing::STATUS_FEATURED)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->setParameter('isNotifiedFalse', false)
+            ->orderBy('j.id', 'DESC')
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+
+    public function findJoblistingsForPostFacebook()
+    {
+        $queryBuilder = $this->createQueryBuilder('j');
+
+        $now = new \DateTimeImmutable(); // maintenant
+        $oneDayAgo = $now->sub(new \DateInterval('P1D')); // il y a 1 jour
+
+        $query = $queryBuilder
+            ->andWhere('j.dateCreation BETWEEN :oneDayAgo AND :now')
+            ->andWhere('j.status = :statusFeatured')
+            ->andWhere('j.isPublishedOnFacebook = :isPublishedOnFacebookFalse')
+            ->andWhere('j.shortDescription IS NOT NULL')
+            ->setParameter('oneDayAgo', $oneDayAgo)
+            ->setParameter('now', $now)
+            ->setParameter('statusFeatured', JobListing::STATUS_FEATURED)
+            ->setParameter('isPublishedOnFacebookFalse', false)
+            ->orderBy('j.id', 'DESC')
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+
 
     /**
      * @param EntrepriseProfile $entreprise
@@ -320,8 +465,9 @@ class JobListingRepository extends ServiceEntityRepository
     public function findExpiredPremium()
     {
         return $this->createQueryBuilder('j')
-            ->innerJoin('j.boostVisibility', 'b') 
-            ->andWhere('b.endDate < :now')        
+            ->innerJoin('j.boost', 'b') 
+            ->innerJoin('b.boostVisibilities', 'bv') 
+            ->andWhere('bv.endDate < :now')        
             ->setParameter('now', new \DateTime())
             ->getQuery()                          
             ->getResult(); 

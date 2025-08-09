@@ -23,7 +23,8 @@ class NotificationRepository extends ServiceEntityRepository
 {
     public function __construct(
         ManagerRegistry $registry, 
-        private PaginatorInterface $paginator)
+        private PaginatorInterface $paginator
+    )
     {
         parent::__construct($registry, Notification::class);
     }
@@ -34,7 +35,12 @@ class NotificationRepository extends ServiceEntityRepository
      * @param string|null $statusNot
      * @return Notification[]
      */
-    public function findByDestinataireAndStatusNot(User $user, array $orderBy, string $statusNot, ?int $isRead)
+    public function findByDestinataireAndStatusNot(
+        User $user, 
+        array $orderBy, 
+        string $statusNot, 
+        ?int $isRead
+    )
     {
         $qb = $this->createQueryBuilder('n')
                 ->where('n.destinataire = :destinataire')
@@ -55,6 +61,55 @@ class NotificationRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+    
+    public function countIsRead(User $user, bool $isRead): int
+    {
+        return (int) $this->createQueryBuilder('n')
+            ->select('COUNT(n.id)')
+            ->where('n.destinataire = :destinataire')
+            ->andWhere('n.isRead = :isRead')
+            ->andWhere('n.status != :statusNot')
+            ->setParameter('destinataire', $user)
+            ->setParameter('isRead', $isRead)
+            ->setParameter('statusNot', Notification::STATUS_DELETED)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function findByDestinataire(
+        User $user, 
+        ?int $isRead,
+        array $orderBy = [], 
+        string $statusNot = null, 
+        $page = 1
+    ): PaginationInterface
+    {
+        $queryBuilder = $this->createQueryBuilder('n')
+                ->addOrderBy('n.id', 'DESC')
+                ->where('n.destinataire = :destinataire')
+                ->setParameter('destinataire', $user);
+
+        foreach ($orderBy as $field => $direction) {
+            $queryBuilder->addOrderBy('n.' . $field, $direction);
+        }
+
+        if ($statusNot !== null) {
+            $queryBuilder->andWhere('n.status != :statusNot')
+            ->setParameter('statusNot', $statusNot);
+        }
+
+        if ($isRead !== null) {
+            $queryBuilder->andWhere('n.isRead = :isRead')
+            ->setParameter('isRead', $isRead);
+        }
+
+        return $this->paginator->paginate(
+            $queryBuilder,
+            $page,
+            10,
+            []
+        );
     }
 
 

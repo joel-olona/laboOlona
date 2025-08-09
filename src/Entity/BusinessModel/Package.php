@@ -2,6 +2,7 @@
 
 namespace App\Entity\BusinessModel;
 
+use App\Entity\Coworking\Contract;
 use App\Entity\ModerateurProfile;
 use App\Repository\BusinessModel\PackageRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -44,10 +45,27 @@ class Package
     #[ORM\OneToMany(mappedBy: 'package', targetEntity: Order::class)]
     private Collection $orders;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $type = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $status = null;
+
+    #[ORM\OneToMany(mappedBy: 'package', targetEntity: Contract::class)]
+    private Collection $contracts;
+
+    /**
+     * @var Collection<int, Subcription>
+     */
+    #[ORM\OneToMany(mappedBy: 'package', targetEntity: Subcription::class)]
+    private Collection $subcriptions;
+
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
         $this->orders = new ArrayCollection();
+        $this->contracts = new ArrayCollection();
+        $this->subcriptions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -193,6 +211,90 @@ class Package
             // set the owning side to null (unless already changed)
             if ($order->getPackage() === $this) {
                 $order->setPackage(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(?string $type): static
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Contract>
+     */
+    public function getContracts(): Collection
+    {
+        return $this->contracts;
+    }
+
+    public function addContract(Contract $contract): static
+    {
+        if (!$this->contracts->contains($contract)) {
+            $this->contracts->add($contract);
+            $contract->setPackage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContract(Contract $contract): static
+    {
+        if ($this->contracts->removeElement($contract)) {
+            // set the owning side to null (unless already changed)
+            if ($contract->getPackage() === $this) {
+                $contract->setPackage(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Subcription>
+     */
+    public function getSubcriptions(): Collection
+    {
+        return $this->subcriptions;
+    }
+
+    public function addSubcription(Subcription $subcription): static
+    {
+        if (!$this->subcriptions->contains($subcription)) {
+            $this->subcriptions->add($subcription);
+            $subcription->setPackage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSubcription(Subcription $subcription): static
+    {
+        if ($this->subcriptions->removeElement($subcription)) {
+            // set the owning side to null (unless already changed)
+            if ($subcription->getPackage() === $this) {
+                $subcription->setPackage(null);
             }
         }
 

@@ -71,7 +71,7 @@ class Transaction
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Sequentially([
-        new Assert\Length(min:10, minMessage:'La référence est trop courte.'),
+        new Assert\Length(min:8, minMessage:'La référence est trop courte.'),
         new Assert\Regex(pattern: '/^[a-zA-Z0-9]*$/', message: 'La référence ne doit contenir que des chiffres et des lettres.'),
     ])]
     private ?string $reference = null;
@@ -100,6 +100,24 @@ class Transaction
 
     #[ORM\OneToOne(mappedBy: 'transaction', cascade: ['persist', 'remove'])]
     private ?Order $command = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    #[Assert\Sequentially([
+        new Assert\Length(
+            min: 10,
+            max: 13,
+            minMessage: 'Le numéro est trop court.',
+            maxMessage: 'Le numéro est trop long.'
+        ),
+        new Assert\Regex(
+            pattern: '/^\+?\d{10,13}$/',
+            message: 'Mauvais format de numéro.'
+        ),
+    ])]
+    private ?string $telephone = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $updatedAt = null;
 
     public function __construct()
     {
@@ -281,5 +299,34 @@ class Transaction
         $this->command = $command;
 
         return $this;
+    }
+
+    public function getTelephone(): ?string
+    {
+        return $this->telephone;
+    }
+
+    public function setTelephone(?string $telephone): static
+    {
+        $this->telephone = $telephone;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getSubcription(): ?Subcription
+    {
+        return $this->getCommand()?->getInvoice()?->getSubcription();
     }
 }

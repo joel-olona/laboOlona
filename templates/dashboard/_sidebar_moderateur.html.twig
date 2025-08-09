@@ -11,12 +11,26 @@
       </li>
       <hr>
       <li>
-        <a href="{{ path('app_dashboard_moderateur_portage')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_moderateur_portage' ? 'active' : 'text-white' }}">
-            <i class="mx-2 h5 bi bi-building-fill-up"></i>
-            Portage  
+        <a href="{{ path('app_marketing_lead_index')}}" 
+            class="nav-link {{ current_route == 'app_marketing_lead_index' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-chat-dots"></i>
+            Leads
         </a>
 
+      </li>
+      <li>
+        <a href="{{ path('app_moderateur_subcription_index')}}" 
+            class="nav-link {{ current_route == 'app_moderateur_subcription_index' ? 'active' : 'text-white' }}">
+            <i class="h5 mx-2 bi bi-fire"></i>
+            Abonnements    
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_moderateur_activity_page_chart')}}" 
+            class="nav-link {{ current_route == 'app_moderateur_activity_page_chart' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-graph-up"></i>
+            Metrics  
+        </a>
       </li>
       <li>
         <a href="{{ path('app_dashboard_moderateur_profile_candidat')}}" 
@@ -26,29 +40,15 @@
         </a>
       </li>
       <li>
-        <a href="{{ path('app_dashboard_moderateur_recrutement')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_moderateur_recrutement' ? 'active' : 'text-white' }}">
-            <i class="mx-2 h5 bi bi-clipboard2-data-fill"></i>
-            Recrutement  
-        </a>
-      </li>
-      <li>
-        <a href="{{ path('app_dashboard_moderateur_assignation')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_moderateur_assignation' ? 'active' : 'text-white' }}">
-            <i class="mx-2 h5 bi bi-hand-index"></i>
-            Assignation  
-        </a>
-      </li>
-      <li>
-        <a href="{{ path('app_dashboard_moderateur_profile_entreprise')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_moderateur_profile_entreprise' ? 'active' : 'text-white' }}">
+        <a href="{{ path('app_moderateur_entreprise_profile_index')}}" 
+            class="nav-link {{ current_route == 'app_moderateur_entreprise_profile_index' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-building"></i>
             Entreprises  
         </a>
       </li>
       <li>
-        <a href="{{ path('app_dashboard_moderateur_annonces')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_moderateur_annonces' ? 'active' : 'text-white' }}">
+        <a href="{{ path('app_moderateur_job_listing_index')}}" 
+            class="nav-link {{ current_route == 'app_moderateur_job_listing_index' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-megaphone"></i>
             Annonces   
         </a>
@@ -63,10 +63,10 @@
 
       </li>
       <li>
-        <a href="{{ path('app_dashboard_moderateur_invitation')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_moderateur_invitation' ? 'active' : 'text-white' }}">
-            <i class="mx-2 h5 bi bi-envelope-arrow-up"></i>
-            Invitation  
+        <a href="{{ path('app_moderateur_order_index')}}" 
+            class="nav-link {{ current_route == 'app_moderateur_order_index' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-cart3"></i>
+            Commandes  
         </a>
       </li>
       <li>
@@ -84,22 +84,29 @@
         </a>
       </li>
       <li>
-        <a href="{{ path('app_dashboard_moderateur_cooptation')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_moderateur_cooptation' ? 'active' : 'text-white' }}">
-            <i class="mx-2 h5 bi bi-person-plus-fill"></i>
-            Cooptations  
-        </a>
-      </li>
-      <li>
-        <a href="{{ path('app_dashboard_moderateur_mettings')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_moderateur_mettings' ? 'active' : 'text-white' }}">
+        <a href="{{ path('app_v2_staff_history')}}" 
+            class="nav-link {{ current_route == 'app_v2_staff_history' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-calendar3"></i>
-            Rendez-vous  
+            Logs Utilisateurs  
         </a>
       </li>
       <li>
-        <a href="{{ path('app_dashboard_moderateur_affiliate_tool')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_moderateur_affiliate_tool' ? 'active' : 'text-white' }}">
+        <a href="{{ path('app_moderateur_package_index')}}" 
+            class="nav-link {{ current_route == 'app_moderateur_package_index' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-box-fill"></i>
+            Pack  
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_dashboard_moderateur_invitation')}}" 
+            class="nav-link {{ current_route == 'app_dashboard_moderateur_invitation' ? 'active' : 'text-white' }}">
+            <i class="mx-2 h5 bi bi-send"></i>
+            Invitations  
+        </a>
+      </li>
+      <li>
+        <a href="{{ path('app_affiliate_tool_index')}}" 
+            class="nav-link {{ current_route == 'app_affiliate_tool_index' ? 'active' : 'text-white' }}">
             <i class="mx-2 h5 bi bi-robot"></i>
             AI Tools  
         </a>
@@ -111,24 +118,6 @@
             Formations  
         </a>
       </li>
-      <li>
-        <a href="{{ path('app_dashboard_notification')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_notification' ? 'active' : 'text-white' }}">
-            <i class="mx-2 h5 bi bi-bell"></i>
-            Notifications  
-            {% if countUnReadNotification(app.user) > 0  %}{{ component('count_notification_component')}}{% endif %}
-        </a>
-      </li>
-
-      {# {% if 'ROLE_ADMIN' in app.user.roles %}
-      <li>
-        <a href="{{ path('app_dashboard_moderateur_csv_upload')}}" 
-            class="nav-link {{ current_route == 'app_dashboard_moderateur_csv_upload' ? 'active' : 'text-white' }}">
-            <i class="mx-2 h5 bi bi-box-arrow-in-right"></i>
-            Import CSV 
-        </a>
-      </li>
-      {% endif %} #}
     </ul>
 
     <hr>

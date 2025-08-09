@@ -31,10 +31,10 @@
           <div class="profile-cards row">
             <div class="col">
                 <div class="card shadow">
-                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PRO</span>
-                  <div class="card-img-top bg-image-candidat" style="background-image: url('{{ app.user.entrepriseProfile.fileName ? asset('uploads/compagnies/' ~ app.user.entrepriseProfile.fileName) : asset('uploads/experts/company-default.jpg') }}');');" alt="{{ app.user.prenom }}"></div>
+                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PREMIUM</span>
+                  <div class="card-img-top bg-image-candidat" style="background-image: url('{{ app.user.entrepriseProfile.fileName ? asset('uploads/compagnies/' ~ app.user.entrepriseProfile.fileName) : asset('images/dashboard/logo_defaut_entreprise.webp') }}');');" alt="{{ app.user.prenom }}"></div>
                   <p class="card-title h6 bg-dark text-white text-center py-2">{{ generateReference(app.user.entrepriseProfile) }}</p>
-                  <div class="card-body-candidat">
+                  <div class="card-body-candidat text-center mb-3">
                       <small class="mt-auto">
                           <small class="card-text text-uppercase">{{ app.user.entrepriseProfile.nom }}</small><br>
                           <small class="card-text"><i class="mx-1 bi bi-tags"></i> {{ app.user.entrepriseProfile.secteurs|length }} secteurs</small><br>
@@ -45,10 +45,10 @@
             </div>
             <div class="col">
                 <div class="card shadow card position-relative text-center">
-                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PRO</span>
+                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PREMIUM</span>
                   <div class="card-img-top bg-image-candidat" style="background-image: url('/uploads/experts/company-default.jpg');" alt="{{ app.user.prenom }}"></div>
                   <p class="card-title h6 bg-dark text-white text-center py-2">OT-REC0030</p>
-                  <div class="card-body-candidat">
+                  <div class="card-body-candidat text-center mb-3">
                       <small class="mt-auto">
                           <small class="card-text text-uppercase">DUALCOM</small><br>
                           <small class="card-text"><i class="mx-1 bi bi-tags"></i> 3 secteurs</small><br>
@@ -59,10 +59,10 @@
             </div>
             <div class="col">
                 <div class="card shadow">
-                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PRO</span>
+                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PREMIUM</span>
                   <div class="card-img-top bg-image-candidat" style="background-image: url('/uploads/experts/company-default.jpg');" alt="Avatar"></div>
                   <p class="card-title h6 bg-dark text-white text-center py-2">OT-REC0168</p>
-                  <div class="card-body-candidat">
+                  <div class="card-body-candidat text-center mb-3">
                       <small class="mt-auto">
                           <small class="card-text text-uppercase">Olona</small><br>
                           <small class="card-text"><i class="mx-1 bi bi-tags"></i> 7 secteurs</small><br>
@@ -73,10 +73,10 @@
             </div>
             <div class="col">
                 <div class="card shadow">
-                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PRO</span>
+                  <span class="badge bg-danger rounded-pill position-absolute top-0 start-0 translate-middle mt-2 ms-3" style="z-index: 1000;">PREMIUM</span>
                   <div class="card-img-top bg-image-candidat" style="background-image: url('/uploads/experts/company-default.jpg');" alt="{{ app.user.prenom }}"></div>
                   <p class="card-title h6 bg-dark text-white text-center py-2">OT-REC0092</p>
-                  <div class="card-body-candidat">
+                  <div class="card-body-candidat text-center mb-3">
                       <small class="mt-auto">
                           <small class="card-text text-uppercase">NRDev</small><br>
                           <small class="card-text"><i class="mx-1 bi bi-tags"></i> 3 secteurs</small><br>
@@ -162,7 +162,7 @@
           <div class="rounded-circle" style="
               width: 85px;
               height: 85px;
-              background-image: url('{{ app.user.entrepriseProfile.fileName ? asset('uploads/companies/' ~ app.user.entrepriseProfile.fileName) : asset('uploads/experts/company-default.jpg') }}');
+              background-image: url('{{ app.user.entrepriseProfile.fileName ? asset('uploads/companies/' ~ app.user.entrepriseProfile.fileName) : asset('images/dashboard/logo_defaut_entreprise.webp') }}');
               background-size: cover;
               background-position: center;
           ">
@@ -222,11 +222,11 @@
             <i class="bi bi-card-checklist me-2"></i> Gérer mes annonces
           </a>
         </li>
-        <li class="nav-item">
+        {# <li class="nav-item">
           <a href="{{ path('app_v2_applications')}}" class="nav-link {{ current_route == 'app_v2_applications' ? 'underline' : '' }}" aria-current="page">
             <i class="bi bi-folder2-open me-2"></i></span> Candidatures reçues
           </a>
-        </li>
+        </li> #}
         <li class="nav-item">
           <a href="{{ path('app_v2_contacts')}}" class="nav-link {{ current_route == 'app_v2_contacts' ? 'underline' : '' }}" aria-current="page">
             <i class="bi bi-journal-check me-2"></i></i> Mon réseau professionnel
@@ -254,11 +254,6 @@
           </a>
         </li>
         <li class="nav-item">
-          <a href="{{ path('app_v2_dashboard_ai_tools')}}" class="nav-link {{ (current_route == 'app_v2_dashboard_ai_tools' or current_route == 'app_v2_dashboard_ai_tool_view' or current_route == 'app_v2_dashboard_ai_tool_category' or current_route == 'app_v2_dashboard_ai_tool_tag') ? 'underline' : '' }}" aria-current="page">
-            <i class="bi bi-magic me-2"></i></span> Ai Tools
-          </a>
-        </li>
-        <li class="nav-item">
           <a href="{{ path('app_v2_dashboard_formation')}}" class="nav-link {{ (current_route == 'app_v2_dashboard_formation' or current_route == 'app_v2_dashboard_formation_playlist_view') ? 'underline' : '' }}" aria-current="page">
             <i class="bi bi-layers me-2"></i> Centre de formations
           </a>
@@ -280,6 +275,13 @@
         <i class="bi bi-bookmark-star fw-bold"></i>
         Recharger mes crédits
       </a>
+      <hr>
+      <div class="nav-item">
+        <a href="{{ path('app_logout')}}" class="nav-link">
+          <i class="bi bi-box-arrow-right fw-bold"></i>
+          Se deconnecter
+        </a>
+      </div>
     </div>
   </div>
 </div>
@@ -292,7 +294,7 @@
           <div class="rounded-circle" style="
               width: 85px;
               height: 85px;
-              background-image: url('{{ app.user.entrepriseProfile.fileName ? asset('uploads/compagnies/' ~ app.user.entrepriseProfile.fileName) : asset('uploads/experts/company-default.jpg') }}');
+              background-image: url('{{ app.user.entrepriseProfile.fileName ? asset('uploads/compagnies/' ~ app.user.entrepriseProfile.fileName) : asset('images/dashboard/logo_defaut_entreprise.webp') }}');
               background-size: cover;
               background-position: center;
           ">
@@ -352,11 +354,11 @@
             <i class="bi bi-card-checklist me-2"></i><span class="link-text"> Gérer mes offres</span>
           </a>
         </li>
-        <li class="nav-item">
+        {# <li class="nav-item">
           <a href="{{ path('app_v2_applications')}}" class="nav-link {{ current_route == 'app_v2_applications' ? 'underline' : '' }}" aria-current="page">
             <i class="bi bi-folder2-open me-2"></i><span class="link-text">Candidatures reçues</span>
           </a>
-        </li>
+        </li> #}
         <li class="nav-item">
           <a href="{{ path('app_v2_contacts')}}" class="nav-link {{ current_route == 'app_v2_contacts' ? 'underline' : '' }}" aria-current="page">
             <i class="bi bi-journal-check me-2"></i><span class="link-text"> Mon réseau professionnel</span>
@@ -381,11 +383,6 @@
         <li class="nav-item">
           <a href="{{ path('app_v2_user_order')}}" class="nav-link {{ (current_route == 'app_v2_user_order' or current_route == 'app_v2_user_order_show') ? 'underline' : '' }}" aria-current="page">
             <i class="bi bi-bookmark-star me-2"></i> <span class="link-text">Mes commandes</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="{{ path('app_v2_dashboard_ai_tools')}}" class="nav-link {{ (current_route == 'app_v2_dashboard_ai_tools' or current_route == 'app_v2_dashboard_ai_tool_view' or current_route == 'app_v2_dashboard_ai_tool_category' or current_route == 'app_v2_dashboard_ai_tool_tag') ? 'underline' : '' }}" aria-current="page">
-            <i class="bi bi-magic me-2"></i></span> Ai Tools
           </a>
         </li>
         <li class="nav-item">

@@ -6,13 +6,13 @@ use App\Entity\User;
 use App\Form\V2\AccountType;
 use App\Form\V2\ProfileType;
 use App\Entity\AffiliateTool;
-use App\Entity\AffiliateTool\Category;
-use App\Entity\AffiliateTool\Tag;
 use App\Form\V2\CandidateType;
 use App\Form\V2\RecruiterType;
 use App\Manager\ProfileManager;
+use App\Service\ActivityLogger;
 use App\Entity\CandidateProfile;
 use App\Manager\CandidatManager;
+use App\Entity\AffiliateTool\Tag;
 use App\Entity\EntrepriseProfile;
 use App\Entity\ModerateurProfile;
 use App\Entity\Vues\CandidatVues;
@@ -22,7 +22,9 @@ use App\Entity\Formation\Playlist;
 use App\Manager\NotificationManager;
 use App\Manager\AffiliateToolManager;
 use App\Service\Mailer\MailerService;
+use App\Entity\AffiliateTool\Category;
 use App\Entity\Moderateur\ContactForm;
+use App\Manager\Marketing\LeadManager;
 use App\Form\Moderateur\ContactFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\AffiliateToolRepository;
@@ -34,13 +36,13 @@ use App\Entity\BusinessModel\BoostVisibility;
 use App\Repository\Formation\VideoRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\BusinessModel\PurchasedContact;
+use App\Repository\Marketing\SourceRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\Formation\PlaylistRepository;
 use App\Form\Search\AffiliateTool\ToolSearchType;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Manager\BusinessModel\BoostVisibilityManager;
-use App\Service\ActivityLogger;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -68,12 +70,12 @@ class DashboardController extends AbstractController
     {
         /** @var User $currentUser */
         $currentUser = $this->userService->getCurrentUser();
-        $profile = $this->userService->checkProfile();
+        $profile = $this->userService->checkUserProfile($currentUser);
         if($profile instanceof EntrepriseProfile){
-            return $this->redirectToRoute('app_v2_recruiter_dashboard');
+            return $this->redirectToRoute('app_tableau_de_bord_entreprise');
         }
         if($profile instanceof CandidateProfile){
-            return $this->redirectToRoute('app_v2_candidate_dashboard');
+            return $this->redirectToRoute('app_tableau_de_bord_candidat');
         }
         if($profile instanceof ModerateurProfile){
             return $this->redirectToRoute('app_dashboard_moderateur');
@@ -86,11 +88,11 @@ class DashboardController extends AbstractController
     public function profileInfo(Request $request, User $user): Response
     {             
         $session = $this->requestStack->getSession();        
-        $typology = $session->has('typology') && $session->get('typology') !== null ? $session->get('typology') : 'Candidat';
+        $typology = $session->has('typology') && $session->get('typology') !== "" ? $session->get('typology') : 'Candidat';
         $typology = ucfirst($typology); 
         $user->setType(strtoupper($typology));
         $this->userService->save($user); 
-        if($user->getType() === User::ACCOUNT_ENTREPRISE || $typology === 'Entreprise'){
+        if($user->getType() === User::ACCOUNT_ENTREPRISE || ucfirst($typology) === 'Entreprise'){
             $recruiter = $user->getEntrepriseProfile();
             if(!$recruiter instanceof EntrepriseProfile){
                 $recruiter = $this->profileManager->createCompany($user); 
@@ -104,7 +106,7 @@ class DashboardController extends AbstractController
             $formProfileUser = $this->createForm(CandidateType::class, $candidat); 
         }
 
-        $form = $this->createForm(AccountType::class, $user, ['typology' => $typology]);
+        $form = $this->createForm(AccountType::class, $user, ['typology' => ucfirst($typology)]);
         $form->handleRequest($request);
         $formProfileUser->handleRequest($request);
 
@@ -190,7 +192,7 @@ class DashboardController extends AbstractController
             $this->em->persist($user);
             $this->em->flush();
 
-            return $this->redirectToRoute('app_v2_dashboard_boost_profile', ['id' => $user->getId()]);
+            return $this->redirectToRoute('app_v2_dashboard', ['id' => $user->getId()]);
         }
         
         return $this->render('v2/dashboard/provider/contact.html.twig', [
@@ -272,6 +274,11 @@ class DashboardController extends AbstractController
     #[Route('/profile/view/{id}', name: 'app_v2_profile_view')]
     public function viewProfile(Request $request, int $id): Response
     {
+        $routeInfo = $this->userService->getRedirectRoute($this->getUser(), $request);
+        $routeInfo['params'] = ['id' => $id];
+        
+        return $this->redirectToRoute($routeInfo['route'], $routeInfo['params']);
+
         $candidat = $this->em->getRepository(CandidateProfile::class)->find($id);
         /** @var User $currentUser */
         $currentUser = $this->userService->getCurrentUser();
@@ -316,18 +323,42 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/contact', name: 'app_v2_contact')]
-    public function support(Request $request): Response
+    public function support(
+        Request $request,
+        LeadManager $leadManager,
+        SourceRepository $sourceRepository
+    ): Response
     {
+        $routeInfo = $this->userService->getRedirectRoute($this->getUser(), $request);
+        $routeInfo['params'] = [];
+        
+        return $this->redirectToRoute($routeInfo['route'], $routeInfo['params']);
+
+        /** @var User $currentUser */
+        $currentUser = $this->userService->getCurrentUser();
+        $sourceEntreprise = $sourceRepository->findOneBy(['slug' => 'formulaire-de-contact-site-olona-talents']);
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
         $contactForm = new ContactForm;
         $contactForm->setCreatedAt(new \DateTime());
         $form = $this->createForm(ContactFormType::class, $contactForm);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $contactForm = $form->getData();
+            $lead = $leadManager->init();
+            $lead->setSource($sourceEntreprise);
+            $lead->setComment('Formulaire de contact - '.$contactForm->getMessage());
+            $lead->setFullName($contactForm->getTitre());
+            $lead->setEmail($contactForm->getEmail());
+            $lead->setPhone($contactForm->getNumero());
+            $lead->setUser($currentUser);
+            $leadManager->save($lead);
             $this->em->persist($contactForm);
             $this->em->flush();
             $this->mailerService->sendMultiple(
-                ["contact@olona-talents.com", "nirinarocheldev@gmail.com", "techniques@olona-talents.com"],
+                ["contact@olona-talents.com", "support@olona-talents.com", "miandrisoa.olona@gmail.com"],
                 "Nouvelle entrée sur le formulaire de contact",
                 "contact.html.twig",
                 [
@@ -343,8 +374,13 @@ class DashboardController extends AbstractController
     }
 
     #[Route('/centre-de-formation', name: 'app_v2_dashboard_formation')]
-    public function formation(PlaylistRepository $playlistRepository, VideoRepository $videoRepository): Response
+    public function formation(PlaylistRepository $playlistRepository, VideoRepository $videoRepository, Request $request): Response
     {
+        $routeInfo = $this->userService->getRedirectRoute($this->getUser(), $request);
+        $routeInfo['params'] = [];
+        
+        return $this->redirectToRoute($routeInfo['route'], $routeInfo['params']);
+        
         return $this->render('v2/dashboard/formation.html.twig', [
             'playlists' => $playlistRepository->findAll(),
             'videos' => $videoRepository->findAll(),

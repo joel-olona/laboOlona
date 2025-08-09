@@ -76,6 +76,21 @@ class JobListing
              self::STATUS_RESERVED ,
         ];
     }
+
+    public static function getLabels() {
+        return [
+             self::STATUS_DRAFT =>        '<span class="badge bg-info">Brouillon</span>' ,
+             self::STATUS_PUBLISHED =>        '<span class="badge bg-success">Publiée</span>' ,
+             self::STATUS_PENDING =>        '<span class="badge bg-warning">En attente</span>' ,
+             self::STATUS_REJECTED =>        '<span class="badge bg-danger">Rejetée</span>' ,
+             self::STATUS_EXPIRED =>        '<span class="badge bg-danger">Expirée</span>' ,
+             self::STATUS_ARCHIVED =>        '<span class="badge bg-dark">Archivée</span>' ,
+             self::STATUS_UNPUBLISHED =>        '<span class="badge bg-warning">Non publiée</span>' ,
+             self::STATUS_DELETED =>        '<span class="badge bg-dark">Effacée</span>' ,
+             self::STATUS_FEATURED =>        '<span class="badge bg-primary">Mis en avant</span>' ,
+             self::STATUS_RESERVED =>        '<span class="badge bg-secondary">Réservée</span>' ,
+        ];
+    }
     
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -142,7 +157,7 @@ class JobListing
     #[ORM\OneToMany(mappedBy: 'jobListing', targetEntity: Assignation::class, cascade: ['remove'])]
     private Collection $assignations;
 
-    #[ORM\OneToMany(mappedBy: 'annonce', targetEntity: Referral::class)]
+    #[ORM\OneToMany(mappedBy: 'annonce', targetEntity: Referral::class, cascade: ['remove'])]
     private Collection $referrals;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: '0', nullable: true)]
@@ -169,8 +184,17 @@ class JobListing
     #[ORM\ManyToOne(inversedBy: 'jobListings')]
     private ?BoostFacebook $boostFacebook = null;
 
-    #[ORM\OneToMany(mappedBy: 'jobListing', targetEntity: BoostVisibility::class)]
+    #[ORM\OneToMany(mappedBy: 'jobListing', targetEntity: BoostVisibility::class, cascade: ['remove'])]
     private Collection $boostVisibilities;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $isNotified = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $isPublishedOnFacebook = null;
 
     public function __toString()
     {
@@ -705,6 +729,42 @@ class JobListing
                 $boostVisibility->setJobListing(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function isIsNotified(): ?bool
+    {
+        return $this->isNotified;
+    }
+
+    public function setIsNotified(?bool $isNotified): static
+    {
+        $this->isNotified = $isNotified;
+
+        return $this;
+    }
+
+    public function isIsPublishedOnFacebook(): ?bool
+    {
+        return $this->isPublishedOnFacebook;
+    }
+
+    public function setIsPublishedOnFacebook(?bool $isPublishedOnFacebook): static
+    {
+        $this->isPublishedOnFacebook = $isPublishedOnFacebook;
 
         return $this;
     }

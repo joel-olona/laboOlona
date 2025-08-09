@@ -39,8 +39,17 @@ class ContactController extends AbstractController
     #[Route('/contacts', name: 'app_v2_contacts')]
     public function contact(Request $request): Response
     {
+        $routeInfo = $this->userService->getRedirectRoute($this->getUser(), $request);
+        $routeInfo['params'] = [];
+        
+        return $this->redirectToRoute($routeInfo['route'], $routeInfo['params']);
+        
         /** @var User $currentUser */
         $currentUser = $this->userService->getCurrentUser();
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
         $purchasedContacts = $this->em->getRepository(PurchasedContact::class)->findContactsByBuyerAndStatus($currentUser, true);
         $pendingContacts = $this->em->getRepository(PurchasedContact::class)->findContactsByBuyerAndStatus($currentUser, false);
         $allContacts = $this->em->getRepository(PurchasedContact::class)->findBy([
@@ -100,50 +109,43 @@ class ContactController extends AbstractController
     {
         /** @var User $currentUser */
         $currentUser = $this->userService->getCurrentUser();
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
         $contactId = $request->request->get('contactId');
+        $showContactPrice = $request->request->get('showContactPrice');
+        $actionView = $request->request->get('actionView');
         $contact = $this->em->getRepository(User::class)->find($contactId);
         $message = 'Contact ajouté dans votre réseau professionnel';
         $success = true;
         $status = 'Succès';
     
-        $creditAmount = $this->profileManager->getCreditAmount(Credit::ACTION_VIEW_CANDIDATE);
-        $response = $this->creditManager->adjustCredits($currentUser, $creditAmount, "Contact Candidat");
+        $creditAmount = $this->profileManager->getCreditAmount($actionView);
     
         $recruiter = $this->em->getRepository(EntrepriseProfile::class)->findOneBy(['entreprise' => $contactId]);
         $candidat = $this->em->getRepository(CandidateProfile::class)->findOneBy(['candidat' => $contactId]);
-        
-        if (isset($response['error'])) {
-            $message = $response['error'];
+        if ($creditAmount !== (float) $showContactPrice) {
+            $message = "Formulaire invalide";
             $success = false;
             $status = 'Echec';
+            $purchasedContact = null;
         }else{
-            $purchasedContact = new PurchasedContact();
-            $purchasedContact->setBuyer($currentUser);
-            $purchasedContact->setPurchaseDate(new \DateTime());
-            $purchasedContact->setContact($contact);
-            $purchasedContact->setPrice($creditAmount);
-            $purchasedContact->setIsAccepted(true);
-            $this->em->persist($purchasedContact);
-            $this->em->flush();
-            // $urlAccepted = $this->urlGeneratorInterface->generate(
-            //     'app_v2_dashboard_notification_accept',
-            //     ['id' => $purchasedContact->getId()], 
-            //     UrlGeneratorInterface::ABSOLUTE_URL
-            // );
-            // $urlRefused = $this->urlGeneratorInterface->generate(
-            //     'app_v2_dashboard_notification_refuse',
-            //     ['id' => $purchasedContact->getId()], 
-            //     UrlGeneratorInterface::ABSOLUTE_URL
-            // );
-            // $this->notificationManager->createNotification(
-            //     $currentUser, 
-            //     $contact, 
-            //     Notification::TYPE_CONTACT,
-            //     'Nouvelle demande de contact',
-            //     ucfirst(substr($currentUser->getNom(), 0, 1)).'. '.$currentUser->getPrenom(). ' souhaite vous contacter pour une opportunité de collaboration. Acceptez-vous de partager vos coordonnées ? <br>
-            //     <a class="btn btn-primary rounded-pill my-3 px-4" href="'.$urlAccepted.'">Accepter</a>  <a class="btn btn-danger rounded-pill my-3 px-3" href="'.$urlRefused.'">Refuser</a>
-            //     '
-            // );
+            $response = $this->creditManager->adjustCredits($currentUser, $creditAmount, "Affichage de contact");
+            if (isset($response['error'])) {
+                $message = $response['error'];
+                $success = false;
+                $status = 'Echec';
+            }else{
+                $purchasedContact = new PurchasedContact();
+                $purchasedContact->setBuyer($currentUser);
+                $purchasedContact->setPurchaseDate(new \DateTime());
+                $purchasedContact->setContact($contact);
+                $purchasedContact->setPrice($creditAmount);
+                $purchasedContact->setIsAccepted(true);
+                $this->em->persist($purchasedContact);
+                $this->em->flush();
+            }
         }
 
         

@@ -8,6 +8,8 @@
 import $ from 'jquery';
 import 'bootstrap';
 import { Tooltip, Toast, Carousel, Modal } from 'bootstrap';
+import * as bootstrap from 'bootstrap';
+window.bootstrap = bootstrap;
 
 $(function() {
     setupDynamicLinks();
@@ -33,20 +35,83 @@ $(function() {
         setupAvailabilityDropdown(); 
         setupCKEditors();
         setupDynamicLinks();
+        toggleFields();
+        contestFacebook();
     }
 
     function handlePageLoad() {
         handleThemeChange();
         setupDynamicLinks();
-        handleThemeInitialization();
+        // handleThemeInitialization();
         setupCKEditors();
-        updateLogo();
+        // updateLogo();
         setupDeletionConfirmation();
         setupImageUpload(); 
         setupAvailabilityDropdown();  
         handleLoading();
+        initializeSliders();
         initiateLoadMore();
-        initializeCarousels(); // Initialize carousels on page load
+        toggleFields();
+        initializeCarousels(); 
+        contestFacebook();
+        checkAndShowTutorial();
+    }
+
+    function checkAndShowTutorial() {
+        const tutorialViewed = document.cookie
+            .split('; ')
+            .find((row) => row.startsWith('tutorialViewed='));
+    
+        if (!tutorialViewed) {
+            const modalEl = document.getElementById('tutorialModal1Toggle');
+            if (modalEl) {
+                const tutorialModal1Toggle = new bootstrap.Modal(modalEl);
+                tutorialModal1Toggle.show();
+                document.cookie = "tutorialViewed=true; path=/; max-age=2592000";
+            }
+        }
+    
+        const modalElement = document.getElementById('uploadCVModalToggle');
+        if (modalElement) {
+            const modalCV = new bootstrap.Modal(modalElement);
+            modalCV.show();
+        }
+    }
+
+    function contestFacebook() {
+
+        $('#yesButton').on('click', function () {
+            $(this).addClass('active'); 
+            $('#noButton').removeClass('active'); 
+            $('#user').show(); 
+            $('#newUser').hide(); 
+        });
+
+        $('#noButton').on('click', function () {
+            $(this).addClass('active'); 
+            $('#yesButton').removeClass('active');
+            $('#user').hide(); 
+            $('#newUser').show(); 
+        });
+    }
+
+    // Fonction pour gérer l'affichage des champs en fonction de la sélection
+    function toggleFields() {
+        var selectedValue = $('#contract_typePerson').val(); 
+
+        if (selectedValue === "0") { 
+            $('#person-type').text("Je suis un");
+            $('#contract_socialReason').closest('.mb-3').hide(); 
+            $('#contract_siret').closest('.mb-3').hide(); 
+            $('#contract_firstName').closest('.mb-3').show(); 
+            $('#contract_lastName').closest('.mb-3').show(); 
+        } else { 
+            $('#person-type').text("Je suis une");
+            $('#contract_socialReason').closest('.mb-3').show();
+            $('#contract_siret').closest('.mb-3').show(); 
+            $('#contract_firstName').closest('.mb-3').hide(); 
+            $('#contract_lastName').closest('.mb-3').hide(); 
+        }
     }
 
     function initializeCarousels() {
@@ -58,21 +123,22 @@ $(function() {
 
     function initiateLoadMore() {
         const query = $('#hidden-query').val();
+        if (query) { 
+            if ($('#candidates-list').length) {
+                loadMore('/result/candidates', '#candidates-list', query);
+            }
+            
+            if ($('#joblistings-list').length) {
+                loadMore('/result/joblistings', '#joblistings-list', query);
+            }
+            
+            if ($('#prestations-list').length) {
+                loadMore('/result/prestations', '#prestations-list', query);
+            }
 
-        if ($('#candidates-list').length) {
-            loadMore('/result/candidates', '#candidates-list', query);
-        }
-        
-        if ($('#joblistings-list').length) {
-            loadMore('/result/joblistings', '#joblistings-list', query);
-        }
-        
-        if ($('#prestations-list').length) {
-            loadMore('/result/prestations', '#prestations-list', query);
-        }
-
-        if ($('#outils-ia-list').length ) {
-            loadMore('/v2/dashboard/outils-ai', '#outils-ia-list', query)
+            if ($('#outils-ia-list').length ) {
+                loadMore('/v2/dashboard/outils-ai', '#outils-ia-list', query)
+            }
         }
     }
     
@@ -124,6 +190,7 @@ $(function() {
                     success: function(data) {
                         if (data.content && data.content.trim()) {
                             container.append(data.content);
+                            initializeSliders();
                             from += 6;
                             hasMore = data.hasMore;
                         } else {
@@ -149,7 +216,6 @@ $(function() {
     
         $('#myFormT').on('submit', function(e) {
             e.preventDefault();
-            console.log('submit')
             var url = $(this).data('action');
             var formData = new FormData(this);
             $.ajax({
@@ -164,7 +230,6 @@ $(function() {
                 },
                 success: function(data) {
                     Turbo.renderStreamMessage(data);
-                    console.log('success')
                     // Vérifiez si la réponse contient le target 'errorToast'
                     if (data.includes('target="errorToast"')) {
                         var errorToast = new Toast($('#errorToast')[0]);
@@ -241,10 +306,30 @@ $(function() {
             });
         });
         
-
         const editors = document.querySelectorAll('.ckeditor-textarea');
         if (editors.length > 0) {
             editors.forEach(editorElement => {
+                if (editorElement) {
+                    ClassicEditor.create(editorElement, {
+                        toolbar: {
+                            items: [
+                                'bold', 'italic', 'link', '|',
+                                'bulletedList', 'numberedList', '|',
+                                'blockQuote', '|',
+                                'undo', 'redo'
+                            ]
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+                }
+            });
+        }
+        
+        const editorsFull = document.querySelectorAll('.full-ckeditor-textarea');
+        if (editorsFull.length > 0) {
+            editorsFull.forEach(editorElement => {
                 if (editorElement) {
                     ClassicEditor.create(editorElement, {
                         toolbar: {
@@ -281,9 +366,37 @@ $(function() {
     
     function handleThemeChange() {
         $('#switch-theme').off('click').on('click', function() {
-            const newTheme = $('body').hasClass('bootstrap-light') ? 'bootstrap-dark' : 'bootstrap-light';
-            updateThemePreference(newTheme);
-            updateLogo();
+            // const newTheme = $('body').hasClass('bootstrap-light') ? 'bootstrap-light' : 'bootstrap-light';
+            // updateThemePreference(newTheme);
+            // updateLogo();
+        });
+
+        // Initialisation de CKEditor
+        let emailContentEditor;
+        const editorElement = document.querySelector('#notification_profile_contenu');
+
+        if (editorElement) {
+            ClassicEditor
+                .create(editorElement)
+                .then(editor => {
+                    emailContentEditor = editor;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+			
+        $('#templateEmail').on('change', function() {
+            console.log('change')
+            var selectedOption = $(this).find('option:selected');
+            var titre = selectedOption.data('titre');
+            var contenu = selectedOption.data('contenu');
+
+            $('#notification_profile_titre').val(titre);
+
+            if (emailContentEditor) {
+                emailContentEditor.setData(contenu);
+            }
         });
     }
     
@@ -299,7 +412,8 @@ $(function() {
         if (currentTheme) {
             const themeName = currentTheme.split('=')[1];
             $('body').removeClass('bootstrap-dark bootstrap-light').addClass(themeName);
-            const mode = themeName.replace('bootstrap-', '');
+            // const mode = themeName.replace('bootstrap-', '');
+            const mode = 'light';
             $('html').attr('data-bs-theme', mode);
             updateLogo();
         }
@@ -309,8 +423,10 @@ $(function() {
         const currentTheme = $('body').hasClass('bootstrap-dark') ? 'dark' : 'light';
         // const currentTheme = $('html').attr('data-bs-theme') === 'dark' ? 'dark' : 'light';
         const logoSrc = currentTheme === 'dark' ? '/images/logo-olona-talents-white600x200.png' : '/images/logo-olona-talents-black600x200.png';
+        const loginImage = currentTheme === 'dark' ? 'images/login-dark.webp' : 'images/login-light.webp';
         $('#logoOffCanvas').attr('src', logoSrc);
         $('#logo').attr('src', logoSrc);
+        $('#login-image').attr('src', loginImage);
     
         const themeIcon = currentTheme === 'dark' ? 'bi-brightness-high' : 'bi-moon-stars-fill';
         $('#switch-theme i').removeClass();
@@ -323,15 +439,19 @@ $(function() {
         const imageInput = document.getElementById('prestation_file'); 
         const profileImgDiv = document.querySelector('.profile-img');
         const companyImgDiv = document.querySelector('.company-img');
-
-        if(logoInput && companyImgDiv){
+    
+        // Sécurisation du chargement du logo entreprise
+        if (logoInput && companyImgDiv) {
             logoInput.addEventListener('change', function(event) {
-                if (event.target.files && event.target.files[0]) {
+                const file = event.target.files?.[0];
+                if (file) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        companyImgDiv.style.backgroundImage = 'url(' + e.target.result + ')';
+                        if (companyImgDiv) {
+                            companyImgDiv.style.backgroundImage = `url(${e.target.result})`;
+                        }
                     };
-                    reader.readAsDataURL(event.target.files[0]);
+                    reader.readAsDataURL(file);
                 }
             });
     
@@ -340,15 +460,18 @@ $(function() {
             });
         }
     
+        // Sécurisation du chargement de l'image prestation
         if (imageInput && profileImgDiv) {
             imageInput.addEventListener('change', function(event) {
-                if (event.target.files && event.target.files[0]) {
-                    console.log('change')
+                const file = event.target.files?.[0];
+                if (file) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        profileImgDiv.style.backgroundImage = 'url(' + e.target.result + ')';
+                        if (profileImgDiv) {
+                            profileImgDiv.style.backgroundImage = `url(${e.target.result})`;
+                        }
                     };
-                    reader.readAsDataURL(event.target.files[0]);
+                    reader.readAsDataURL(file);
                 }
             });
     
@@ -356,35 +479,40 @@ $(function() {
                 imageInput.click();
             });
         }
-
-        
+    
+        // Masquer les erreurs de validation à la soumission
         const ids = ['#applyJob', '#createJob']; 
         ids.forEach(function(id) {
-            $(id).on('submit', function(e) {
-
-                $('.invalid-feedback').remove();
-                $('.is-invalid').removeClass('is-invalid');
-                var successToast = new Toast($('#errorToast')[0]);
-                setTimeout(function() {
-                    successToast.show(); 
-                }, 1500);
-
-                var modalElement = $(this).closest('.modal').get(0); 
-                if (modalElement) {
-                    var modal = Modal.getInstance(modalElement) || new Modal(modalElement);
-                    modal.hide(); 
+            const $form = $(id);
+            if ($form.length) {
+                $form.on('submit', function(e) {
+                    $('.invalid-feedback').remove();
+                    $('.is-invalid').removeClass('is-invalid');
+    
+                    const modalElement = $(this).closest('.modal').get(0); 
+                    if (modalElement) {
+                        const modal = Modal.getInstance(modalElement) || new Modal(modalElement);
+                        modal.hide(); 
+                    }
+                });
+            }
+        });        
+    
+        // Affichage du toast d'erreur à l'étape finale
+        const finishMenuItem = $('a[role="menuitem"][href="#finish"]');
+        if (finishMenuItem.length) {
+            finishMenuItem.on('click', function() {
+                const errorToastEl = $('#errorToast')[0];
+                if (errorToastEl) {
+                    const successToast = new Toast(errorToastEl);
+                    setTimeout(() => {
+                        successToast.show(); 
+                    }, 1000);
                 }
             });
-        });        
-
-        $('a[role="menuitem"][href="#finish"]').on('click', function(){
-            console.log('click')
-            var successToast = new Toast($('#errorToast')[0]);
-            setTimeout(function() {
-                successToast.show(); 
-            }, 1000);
-        })
+        }
     }
+    
     
     function setupAvailabilityDropdown() {
         const availabilityDropdown = document.getElementById('prestation_availability_nom');
@@ -392,10 +520,11 @@ $(function() {
     
         if (availabilityDropdown && dateField) {
             function toggleDateInput() {
+                if (!dateField) return;
                 if (availabilityDropdown.value === 'from-date') {
-                    dateField.style.display = 'block';  // Show the date field
+                    dateField.style.display = 'block';
                 } else {
-                    dateField.style.display = 'none';  // Hide the date field
+                    dateField.style.display = 'none';
                 }
             }
     
@@ -426,21 +555,24 @@ $(function() {
             $('#candidate-card-container').html(prestationContent);
         });
 
-        $('button[data-bs-target="#connectingModal"]').on('click', function() {
+        $(document).on('click', 'button[data-bs-target="#connectingModal"]', function() {
             var href = $(this).data('bs-href'); 
-    
             $.ajax({
                 url: '/store/target/path', 
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ href: href }),
                 success: function(response) {
-                    console.log('Success:', response.message);
+                    console.log(response.message);
                 },
                 error: function(xhr, status, error) {
                     console.error('Error:', xhr.responseText);
                 }
             });
+        });
+
+        $('#contract_typePerson').on('change', function () {
+            toggleFields();
         });
     }
 
@@ -488,7 +620,6 @@ $(function() {
             }else{
                 $('#annonce_boost_boostFacebook_'+ elementId +'').hide()
             }
-            console.log(annonceBoostValue);
             $('button[data-bs-target="#confirmationModal"]').attr('data-bs-price', annonceBoostValue);
         });
 
@@ -534,7 +665,6 @@ $(function() {
             }else{
                 $('#prestation_boost_boostFacebook_'+ elementId +'').hide()
             }
-            console.log(prestationValue);
             $('button[data-bs-target="#confirmationModal"]').attr('data-bs-price', prestationValue);
         });
 
@@ -558,7 +688,6 @@ $(function() {
             }else{
                 $('#candidate_boost_boost_boost_facebook').hide()
             }
-            console.log(selectedValue);
             $('button[data-bs-target="#confirmationModal"]').attr('data-bs-price', selectedValue);
         });
 
@@ -589,7 +718,6 @@ $(function() {
             }else{
                 $('#recruiter_boost_boost_boost_facebook').hide()
             }
-            console.log(selectedValue);
             $('button[data-bs-target="#confirmationModal"]').attr('data-bs-price', selectedValue);
         });
 
@@ -611,7 +739,6 @@ $(function() {
         boostProfiles.forEach(function(boost) {
             $('input[type="radio"][name="' + boost.name + '"]').on('change', function() {
                 var dataLabel = $(this).data('value');
-                console.log(dataLabel);
                 $('#confirmationModal .modal-body').text("Voulez-vous vraiment dépenser " + dataLabel + " crédits");
             });
         });
@@ -629,7 +756,6 @@ $(function() {
                     cardElement.addClass('card-selected');
                 }
                 var dataLabel = $(this).closest('.col').find('h2').data('label');
-                console.log(dataLabel);
 
                 var nextButton = $('#boostProfileButton'); 
                 nextButton.attr('data-bs-toggle', 'modal');
@@ -711,7 +837,6 @@ $(function() {
             var packageType = button.data('bs-type');
             var hiddenField = $(this).find('.annonce-edit-id');
             hiddenField.val(annonceId);
-            console.log(hiddenField)
             var submitButton = $(this).find('#confirmButton');
             submitButton.attr('data-id', packageType);
             submitButton.attr('data-annonce-id', hiddenField);
@@ -745,7 +870,6 @@ $(function() {
                 contentType: false,
                 processData: false,
                 success: function(data) {
-                    console.log(data)
                     if (data.success) {
                         var trow = $('#row_notification_' + data.id )
                         var status = trow.find('.status');
@@ -776,7 +900,6 @@ $(function() {
                     'Accept': 'text/vnd.turbo-stream.html'
                 },
                 success: function(data) {
-                    console.log(data); 
                     if (data.success) {
                         // Redirection vers l'URL spécifiée dans data.redirect
                         if (data.redirect) {
@@ -807,10 +930,8 @@ $(function() {
                 contentType: false,
                 processData: false,
                 success: function(data) {
-                    console.log(data); // Assurez-vous que c'est `success` et non `succes`
                     if (data.success) {
                         $('#successToast .toast-body').text(data.message);
-                        console.log($('#newCheckBoost').length); 
                         $('#newCheckBoost').html(data.detail);
                         var successToast = new Toast($('#successToast')[0]);
                         successToast.show();
@@ -842,7 +963,6 @@ $(function() {
                 contentType: false,
                 processData: false,
                 success: function(data) {
-                    console.log(data); 
                     if (data.success) {
                         $('#successToast .toast-body').text(data.message);
                         var part = $('#col_prestation_recruiter_' + data.id)
@@ -877,7 +997,6 @@ $(function() {
                 contentType: false,
                 processData: false,
                 success: function(data) {
-                    console.log(data); 
                     if (data.success) {
                         $('#successToast .toast-body').text(data.message);
                         var part = $('#col_annonce_recruiter_' + data.id)
@@ -915,17 +1034,16 @@ $(function() {
                 },
                 success: function(data) {
                     Turbo.renderStreamMessage(data);
-                    console.log(data)
                     if (data.success) {
-                        $('#successToast').find('.toast-body').text(data.message);
-                        var successToast = new Toast($('#successToast')[0]);
-                        successToast.show();
+                        // $('#successToast').find('.toast-body').text(data.message);
+                        // var successToast = new Toast($('#successToast')[0]);
+                        // successToast.show();
                         var boostProfileModal = Modal.getInstance($('#boostProfile')[0]) || new Modal($('#boostProfile')[0]);
                         boostProfileModal.hide();
                     } else {
-                        $('#errorToast').find('.toast-body').text('Erreur: ' + data.message);
-                        var errorToast = new Toast($('#errorToast')[0]);
-                        errorToast.show();
+                        // $('#errorToast').find('.toast-body').text('Erreur: ' + data.message);
+                        // var errorToast = new Toast($('#errorToast')[0]);
+                        // errorToast.show();
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
@@ -951,7 +1069,6 @@ $(function() {
                 },
                 success: function(data) {
                     Turbo.renderStreamMessage(data);
-                    console.log(data)
                     if (data.success) {
                         $('#successToast').find('.toast-body').text(data.message);
                         var successToast = new Toast($('#successToast')[0]);
@@ -985,7 +1102,6 @@ $(function() {
                 },
                 success: function(data) {
                     Turbo.renderStreamMessage(data);
-                    console.log(data)
                     if (data.success) {
                         $('#successToast').find('.toast-body').text(data.message);
                         var successToast = new Toast($('#successToast')[0]);
@@ -1019,7 +1135,6 @@ $(function() {
                 },
                 success: function(data) {
                     Turbo.renderStreamMessage(data);
-                    console.log(data)
                     if (data.success) {
                         $('#successToast').find('.toast-body').text(data.message);
                         var successToast = new Toast($('#successToast')[0]);
@@ -1097,7 +1212,6 @@ $(function() {
                     'Accept': 'text/vnd.turbo-stream.html'
                 },
                 success: function(data) {
-                    console.log('Response processed by Turbo:', data);
                     Turbo.renderStreamMessage(data);
         
                     // Vérifiez si la réponse contient le target 'errorToast'
@@ -1152,7 +1266,7 @@ $(function() {
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     console.error('Erreur:', textStatus, errorThrown);
-                    $('#errorToast').find('.toast-body').text('Une erreur est survenue lors de la tentative de boost de votre profil.');
+                    $('#errorToast').find('.toast-body').text('Une erreur est survenue lors de la l\'analyse. Votre CV trop lourd.');
                     var errorToast = new Toast($('#errorToast')[0]);
                     errorToast.show();
                 },
@@ -1211,4 +1325,112 @@ $(function() {
             $(this).find('ul[data-form-collection-target="collectionContainer"]').empty();
         });
     });
+
+  
+    // On branche notre comportement à tous les éléments
+    function initializeSliders() {
+        Array.from(document.querySelectorAll("[data-slider]"))
+            .map(el => new Slider(el));
+    }
 });
+
+
+
+class Slider {
+    constructor(el) {
+        this.el = el;
+        this.nextButton = el.querySelector('[data-slider-next]');
+        this.prevButton = el.querySelector('[data-slider-prev]');
+        this.wrapper = el.querySelector('[data-slider-wrapper]');
+        this.interval = null;
+        this.currentPage = 0;
+
+        this.nextButton.addEventListener('click', () => {
+            this.move(1);
+            this.resetAutoplay();
+        });
+
+        this.prevButton.addEventListener('click', () => {
+            this.move(-1);
+            this.resetAutoplay();
+        });
+
+        this.updateUI();
+        this.startAutoplay();
+    }
+
+    get itemsToScroll() {
+        return parseInt(getComputedStyle(this.wrapper).getPropertyValue('--items'), 10) || 1;
+    }
+
+    get totalItems() {
+        return this.wrapper.children.length;
+    }
+
+    get pages() {
+        return Math.ceil(this.totalItems / this.itemsToScroll);
+    }
+
+    move(n) {
+        this.currentPage += n;
+
+        if (this.currentPage < 0) this.currentPage = 0;
+        if (this.currentPage >= this.pages) this.currentPage = this.pages - 1;
+
+        const targetIndex = this.currentPage * this.itemsToScroll;
+        const targetItem = this.wrapper.children[targetIndex];
+
+        if (targetItem) {
+            this.wrapper.scrollTo({
+                left: targetItem.offsetLeft,
+                behavior: 'smooth'
+            });
+        }
+
+        this.updateUI();
+    }
+
+    updateUI() {
+        if (this.currentPage === 0) {
+            this.prevButton.setAttribute('hidden', 'hidden');
+        } else {
+            this.prevButton.removeAttribute('hidden');
+        }
+
+        if (this.currentPage >= this.pages - 1) {
+            this.nextButton.setAttribute('hidden', 'hidden');
+        } else {
+            this.nextButton.removeAttribute('hidden');
+        }
+    }
+
+    startAutoplay() {
+        this.interval = setInterval(() => {
+            // Si on est à la dernière page, stop autoplay
+            if (this.currentPage >= this.pages - 1) {
+                clearInterval(this.interval);
+                return;
+            }
+
+            this.currentPage++;
+
+            const targetIndex = this.currentPage * this.itemsToScroll;
+            const targetItem = this.wrapper.children[targetIndex];
+
+            if (targetItem) {
+                this.wrapper.scrollTo({
+                    left: targetItem.offsetLeft,
+                    behavior: 'smooth'
+                });
+            }
+
+            this.updateUI();
+        }, 5000);
+    }
+
+    resetAutoplay() {
+        clearInterval(this.interval);
+        this.startAutoplay();
+    }
+}
+

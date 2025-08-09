@@ -1,17 +1,34 @@
-{% extends 'base_v21.html.twig' %}
+{% extends 'base_page.html.twig' %}
 
 {% block title %}Mentions légales{% endblock %}
 
 {% block meta %}
-    {{ parent() }}
+<meta name="description" content="Découvrez les mentions légales du site https://olona-talents.com/. Retrouvez les informations sur la propriété intellectuelle, les données personnelles, les conditions d’utilisation et les responsabilités légales liées à l’utilisation de nos services.">
+<meta name="keywords" content="freelance, projet, offre, portage salarial, cooptation, recrutement">
+<meta property="og:title" content="Mentions légales">
+<meta property="og:description" content="Découvrez les mentions légales du site https://olona-talents.com/. Retrouvez les informations sur la propriété intellectuelle, les données personnelles, les conditions d’utilisation et les responsabilités légales liées à l’utilisation de nos services.">
+<meta property="og:url" content="{{ app.request.uri }}">
+<meta property="og:image" content="{{ app.request.schemeAndHttpHost ~ asset('/images/logo-og.png') }}">
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
 {% endblock %}
 
 {% block body %}
-<section id="legal" class="my-5">
+<header class="header-home">
+    <div class="page-content">
+        <div class="home-banner-section bg-cover" style="background-image:url({{ asset('v2/images/home/home-olona-talents.webp')}})">
+            <div class="home-inner-section">
+                <div class="mid-section">
+                    <h1 class="title-large">{{ 'app_home.legal.h1'|trans }}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<section id="legal">
     <div class="container my-5 d-flex flex-column justify-content-center">
         <div class="row my-4">
             <div class="col d-flex flex-column justify-content-center">
-                <h1 class="text-center display-4 mb-3">{{ 'app_home.legal.h1'|trans }}</h1>
                 <h2 class="display-6 my-3">{{ 'app_home.legal.section1.h2'|trans }}</h2>
                 <div class="">
                     <p class="fs-6">{{ 'app_home.legal.section1.p1'|trans |raw }}</p>

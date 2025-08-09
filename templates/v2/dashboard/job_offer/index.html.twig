@@ -60,13 +60,10 @@
                       </div>
                     </div>
                     <div class="card mb-3" id="candidate-card-container">
-                        <img src="{{ asset('images/mailing/thumbnail.png')}}" class="" alt="Premium Olona Talents">
-                        <div class="card-body small">
-                            <h3 class="card-title h5">Passez à la Version Premium!</h3>
-                            <p class="card-text">Profitez d'un accès illimité aux contacts candidats, de la mise en avant de vos annonces et bien plus encore.</p>
-                            <div id="checkBoost">
-                            <button class="btn btn-sm btn-danger text-uppercase fw-bold px-3" data-bs-toggle="modal" data-bs-target="#boostProfile" data-bs-whatever="@mdo"><i class="bi bi-rocket-takeoff me-2"></i> Booster mon profil</button>
-                            </div>
+                        <div class="m-4 position-relative text-center">
+                            <a href="{{ path('app_v2_view_recruiter_profile', {'id': 5 }) }}">
+                                <img class="img-fluid" src="{{ asset('images/pubs/olona-talents-vertical.webp')}}">
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -91,19 +88,24 @@
     });
 
     function loadMoreJobs() {
-        currentPage++;
-        var url = `{{ path('api_job_offers') }}?page=${currentPage}`;
-        $.ajax({
-            url: url,
-            type: 'GET',
-            success: function(html) {
-                if (html.trim() === "") {
-                    allDataLoaded = true;
-                } else {
-                    $('#jobs-container').append(html);
+        if (!allDataLoaded) {
+            currentPage++;
+            var url = `{{ path('api_job_offers') }}?page=${currentPage}`;
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json', 
+                success: function(data) {
+                    $('#jobs-container').append(data.html);
+                    if (!data.hasMore) {
+                        allDataLoaded = true;
+                    }
+                },
+                error: function() {
+                    allDataLoaded = true; 
                 }
-            }
-        });
+            });
+        }
     }
     </script>
 {% endblock %}

@@ -5,14 +5,14 @@ import path from "path";
 import cors from "cors";
 
 const corsOptions = {
-    origin: "https://develop.olona-talents.com", 
+    origin: "https://olona-talents.com", 
     optionsSuccessStatus: 200,
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 const { PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, PORT = 8888 } = process.env;
-const base = "https://api-m.sandbox.paypal.com";
+const base = "https://api-m.paypal.com";
 const app = express();
 app.use(cors());
 
@@ -29,7 +29,7 @@ export default async function generateAccessToken() {
     ).toString("base64");
 
     const request = await fetch(
-        "https://api-m.sandbox.paypal.com/v1/oauth2/token",
+        "https://api-m.paypal.com/v1/oauth2/token",
         {
             method: "POST",
             headers: {

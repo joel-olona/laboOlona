@@ -10,12 +10,15 @@ use App\Manager\CandidatManager;
 use App\Entity\EntrepriseProfile;
 use App\Entity\Vues\CandidatVues;
 use App\Service\User\UserService;
+use App\Entity\BusinessModel\Credit;
 use App\Manager\OlonaTalentsManager;
 use App\Service\ElasticsearchService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\BusinessModel\PurchasedContact;
+use App\Manager\ProfileManager;
+use Google\Service\CivicInfo\Candidate;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -34,11 +37,20 @@ class ProfileController extends AbstractController
         private ActivityLogger $activityLogger,
         private AppExtension $appExtension,
         private ElasticsearchService $elasticsearch,
+        private ProfileManager $profileManager,
     ){}
     
     #[Route('/profiles', name: 'app_v2_profiles')]
     public function index(Request $request): Response
     {
+        return $this->redirectToRoute('app_connect');
+
+        /** @var User $currentUser */
+        $currentUser = $this->userService->getCurrentUser();
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
         $profile = $this->userService->checkProfile();
         $secteurs = $profile->getSecteurs();
         $page = $request->query->get('page', 1);
@@ -86,19 +98,39 @@ class ProfileController extends AbstractController
         ->setFirstResult(($page - 1) * $limit);
 
         $candidates = $qb->getQuery()->getResult();
-
-        return $this->render('v2/dashboard/result/parts/_part_candidates_list.html.twig', [
-            'candidates' => $candidates,
-            'recruiter' => $recruiter,
+        $html = "";
+        if(count($candidates) > 0){
+            $html = $this->renderView('v2/dashboard/result/parts/_part_candidates_list.html.twig', [
+                'candidates' => $candidates,
+                'recruiter' => $recruiter
+            ]);
+        }
+    
+        return $this->json([
+            'html' => $html,
+            'hasMore' => count($candidates) == $limit,
+            'count' => count($candidates) ,
         ]);
     }
     
     #[Route('/profile/view/{id}', name: 'app_v2_recruiter_view_profile')]
     public function viewProfile(Request $request, int $id): Response
     {
+        $routeInfo = $this->userService->getRedirectRoute($this->getUser(), $request);
+        $routeInfo['params'] = ['id' => $id];
+        
+        return $this->redirectToRoute($routeInfo['route'], $routeInfo['params']);
+        
         $candidat = $this->em->getRepository(CandidateProfile::class)->find($id);
+        if ($candidat === null || $candidat->getStatus() === CandidateProfile::STATUS_BANNISHED || $candidat->getStatus() === CandidateProfile::STATUS_PENDING) {
+            throw $this->createNotFoundException('Nous sommes désolés, mais le candidat demandé n\'existe pas.');
+        }
         /** @var User $currentUser */
         $currentUser = $this->userService->getCurrentUser();
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
         $recruiter = $this->userService->checkProfile();
         if($recruiter == $candidat){
             return $this->redirectToRoute('app_v2_candidate_dashboard');
@@ -132,15 +164,61 @@ class ProfileController extends AbstractController
         }
         $this->activityLogger->logProfileViewActivity($currentUser, $this->appExtension->generatePseudo($candidat));
         
-        return $this->render('v2/dashboard/profile/view.html.twig', [
+        return $this->render('v2/dashboard/profile/view_candidate.html.twig', [
             'candidat' => $candidat,
             'type' => $currentUser->getType(),
             'recruiter' => $recruiter,
             'action' => $this->urlGeneratorInterface->generate('app_olona_talents_candidates'),
             'purchasedContact' => $purchasedContact,
+            'show_candidate_price' => $this->profileManager->getCreditAmount(Credit::ACTION_VIEW_CANDIDATE),
             'experiences' => $this->candidatManager->getExperiencesSortedByDate($candidat),
             'competences' => $this->candidatManager->getCompetencesSortedByNote($candidat),
             'langages' => $this->candidatManager->getLangagesSortedByNiveau($candidat),
+        ]);
+    }
+    
+    #[Route('/recruiter/view/{id}', name: 'app_v2_view_recruiter_profile')]
+    public function viewRecruiterProfile(Request $request, int $id): Response   
+    {
+        $routeInfo = $this->userService->getRedirectRoute($this->getUser(), $request);
+        $routeInfo['params'] = ['id' => $id];
+        
+        return $this->redirectToRoute($routeInfo['route'], $routeInfo['params']);
+
+        $recruiter = $this->em->getRepository(EntrepriseProfile::class)->find($id);
+        if ($recruiter === null || $recruiter->getStatus() === EntrepriseProfile::STATUS_BANNED || $recruiter->getStatus() === EntrepriseProfile::STATUS_PENDING) {
+            throw $this->createNotFoundException('Nous sommes désolés, mais l\'entreprise demandée n\'existe pas.');
+        }
+        
+        /** @var User $currentUser */
+        $currentUser = $this->userService->getCurrentUser();
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
+        $candidat = $this->userService->checkProfile();
+        if($recruiter == $candidat){
+            return $this->redirectToRoute('app_v2_recruiter_dashboard');
+        }
+        if(!$candidat instanceof CandidateProfile){
+            $candidat = null;
+        }
+
+        $contactRepository = $this->em->getRepository(PurchasedContact::class);
+        $purchasedContact = $contactRepository->findOneBy([
+            'buyer' => $currentUser,
+            'contact' => $recruiter->getEntreprise(),
+        ]);
+
+        $this->activityLogger->logProfileViewActivity($currentUser, $this->appExtension->generateReference($recruiter));
+        
+        return $this->render('v2/dashboard/profile/view_recruiter.html.twig', [
+            'candidat' => $candidat,
+            'type' => $currentUser->getType(),
+            'recruiter' => $recruiter,
+            'action' => $this->urlGeneratorInterface->generate('app_olona_talents_candidates'),
+            'purchasedContact' => $purchasedContact,
+            'show_recruiter_price' => $this->profileManager->getCreditAmount(Credit::ACTION_VIEW_RECRUITER),
         ]);
     }
 }

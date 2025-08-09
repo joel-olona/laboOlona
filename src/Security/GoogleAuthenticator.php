@@ -122,8 +122,9 @@ class GoogleAuthenticator extends OAuth2Authenticator
         if ($targetPath = $this->requestStack->getSession()->get('_security.'.$providerKey.'.target_path')) {
             return new RedirectResponse($targetPath);
         }
+        $fromPath = $this->requestStack->getSession()->get('fromPath');
 
-        return new RedirectResponse($this->urlGenerator->generate('app_v2_dashboard'));
+        return new RedirectResponse($this->urlGenerator->generate('app_connect', ['fromPath' => $fromPath]));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception) : Response
@@ -140,7 +141,7 @@ class GoogleAuthenticator extends OAuth2Authenticator
     public function start(Request $request, AuthenticationException $authException = null)
     {
         return new RedirectResponse(
-            '/connect/', // might be the site, where users choose their oauth provider
+            '/connect/', 
             Response::HTTP_TEMPORARY_REDIRECT
         );
     }

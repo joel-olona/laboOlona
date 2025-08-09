@@ -1,18 +1,18 @@
 <?php
 namespace App\Service;
 
+use App\Entity\BusinessModel\Credit;
 use App\Entity\User;
 use App\Entity\Logs\ActivityLog;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class ActivityLogger
 {
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+        private RequestStack $requestStack
+    ){}
 
     /**
      * Log an activity for a user
@@ -22,25 +22,51 @@ class ActivityLogger
      * @param string|null $details
      * @param int $level
      */
-    public function logActivity(User $user, string $activityType, ?string $details = null, int $level = ActivityLog::LEVEL_INFO): void
+    public function logActivity(
+        User $user, 
+        string $activityType, 
+        ?string $details = null, 
+        int $level = ActivityLog::LEVEL_INFO, 
+        ?string $pageUrl = null,
+        ?int $durationInSeconds = null,
+        ?string $deviceType = null,
+        ?string $referrer = null,
+    ): void
     {
-        $log = new ActivityLog();
-        $log->setUser($user);
-        $log->setActivityType($activityType);
-        $log->setTimestamp(new \DateTime());
-        $log->setDetails($details);
-        $log->setLevel($level);
-        $log->setUserCredit($user->getCredit()->getTotal());
-        $log->setIpAddress($this->getIpAddress());
-        $log->setUserAgent($this->getUserAgent());
-        $this->entityManager->persist($log);
-        $this->entityManager->flush();
+        try {
+            $credit = $user->getCredit();
+            if(!$credit instanceof Credit){
+                $credit = new Credit();
+                $credit->setTotal(200);
+                $credit->setExpireAt((new \DateTime())->modify('+60 days'));
+                $this->entityManager->persist($credit);
+                $this->entityManager->persist($user);
+                $user->setCredit($credit);
+            }
+            $log = new ActivityLog();
+            $log->setUser($user);
+            $log->setActivityType($activityType);
+            $log->setTimestamp(new \DateTime());
+            $log->setDetails($details);
+            $log->setLevel($level);
+            $log->setUserCredit($credit->getTotal());
+            $log->setIpAddress($this->getIpAddress());
+            $log->setUserAgent($this->getUserAgent());
+            $log->setPageUrl($pageUrl);
+            $log->setDerationInSeconds($durationInSeconds);
+            $log->setDeviceType($deviceType);
+            $log->setReferrer($referrer);
+            $this->entityManager->persist($log);
+            $this->entityManager->flush();
+        }catch (\Exception $e) {
+            return ;
+        }
     }
 
     /**
      * Log a search activity
      */
-    public function logSearchActivity(User $user, string $query, string $type = "Olona Talents"): void
+    public function logSearchActivity(User $user, string $query = "", string $type = "Olona Talents"): void
     {
         $details = sprintf('Requête de recherche: "%s" dans "%s" ', $query, $this->getType($type));
         $this->logActivity($user, ActivityLog::ACTIVITY_SEARCH, $details, ActivityLog::LEVEL_INFO);
@@ -74,6 +100,15 @@ class ActivityLogger
     }
 
     /**
+     * Log a entrepriseProfile view activity
+     */
+    public function logEntrepriseViewActivity(User $user, string $reference): void
+    {
+        $details = sprintf('Vue entreprise %s', $reference);
+        $this->logActivity($user, ActivityLog::ACTIVITY_PAGE_VIEW, $details, ActivityLog::LEVEL_INFO);
+    }
+
+    /**
      * Log a ai tools view activity
      */
     public function logAiToolsViewActivity(User $user, string $reference): void
@@ -87,26 +122,48 @@ class ActivityLogger
      */
     public function logPageViewActivity(User $user, string $pageUrl): void
     {
+        $request = $this->requestStack->getCurrentRequest();
+        $durationInSeconds = $this->calculateDuration(); 
+        $referrer = $request->headers->get('referer') ?? '';
+        $deviceType = $this->getDeviceType($request->headers->get('User-Agent'));
         $details = sprintf('Page consultée: %s', $pageUrl);
-        $this->logActivity($user, ActivityLog::ACTIVITY_PAGE_VIEW, $details, ActivityLog::LEVEL_WARNING);
+        $this->logActivity(
+            $user, 
+            ActivityLog::ACTIVITY_PAGE_VIEW, 
+            $details, 
+            ActivityLog::LEVEL_WARNING,
+            $pageUrl,
+            $durationInSeconds,
+            $deviceType,
+            $referrer,
+        );
     }
 
     /**
      * Log a credit spending activity
      */
-    public function logCreditSpending(User $user, float $amount, string $context): void
+    public function logCreditSpending(User $user, int $amount, string $context): void
     {
-        $details = sprintf('%s crédit dépensé dans le contexte de "%s"', $amount, $context);
+        $details = sprintf('%d crédit dépensé dans le contexte de "%s"', $amount, $context);
         $this->logActivity($user, ActivityLog::ACTIVITY_CREDIT_SPENDING, $details, ActivityLog::LEVEL_INFO);
     }
     
     /**
      * Log a credit purchased activity
      */
-    public function logCreditPurchased(User $user, float $amount, string $context): void
+    public function logCreditPurchased(User $user, int $credit, string $context): void
     {
-        $details = sprintf('Achant crédit: %s via %s', $amount, $context);
+        $details = sprintf('Achant %d crédits via %s', $credit, $context);
         $this->logActivity($user, ActivityLog::ACTIVITY_CREDIT_SPENDING, $details, ActivityLog::LEVEL_INFO);
+    }
+    
+    /**
+     * Log a subcription purchased activity
+     */
+    public function logSubcriptionPurchased(User $user, float $amount, string $context): void
+    {
+        $details = sprintf('Abonnement Premium via %s', $amount, $context);
+        $this->logActivity($user, ActivityLog::ACTIVITY_PURCHASE, $details, ActivityLog::LEVEL_INFO);
     }
     /**
      * Retrieve user's IP address
@@ -126,6 +183,25 @@ class ActivityLogger
     private function getUserAgent(): ?string
     {
         return $_SERVER['HTTP_USER_AGENT'] ?? null;
+    }
+
+    private function getDeviceType(string $userAgent): string
+    {
+        // Simple example function to infer device type via user agent string
+        if (stripos($userAgent, 'mobile')) {
+            return 'Mobile';
+        } elseif (stripos($userAgent, 'tablet')) {
+            return 'Tablet';
+        }
+        return 'Desktop';
+    }
+    
+    private function calculateDuration(): int
+    {
+        // Placeholder logic: replace with actual duration calculation
+        // For example, use JavaScript on the frontend to track user time on page
+        // and send the duration back to the backend.
+        return 0;
     }
 
     private function getType($type): string

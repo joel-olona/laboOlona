@@ -35,6 +35,7 @@ use App\Manager\BusinessModel\BoostVisibilityManager;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 
 #[Route('/v2/dashboard')]
 class PrestationController extends AbstractController
@@ -57,6 +58,17 @@ class PrestationController extends AbstractController
     #[Route('/prestations', name: 'app_v2_prestation')]
     public function index(Request $request): Response
     {
+        $routeInfo = $this->userService->getRedirectRoute($this->getUser(), $request);
+        
+        return $this->redirectToRoute($routeInfo['route'], $routeInfo['params']);
+        // return $this->redirectToRoute('app_connect');
+
+        /** @var User $currentUser */
+        $currentUser = $this->userService->getCurrentUser();
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
         $data = new PrestationData();
         $data->page = $request->get('page', 1);
         $profile = $this->userService->checkProfile();
@@ -67,7 +79,6 @@ class PrestationController extends AbstractController
             $data->entreprise = $profile;
         }
 
-        $secteurs = $profile->getSecteurs();
         $page = $request->query->get('page', 1);
         $limit = 10;
         $qb = $this->em->getRepository(Prestation::class)->createQueryBuilder('p');
@@ -113,16 +124,30 @@ class PrestationController extends AbstractController
         ->setFirstResult(($page - 1) * $limit);
 
         $prestations = $qb->getQuery()->getResult();
-
-        return $this->render('v2/dashboard/prestation/_prestations_list.html.twig', [
-            'prestations' => $prestations,
-            'profile' => $profile,
+        $html = "";
+        if(count($prestations) > 0){
+            $html = $this->renderView('v2/dashboard/result/parts/_part_prestations_list.html.twig', [
+                'prestations' => $prestations,
+                'profile' => $profile
+            ]);
+        }
+    
+        return $this->json([
+            'html' => $html,
+            'hasMore' => count($prestations) == $limit,
+            'count' => count($prestations) ,
         ]);
     }
     
     #[Route('/prestation/my-created', name: 'app_v2_prestation_my_created')]
     public function myCreated(Request $request): Response
     {
+        /** @var User $currentUser */
+        $currentUser = $this->userService->getCurrentUser();
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
         $data = new PrestationData();
         $data->page = $request->get('page', 1);
         $profile = $this->userService->checkProfile();
@@ -144,10 +169,15 @@ class PrestationController extends AbstractController
     {
         /** @var User $currentUser */
         $currentUser = $this->userService->getCurrentUser();
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
         /** @var Prestation $prestation */
         $prestation = $this->prestationManager->init();
         $prestation->setContactEmail($currentUser->getEmail());
         $prestation->setContactTelephone($currentUser->getTelephone());
+        $creditAmount = $this->profileManager->getCreditAmount(Credit::ACTION_APPLY_PRESTATION_RECRUITER);
         $profile = $this->userService->checkProfile();
         if($profile instanceof CandidateProfile){
             $prestation->setCandidateProfile($profile);
@@ -207,6 +237,7 @@ class PrestationController extends AbstractController
 
         return $this->render('v2/dashboard/prestation/create.html.twig', [
             'form' => $form->createView(),
+            'creditAmount' => $creditAmount,
             'action' => $this->urlGeneratorInterface->generate('app_olona_talents_prestations'),
         ]);
     }
@@ -245,10 +276,27 @@ class PrestationController extends AbstractController
     
     #[Route('/prestation/view/{prestation}', name: 'app_v2_view_prestation')]
     #[IsGranted(PrestationVoter::VIEW, subject: 'prestation')]
-    public function viewPrestation(Request $request, Prestation $prestation): Response
+    public function viewPrestation(Request $request, Prestation $prestation, Security $security): Response
     {
+        if($security->isGranted(PrestationVoter::EDIT, null, $prestation)){
+            if (!in_array($prestation->getStatus(), [Prestation::STATUS_VALID, Prestation::STATUS_FEATURED])) {
+                throw $this->createNotFoundException('Cette prestation n\'existe pas ou n\'est pas disponible.');
+            }
+        }
+        $routeInfo = $this->userService->getRedirectRoute($this->getUser(), $request);
+        $routeInfo['params'] = ['prestation' => $prestation->getId()];
+        
+        return $this->redirectToRoute($routeInfo['route'], $routeInfo['params']);
+
+        
+        // return $this->redirectToRoute('app_connect');
         /** @var User $currentUser */
         $currentUser = $this->userService->getCurrentUser();
+        $showContactPrice = $this->profileManager->getCreditAmount(Credit::ACTION_VIEW_CANDIDATE);
+        $hasProfile = $this->userService->checkUserProfile($currentUser);
+        if($hasProfile === null){
+            return $this->redirectToRoute('app_v2_dashboard');
+        }
         $ipAddress = $request->getClientIp();
         $viewRepository = $this->em->getRepository(PrestationVues::class);
         $existingView = $viewRepository->findOneBy([
@@ -283,6 +331,7 @@ class PrestationController extends AbstractController
             'prestation' => $prestation,
             'purchasedContact' => $purchasedContact,
             'creater' => $creater,
+            'showContactPrice' => $showContactPrice,
             'action' => $this->urlGeneratorInterface->generate('app_olona_talents_prestations'),
             'owner' => $owner,
         ]);

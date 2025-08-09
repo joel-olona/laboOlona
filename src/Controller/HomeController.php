@@ -2,213 +2,73 @@
 
 namespace App\Controller;
 
-use DateTime;
 use App\Entity\User;
-use Twig\Environment;
-use App\Entity\Finance\Devise;
-use App\Entity\Finance\Employe;
+use App\Manager\MailManager;
+use App\Service\FileUploader;
+use App\Manager\ProfileManager;
+use Symfony\Component\Uid\Uuid;
+use App\Entity\CandidateProfile;
+use App\Entity\Facebook\Contest;
 use App\Service\User\UserService;
-use App\Entity\Finance\Simulateur;
+use Symfony\UX\Turbo\TurboBundle;
 use App\Security\AppAuthenticator;
-use App\Form\Finance\SimulateurType;
-use App\Entity\Entreprise\JobListing;
-use App\Repository\SecteurRepository;
+use App\Entity\Facebook\ContestEntry;
+use App\Entity\Moderateur\Invitation;
 use App\Service\Mailer\MailerService;
 use App\Entity\Moderateur\ContactForm;
-use App\Form\Finance\SimulateurEntrepriseType;
-use App\Manager\Finance\EmployeManager;
 use App\Service\Annonce\AnnonceService;
 use App\Form\Moderateur\ContactFormType;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Form\Facebook\ContestEntryFormType;
+use App\Manager\Marketing\LeadManager;
+use App\Repository\Marketing\SourceRepository;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
-use App\Repository\CandidateProfileRepository;
 use Symfony\Component\HttpFoundation\Response;
-use App\Repository\EntrepriseProfileRepository;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\RequestStack;
-use App\Repository\Entreprise\JobListingRepository;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 
 class HomeController extends AbstractController
 {
-    public function __construct(
-        private JobListingRepository $jobListingRepository,
-        private EntrepriseProfileRepository $entrepriseProfileRepository,
-        private CandidateProfileRepository $candidateProfileRepository,
-        private SecteurRepository $secteurRepository,
-        private UserService $userService,
-        private EntityManagerInterface $em,
-        private MailerService $mailerService,
-        private AnnonceService $annonceService,
-        private EmployeManager $employeManager,
-        private RequestStack $requestStack,
-        private Environment $twig
-    ) {
+    public function __construct(private AnnonceService $annonceService)
+    {}
+    
+    #[Route('/v1', name: 'app_olona_talents')]
+    public function index(): Response
+    {
+        return $this->redirectToRoute('app_home');
     }
 
-    #[Route('/v1', name: 'app_olona_talents')]
-    public function index(
-        Request $request,
-        UserPasswordHasherInterface $userPasswordHasher,
-        UserAuthenticatorInterface $userAuthenticator,
-        AppAuthenticator $authenticator,
+    #[Route('/contact', name: 'app_contact_us')]
+    public function contact(
+        Request $request, 
+        EntityManagerInterface $entityManager, 
+        MailerService $mailerService,
+        LeadManager $leadManager,
+        SourceRepository $sourceRepository
     ): Response
     {
-        $session = $this->requestStack->getSession();
-        /** @var User $user */
-        $user = $this->userService->getCurrentUser();
-        $simulateur = (new Simulateur())->setCreatedAt(new DateTime());
-        $connected = false;
-        if ($user) {
-            $connected = true;
-            $employe = $user->getEmploye();
-            if(!$employe instanceof Employe){
-                $employe = new Employe();
-                $employe->setUser($user);
-            }
-            $simulateur->setEmploye($employe);
-        }
-        $session->set('utilisateurEstConnecte', $connected);
-        $defaultDevise = $this->em->getRepository(Devise::class)->findOneBy(['slug' => 'euro']);
-        $form = $this->createForm(SimulateurType::class, $simulateur, ['connected' => !$connected, 'default_devise' => $defaultDevise]);
-        $form->handleRequest($request);
-        $formCompany = $this->createForm(SimulateurEntrepriseType::class, $simulateur, ['connected' => !$connected, 'default_devise' => $defaultDevise]);
-        $formCompany->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $result = $this->employeManager->simulate($simulateur);
-            $simulateur = $form->getData();
-            $employe = $simulateur->getEmploye();
-            $user = $simulateur->getEmploye()->getUser();
-            $existingUser = $this->em->getRepository(User::class)->findOneBy(['email' => $user->getEmail()]);
-            if($existingUser instanceof User){
-                $currentRoles = $existingUser->getRoles();
-                if (!in_array('ROLE_EMPLOYE', $currentRoles)) {
-                    $currentRoles[] = 'ROLE_EMPLOYE'; 
-                }
-                $existingUser->setRoles($currentRoles);
-                $this->em->persist($existingUser);
-            }else{
-                $currentRoles = $user->getRoles();
-                if (!in_array('ROLE_EMPLOYE', $currentRoles)) {
-                    $currentRoles[] = 'ROLE_EMPLOYE'; 
-                }
-                $user->setRoles($currentRoles);
-                $this->em->persist($user);
-            }
-            $employe->setNombreEnfants($form->get('nombreEnfant')->getData());
-            $employe->setSalaireBase($result['salaire_de_base_ariary']);
-
-            if (!$connected) {
-                $user->setDateInscription(new DateTime());
-                $user->setType(User::ACCOUNT_EMPLOYE);
-                $user->setRoles(['ROLE_EMPLOYE', 'ROLE_CANDIDAT']);
-                $user->setPassword(
-                    $userPasswordHasher->hashPassword(
-                        $user,
-                        $form->get('employe')->get('user')->get('plainPassword')->getData()
-                    )
-                );
-                $this->em->persist($user);
-            }
-            $this->em->persist($employe);
-            $this->em->persist($simulateur);
-            $this->em->flush();
-            $session->set('simulation', [$simulateur->getId() => $result]);
-
-            if (!$connected) {
-                return $userAuthenticator->authenticateUser(
-                    $user,
-                    $authenticator,
-                    $request
-                );
-            }
-
-            return $this->redirectToRoute('app_dashboard_employes_simulation_view', ['id' => $simulateur->getId()]);
-        }
-        if ($formCompany->isSubmitted() && $formCompany->isValid()) {
-            $result = $this->employeManager->simulate($simulateur);
-            $simulateur = $formCompany->getData();
-            $employe = $simulateur->getEmploye();
-            $user = $simulateur->getEmploye()->getUser();
-            $existingUser = $this->em->getRepository(User::class)->findOneBy(['email' => $user->getEmail()]);
-            if($existingUser instanceof User){
-                $currentRoles = $existingUser->getRoles();
-                if (!in_array('ROLE_EMPLOYE', $currentRoles)) {
-                    $currentRoles[] = 'ROLE_EMPLOYE'; 
-                }
-                $existingUser->setRoles($currentRoles);
-                $this->em->persist($existingUser);
-            }else{
-                $currentRoles = $user->getRoles();
-                if (!in_array('ROLE_EMPLOYE', $currentRoles)) {
-                    $currentRoles[] = 'ROLE_EMPLOYE'; 
-                }
-                $user->setRoles($currentRoles);
-                $this->em->persist($employe);
-                $this->em->persist($user);
-            }
-            $employe->setNombreEnfants($formCompany->get('nombreEnfant')->getData());
-            $employe->setSalaireBase($result['salaire_de_base_ariary']);
-            $employe->addSimulateur($simulateur);
-
-            if (!$connected) {
-                $user->setDateInscription(new DateTime());
-                $user->setType(User::ACCOUNT_ENTREPRISE);
-                $user->setRoles(['ROLE_EMPLOYE', 'ROLE_ENTREPRISE']);
-                $user->setPassword(
-                    $userPasswordHasher->hashPassword(
-                        $user,
-                        $formCompany->get('employe')->get('user')->get('plainPassword')->getData()
-                    )
-                );
-                $user->setEmploye($employe);
-                $this->em->persist($user);
-            }
-            $this->em->persist($employe);
-            $this->em->persist($simulateur);
-            $this->em->flush();
-            $session->set('simulation', [$simulateur->getId() => $result]);
-
-            if (!$connected) {
-                return $userAuthenticator->authenticateUser(
-                    $user,
-                    $authenticator,
-                    $request
-                );
-            }
-
-            return $this->redirectToRoute('app_dashboard_entreprise_simulation_view', ['id' => $simulateur->getId()]);
-        }
-
-        return $this->render('home/index.html.twig', [
-            'form' => $form->createView(),
-            'formCompany' => $formCompany->createView(),
-            'connected' => $connected,
-            'sectors' => $this->secteurRepository->findAll(),
-            'candidats' => $this->candidateProfileRepository->findTopExperts(),
-            'topRanked' => $this->candidateProfileRepository->findTopRanked(),
-            'annonces' => $this->jobListingRepository->findBy([
-                'status' => JobListing::STATUS_PUBLISHED,
-            ]),
-        ]);
-    }
-
-    #[Route('/contact', name: 'app_home_contact')]
-    public function contact(Request $request): Response
-    {
-        
+        $sourceEntreprise = $sourceRepository->findOneBy(['slug' => 'formulaire-de-contact-site-olona-talents']);
         $contactForm = new ContactForm;
-        $contactForm->setCreatedAt(new DateTime());
+        $contactForm->setCreatedAt(new \DateTime());
         $form = $this->createForm(ContactFormType::class, $contactForm);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $contactForm = $form->getData();
-            $this->em->persist($contactForm);
-            $this->em->flush();
-            $this->mailerService->sendMultiple(
-                ["contact@olona-talents.com", "nirinarocheldev@gmail.com", "techniques@olona-talents.com"],
+            $lead = $leadManager->init();
+            $lead->setSource($sourceEntreprise);
+            $lead->setComment('Formulaire de contact - '.$contactForm->getMessage());
+            $lead->setFullName($contactForm->getTitre());
+            $lead->setEmail($contactForm->getEmail());
+            $lead->setPhone($contactForm->getNumero());
+            $leadManager->save($lead);
+            $entityManager->persist($contactForm);
+            $entityManager->flush();
+            $mailerService->sendMultiple(
+                ["contact@olona-talents.com", "support@olona-talents.com", "olonaprod@gmail.com"],
                 "Nouvelle entrée sur le formulaire de contact",
                 "contact.html.twig",
                 [
@@ -226,22 +86,22 @@ class HomeController extends AbstractController
     #[Route('/service', name: 'app_home_service')]
     public function service(): Response
     {
-        return $this->render('home/service.html.twig', []);
+        return $this->redirectToRoute('app_home');
     }
 
-    #[Route('/legal-mentions', name: 'app_home_legal')]
+    #[Route('/legal-mentions', name: 'app_home_legal', options: ['sitemap' => true])]
     public function legal(): Response
     {
         return $this->render('home/legal.html.twig', []);
     }
 
-    #[Route('/privacy-policy', name: 'app_home_privacy')]
+    #[Route('/privacy-policy', name: 'app_home_privacy', options: ['sitemap' => true])]
     public function privacy(): Response
     {
         return $this->render('home/privacy.html.twig', []);
     }
 
-    #[Route('/terms-and-conditions', name: 'app_home_terms')]
+    #[Route('/terms-and-conditions', name: 'app_home_terms', options: ['sitemap' => true])]
     public function terms(): Response
     {
         return $this->render('home/terms.html.twig', []);
@@ -262,171 +122,105 @@ class HomeController extends AbstractController
     }
 
     #[Route('/simulateur-portage-salarial', name: 'app_home_simulateur_portage')]
-    public function simulateur(
-        Request $request,
-        UserPasswordHasherInterface $userPasswordHasher,
-        UserAuthenticatorInterface $userAuthenticator,
-        AppAuthenticator $authenticator,
-    ): Response {
-        $session = $this->requestStack->getSession();
-        /** @var User $user */
-        $user = $this->userService->getCurrentUser();
-        $simulateur = (new Simulateur())->setCreatedAt(new DateTime());
-        $connected = false;
-        if ($user) {
-            $connected = true;
-            $employe = $user->getEmploye();
-            if(!$employe instanceof Employe){
-                $employe = new Employe();
-                $employe->setUser($user);
+    public function simulateur(): Response 
+    {        
+        return $this->redirectToRoute('app_home_portage', []);
+    }
+
+    #[Route('/portage-salarial', name: 'app_home_portage', options: ['sitemap' => true])]
+    public function portage(Request $request, MailManager $mailManager, EntityManagerInterface $entityManager): Response 
+    {    
+        $contact = new ContactForm;
+        $contact->setCreatedAt(new \DateTime());
+        $contactForm = $this->createForm(ContactFormType::class, $contact);
+        $contactForm->handleRequest($request);
+        if ($contactForm->isSubmitted() && $contactForm->isValid()) {
+            $contact = $contactForm->getData();
+            $entityManager->persist($contact);
+            $entityManager->flush();
+            $mailManager->contactForm($contact);
+            $this->addFlash('success', 'Votre message a été bien envoyé. Nous vous repondrons dans le plus bref delais');
+
+            if ($request->getPreferredFormat() === TurboBundle::STREAM_FORMAT) {
+                $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
+                return $this->render('coworking/update.html.twig', ['id' => 'contactForm']);
             }
-            $simulateur->setEmploye($employe);
+        
+            return $this->json([
+                'message' => 'Success',
+            ], Response::HTTP_OK);
         }
-        $session->set('utilisateurEstConnecte', $connected);
-        $defaultDevise = $this->em->getRepository(Devise::class)->findOneBy(['slug' => 'euro']);
-        $form = $this->createForm(SimulateurType::class, $simulateur, ['connected' => !$connected, 'default_devise' => $defaultDevise]);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $result = $this->employeManager->simulate($simulateur);
-            $simulateur = $form->getData();
-            $employe = $simulateur->getEmploye();
-            $user = $simulateur->getEmploye()->getUser();
-            $existingUser = $this->em->getRepository(User::class)->findOneBy(['email' => $user->getEmail()]);
-            if($existingUser instanceof User){
-                $currentRoles = $existingUser->getRoles();
-                if (!in_array('ROLE_EMPLOYE', $currentRoles)) {
-                    $currentRoles[] = 'ROLE_EMPLOYE'; 
-                }
-                $existingUser->setRoles($currentRoles);
-                $this->em->persist($existingUser);
-            }else{
-                $currentRoles = $user->getRoles();
-                if (!in_array('ROLE_EMPLOYE', $currentRoles)) {
-                    $currentRoles[] = 'ROLE_EMPLOYE'; 
-                }
-                $user->setRoles($currentRoles);
-                $this->em->persist($user);
-            }
-            $employe->setNombreEnfants($form->get('nombreEnfant')->getData());
-            $employe->setSalaireBase($result['salaire_de_base_ariary']);
-
-            if (!$connected) {
-                $user->setDateInscription(new DateTime());
-                $user->setType(User::ACCOUNT_EMPLOYE);
-                $user->setRoles(['ROLE_EMPLOYE', 'ROLE_CANDIDAT']);
-                $user->setPassword(
-                    $userPasswordHasher->hashPassword(
-                        $user,
-                        $form->get('employe')->get('user')->get('plainPassword')->getData()
-                    )
-                );
-                $this->em->persist($user);
-            }
-            $this->em->persist($employe);
-            $this->em->persist($simulateur);
-            $this->em->flush();
-            $session->set('simulation', [$simulateur->getId() => $result]);
-
-            if (!$connected) {
-                return $userAuthenticator->authenticateUser(
-                    $user,
-                    $authenticator,
-                    $request
-                );
-            }
-
-            return $this->redirectToRoute('app_dashboard_employes_simulation_view', ['id' => $simulateur->getId()]);
-        }
-
-        return $this->render('home/simulateur-portage-salarial.html.twig', [
-            'form' => $form->createView(),
-            'connected' => $connected,
+            
+        return $this->render('home/simulateur.html.twig', [
+            'contactForm' => $contactForm->createView(),
         ]);
     }
 
     #[Route('/simulateur-entreprise', name: 'app_home_simulateur_entreprise')]
-    public function simulateurEntreprise(
-        Request $request,
-        UserPasswordHasherInterface $userPasswordHasher,
+    public function simulateurEntreprise(): Response 
+    {
+        return $this->redirectToRoute('app_v2_recruiter_simulator');
+    }
+
+    #[Route('/authenticate/user', name: 'app_home_authenticate_user', methods: ['POST'])]
+    public function authenticateUser(
+        Request $request, 
+        EntityManagerInterface $em,
         UserAuthenticatorInterface $userAuthenticator,
         AppAuthenticator $authenticator,
-    ): Response {
-        $session = $this->requestStack->getSession();
-        /** @var User $user */
-        $user = $this->userService->getCurrentUser();
-        $simulateur = (new Simulateur())->setCreatedAt(new DateTime());
-        $connected = false;
-        if ($user) {
-            $connected = true;
-            $employe = $user->getEmploye();
-            if(!$employe instanceof Employe){
-                $employe = new Employe();
-                $employe->setUser($user);
-            }
-            $simulateur->setEmploye($employe);
-        }
-        $session->set('utilisateurEstConnecte', $connected);
-        $defaultDevise = $this->em->getRepository(Devise::class)->findOneBy(['slug' => 'euro']);
-        $form = $this->createForm(SimulateurEntrepriseType::class, $simulateur, ['connected' => !$connected, 'default_devise' => $defaultDevise]);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $result = $this->employeManager->simulate($simulateur);
-            $simulateur = $form->getData();
-            $employe = $simulateur->getEmploye();
-            $user = $simulateur->getEmploye()->getUser();
-            $existingUser = $this->em->getRepository(User::class)->findOneBy(['email' => $user->getEmail()]);
-            if($existingUser instanceof User){
-                $currentRoles = $existingUser->getRoles();
-                if (!in_array('ROLE_EMPLOYE', $currentRoles)) {
-                    $currentRoles[] = 'ROLE_EMPLOYE'; 
-                }
-                $existingUser->setRoles($currentRoles);
-                $this->em->persist($existingUser);
-            }else{
-                $currentRoles = $user->getRoles();
-                if (!in_array('ROLE_EMPLOYE', $currentRoles)) {
-                    $currentRoles[] = 'ROLE_EMPLOYE'; 
-                }
-                $user->setRoles($currentRoles);
-                $this->em->persist($employe);
-                $this->em->persist($user);
-            }
-            $employe->setNombreEnfants($form->get('nombreEnfant')->getData());
-            $employe->setSalaireBase($result['salaire_de_base_ariary']);
-            $employe->addSimulateur($simulateur);
+        UserService $userService,
+    ): Response
+    {
+        $userEmail = $request->request->get('userEmail');
+        $userPassword = $request->request->get('userPassword');
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $userEmail]);
 
-            if (!$connected) {
-                $user->setDateInscription(new DateTime());
-                $user->setType(User::ACCOUNT_ENTREPRISE);
-                $user->setRoles(['ROLE_EMPLOYE', 'ROLE_ENTREPRISE']);
-                $user->setPassword(
-                    $userPasswordHasher->hashPassword(
-                        $user,
-                        $form->get('employe')->get('user')->get('plainPassword')->getData()
-                    )
-                );
-                $user->setEmploye($employe);
-                $this->em->persist($user);
+        if (!$user) {
+            $response = [
+                'status' => 'error',
+                'id' => 'user',
+                'message' => 'Aucun utilisateur trouvé avec cet e-mail.',
+            ];
+    
+            if ($request->getPreferredFormat() === TurboBundle::STREAM_FORMAT) {
+                $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
+                return $this->render('turbo_stream/error_message.html.twig', $response);
             }
-            $this->em->persist($employe);
-            $this->em->persist($simulateur);
-            $this->em->flush();
-            $session->set('simulation', [$simulateur->getId() => $result]);
-
-            if (!$connected) {
-                return $userAuthenticator->authenticateUser(
-                    $user,
-                    $authenticator,
-                    $request
-                );
-            }
-
-            return $this->redirectToRoute('app_dashboard_entreprise_simulation_view', ['id' => $simulateur->getId()]);
+    
+            return $this->json($response, Response::HTTP_NOT_FOUND);
         }
 
-        return $this->render('home/simulateur-entreprise.html.twig', [
-            'form' => $form->createView(),
-            'connected' => $connected,
-        ]);
+        if(!$userService->checkUserPassword($user, $userPassword)){
+            $response = [
+                'status' => 'error',
+                'id' => 'user',
+                'message' => 'Mot de passe incorrect.',
+            ];
+    
+            if ($request->getPreferredFormat() === TurboBundle::STREAM_FORMAT) {
+                $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
+                return $this->render('turbo_stream/error_message.html.twig', $response);
+            }
+    
+            return $this->json($response, Response::HTTP_NOT_FOUND);
+        }
+    
+        $response = $userAuthenticator->authenticateUser(
+            $user,
+            $authenticator,
+            $request
+        );
+    
+        if ($request->getPreferredFormat() === TurboBundle::STREAM_FORMAT) {
+            $responseData = [
+                'status' => 'success',
+                'id' => 'user',
+                'message' => 'Connexion réussie, bienvenue ' . $user->getPrenom(),
+            ];
+            $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
+            return $this->render('turbo_stream/success_message.html.twig', $responseData);
+        }
+    
+        return $response;
     }
 }

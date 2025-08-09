@@ -30,6 +30,24 @@ class CandidateProfileRepository extends ServiceEntityRepository
         parent::__construct($registry, CandidateProfile::class);
     }
 
+    public function countAll(): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+    
+    public function countPending(): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.status = :pending')
+            ->setParameter('pending', CandidateProfile::STATUS_PENDING)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     /**
      * @return Expert[] Returns an array of Expert objects
      */
@@ -150,7 +168,7 @@ class CandidateProfileRepository extends ServiceEntityRepository
     {
         $qb = $this
             ->createQueryBuilder('c')
-            ->select('c, c.id AS matricule, c.relanceCount AS level, u.id, u.nom, COUNT(DISTINCT s.id) AS nombreDeCompetences, COUNT(DISTINCT e.id) AS nombreDeExperiences, COUNT(DISTINCT n.id) AS nombreDeRelance')
+            ->select('c, c.id AS matricule, c.relanceCount AS level, c.isPremium AS premium, u.id, u.nom, cr.total AS credit, COUNT(DISTINCT s.id) AS nombreDeCompetences, COUNT(DISTINCT e.id) AS nombreDeExperiences, COUNT(DISTINCT n.id) AS nombreDeRelance')
             ->leftJoin('c.competences', 's')
             ->leftJoin('c.experiences', 'e')
             ->leftJoin('c.secteurs', 'sect')
@@ -159,6 +177,7 @@ class CandidateProfileRepository extends ServiceEntityRepository
             ->leftJoin('c.availability', 'dispo')
             ->join('c.candidat', 'u')
             ->leftJoin('u.recus', 'n')
+            ->leftJoin('u.credit', 'cr')
             ->groupBy('u.id')
             ->orderBy('c.id', 'DESC');
 
@@ -202,6 +221,30 @@ class CandidateProfileRepository extends ServiceEntityRepository
         } elseif ($searchData->resume === 0) {
             $qb = $qb
                 ->andWhere('c.resume IS NULL');
+        }
+
+        if ($searchData->province === 1) {
+            $qb = $qb
+                ->andWhere('c.province IS NOT NULL');
+        } elseif ($searchData->province === 0) {
+            $qb = $qb
+                ->andWhere('c.province IS NULL');
+        }
+
+        if ($searchData->region === 1) {
+            $qb = $qb
+                ->andWhere('c.region IS NOT NULL');
+        } elseif ($searchData->region === 0) {
+            $qb = $qb
+                ->andWhere('c.region IS NULL');
+        }
+
+        if ($searchData->gender === 1) {
+            $qb = $qb
+                ->andWhere('c.gender IS NOT NULL');
+        } elseif ($searchData->gender === 0) {
+            $qb = $qb
+                ->andWhere('c.gender IS NULL');
         }
 
         if ($searchData->tarif === 1) {
@@ -481,6 +524,7 @@ class CandidateProfileRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+    
     public function findProfilesForReport()
     {
         $queryBuilder = $this->createQueryBuilder('c');
@@ -490,16 +534,22 @@ class CandidateProfileRepository extends ServiceEntityRepository
             $queryBuilder->expr()->eq('c.status', ':statusFeatured')
         );
 
+        $generatedCondition = $queryBuilder->expr()->orX(
+            $queryBuilder->expr()->eq('c.isGeneretated', ':isGenerated'),
+            $queryBuilder->expr()->isNull('c.isGeneretated')
+        );
+
         $query = $queryBuilder
-            ->andWhere('c.isGeneretated = :isGenerated')
+            ->andWhere($generatedCondition)
             ->andWhere($orConditions)
+            ->andWhere('c.cv IS NOT NULL') 
             ->setParameter('statusValid', CandidateProfile::STATUS_VALID)
             ->setParameter('statusFeatured', CandidateProfile::STATUS_FEATURED)
             ->setParameter('isGenerated', false)
             ->setMaxResults(6)
             ->orderBy('c.id', 'DESC')
             ->getQuery();
-            
+
         return $query->getResult();
     }
 
@@ -515,8 +565,9 @@ class CandidateProfileRepository extends ServiceEntityRepository
     public function findExpiredPremium()
     {
         return $this->createQueryBuilder('c')
-            ->innerJoin('c.boostVisibility', 'b') 
-            ->andWhere('b.endDate < :now')        
+            ->innerJoin('c.boost', 'b') 
+            ->innerJoin('b.boostVisibilities', 'bv') 
+            ->andWhere('bv.endDate < :now')         
             ->setParameter('now', new \DateTime())
             ->getQuery()                          
             ->getResult(); 

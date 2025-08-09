@@ -39,6 +39,11 @@
 
 	<body>
 		{% set currentTransaction = commande.transaction %}
+		{% if commande.paymentMethod.slug == 'paypal' %}
+			{% set amount = commande.totalAmount ~ ' ' ~ commande.currency.symbole %} 
+		{% else %}
+			{% set amount = commande.package.price ~ ' Ar' %}
+		{% endif %}
 		<br>
 		<br>
 		<br>
@@ -59,10 +64,11 @@
 				<div class="row">
 					<div class="col-7">
 						<p>
-							<strong>Olona Talents</strong><br>
-							Enceinte SOMALCO, ZI Forello Tanjombato,
-							<br>
-							101 ANTANANARIVO
+							<strong>OLONA PROD</strong><br>
+							N° RCS 2018B00514<br>
+							Lot VE 48 Bis Ambatovinaky ANTANANARIVO<br>
+							NIF 3003033824 / STAT 63111 11 2018 0 10521<br>
+							<strong>www.olona-talents.com</strong>
 						</p>
 					</div>
 					<div class="col-5">
@@ -101,7 +107,7 @@
 							<td>{{commande.invoice.getNumeroFactureValue }}</td>
 							<td class="text-center">{{commande.transaction.transactionDate | date('d/m/Y')}}</td>
 							<td class="text-center">{{currentTransaction.typeTransaction.name}}</td>
-							<td class="text-center">{{commande.payerId}}</td>
+							<td class="text-center">{{commande.payerId ?? commande.customer.id}}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -123,11 +129,7 @@
 								<br>{{commande.package.name}}  <strong>|</strong> {{commande.package.credit}} crédits
 							</td>
 							<td class="text-center">
-								{% if currentTransaction.typeTransaction.slug == 'paypal' %}
-								<strong>{{(commande.totalAmount)|number_format(2, '.', ',') }} €</strong>
-								{% else %}
-								<strong>{{(commande.totalAmount) }} Ar</strong>
-								{% endif %}
+								<strong>{{ amount }}</strong>
 							</td>
 							<td class="text-center">0%</td>
 							<td class="text-center">
@@ -138,11 +140,7 @@
 								{% endif %}
 							</td>
 							<td class="text-center">
-								{% if currentTransaction.typeTransaction.slug == 'paypal' %}
-								<strong>{{(commande.totalAmount)|number_format(2, '.', ',') }} €</strong>
-								{% else %}
-								<strong>{{(commande.totalAmount) }} Ar</strong>
-								{% endif %}
+								<strong>{{ amount }}</strong>
 							</td>
 						</tr>
 						<tr></tr>
@@ -162,12 +160,8 @@
 									<strong>Total HT :
 									</strong>
 								</td>
-								<td class="text-right">
-									{% if currentTransaction.typeTransaction.slug == 'paypal' %}
-									<strong>{{(commande.totalAmount)|number_format(2, '.', ',') }} €</strong>
-									{% else %}
-									<strong>{{(commande.totalAmount) }} Ar</strong>
-									{% endif %}
+								<td class="text-right">									
+									<strong>{{ amount }}</strong>
 								</td>
 							</tr>
 							<tr>
@@ -194,29 +188,14 @@
 								<td>
 									<strong>Total TTC :</strong>
 								</td>
-								<td class="text-right">
-									{% if currentTransaction.typeTransaction.slug == 'paypal' %}
-									<strong>{{(commande.totalAmount)|number_format(2, '.', ',') }} €</strong>
-									{% else %}
-									<strong>{{(commande.totalAmount) }} Ar</strong>
-									{% endif %}
+								<td class="text-right">						
+									<strong>{{ amount }}</strong>
 								</td>
 							</tr>
 						</table>
 					</div>
 				</div>
 				<br><br>
-				<div class="row">
-					<div class="col-12 foot">
-						<p class="bottom-page text-right">
-							<small>
-								Olona Talents - N° RCS ANTANANARIVO 2018B00514<br>
-								Enceinte SOMALCO, ZI Forello Tanjombato ANTANANARIVO - www.olona-talents.com<br>
-								NIF 3003033824 / STAT 63111 11 2018 0 10521
-							</small>
-						</p>
-					</div>
-				</div>
 			</div>
 		</div>
 	</body>

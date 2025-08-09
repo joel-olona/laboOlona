@@ -54,10 +54,17 @@ services:
     App\Service\YouTubeService:
         arguments:
             $apiKey: '%env(YOUTUBE_API_KEY)%'
+    
+    App\EventListener\ExceptionListener:
+       tags:
+           - { name: kernel.event_listener, event: kernel.exception, priority: 10 }
+       arguments:
+           - '@twig'
 
-    # App\EventListener\ExceptionListener:
-    #     tags: [kernel.event_listener]
-    #     arguments: ['@twig']
+    App\Manager\Facebook\FacebookTokenManager:
+        arguments:
+            $userToken: '%env(FACEBOOK_USER_LONG_TOKEN)%'
+            $pageName: '%env(FACEBOOK_PAGE_NAME)%'
     
     App\Service\JitsiMeetService:
         arguments:
@@ -79,3 +86,24 @@ services:
     App\Service\PdfService:
         arguments:
             $wkhtmltopdfPath: '%env(WKHTMLTOPDF_PATH)%'
+
+    app.sitemap.blog_post_subscriber:
+        class: App\EventListener\SitemapSubscriber
+        arguments:
+            - '@App\Repository\Blog\PostRepository'
+            - '@App\Repository\Blog\CategoryRepository'
+        tags:
+            - { name: "kernel.event_subscriber", priority: 100 }
+        
+    App\Service\MobileMoney\AirtelMoneyService:
+        arguments:
+            $clientId: '%env(AIRTEL_CLIENT_ID)%'
+            $clientSecret: '%env(AIRTEL_CLIENT_SECRET)%'
+            $apiUrl: '%env(AIRTEL_API_URL)%'
+        
+    App\Service\MobileMoney\MvolaService:
+        arguments:
+            $clientId: '%env(MVOLA_CLIENT_ID)%'
+            $clientSecret: '%env(MVOLA_CLIENT_SECRET)%'
+            $apiUrl: '%env(MVOLA_API_URL)%'
+            $scope: '%env(MVOLA_SCOPE)%'

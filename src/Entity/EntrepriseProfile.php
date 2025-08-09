@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Entity\BusinessModel\Boost;
 use App\Entity\BusinessModel\BoostFacebook;
 use App\Entity\BusinessModel\BoostVisibility;
+use App\Entity\BusinessModel\Subcription;
 use App\Entity\Finance\Devise;
 use App\Entity\Entreprise\Favoris;
 use App\Entity\Moderateur\Metting;
@@ -28,6 +29,7 @@ class EntrepriseProfile
 
     const STATUS_VALID = 'VALID';
     const STATUS_PENDING = 'PENDING';
+    const STATUS_FULL_PREMIUM = 'FULL_PREMIUM';
     const STATUS_PREMIUM = 'PREMIUM';
     const STATUS_BANNED = 'BANNED';
 
@@ -42,7 +44,35 @@ class EntrepriseProfile
         'En attente' => self::STATUS_PENDING,
         'Premium' => self::STATUS_PREMIUM,
         'Banni' => self::STATUS_BANNED,
-    ];
+    ];  
+
+    public static function getTailles() {
+        return [
+            self::SIZE_SMALL =>        'Petite' ,
+            self::SIZE_MEDIUM =>        'Moyenne' ,
+            self::SIZE_LARGE =>        'Grande' ,
+        ];
+    }
+
+    public static function getStatuses() {
+        return [
+            'En attente' => self::STATUS_PENDING ,
+            'Validée' => self::STATUS_VALID ,
+            'Accès Illimité' => self::STATUS_FULL_PREMIUM ,
+            'Premium' => self::STATUS_PREMIUM ,
+            'Banni' => self::STATUS_BANNED ,
+        ];
+    }
+    
+    public static function getLabels() {
+        return [
+            self::STATUS_PENDING =>        '<span class="badge bg-warning">En attente</span>' ,  
+            self::STATUS_VALID =>      '<span class="badge bg-success">Validée</span>' ,  
+            self::STATUS_PREMIUM =>      '<span class="badge bg-dark">Premium</span>' ,  
+            self::STATUS_FULL_PREMIUM =>      '<span class="badge bg-info">Accès Illimité</span>' ,  
+            self::STATUS_BANNED =>       '<span class="badge bg-danger">Banni</span>' ,
+        ];
+    }
     
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -110,6 +140,15 @@ class EntrepriseProfile
     #[ORM\ManyToOne(inversedBy: 'entrepriseProfiles')]
     private ?BoostFacebook $boostFacebook = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isPremium = null;
+
+    /**
+     * @var Collection<int, Subcription>
+     */
+    #[ORM\OneToMany(mappedBy: 'entreprise', targetEntity: Subcription::class)]
+    private Collection $subcriptions;
+
     public function __construct()
     {
         $this->jobListings = new ArrayCollection();
@@ -118,6 +157,8 @@ class EntrepriseProfile
         $this->favoris = new ArrayCollection();
         $this->prestations = new ArrayCollection();
         $this->createdAt = new \DateTime();
+        $this->status = self::STATUS_PENDING;
+        $this->subcriptions = new ArrayCollection();
     }
 
     public function __toString()
@@ -493,6 +534,48 @@ class EntrepriseProfile
     public function setBoostFacebook(?BoostFacebook $boostFacebook): static
     {
         $this->boostFacebook = $boostFacebook;
+
+        return $this;
+    }
+
+    public function isIsPremium(): ?bool
+    {
+        return $this->isPremium;
+    }
+
+    public function setIsPremium(?bool $isPremium): static
+    {
+        $this->isPremium = $isPremium;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Subcription>
+     */
+    public function getSubcriptions(): Collection
+    {
+        return $this->subcriptions;
+    }
+
+    public function addSubcription(Subcription $subcription): static
+    {
+        if (!$this->subcriptions->contains($subcription)) {
+            $this->subcriptions->add($subcription);
+            $subcription->setEntreprise($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSubcription(Subcription $subcription): static
+    {
+        if ($this->subcriptions->removeElement($subcription)) {
+            // set the owning side to null (unless already changed)
+            if ($subcription->getEntreprise() === $this) {
+                $subcription->setEntreprise(null);
+            }
+        }
 
         return $this;
     }

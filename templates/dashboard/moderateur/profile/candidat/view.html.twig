@@ -11,7 +11,7 @@
                     </h2>
                 </div>
                 <div class="col-md-4">
-                <span class="small"><i class="bi bi-clock-history"></i> <a href="{{ path('app_v2_staff_history', {'user': candidat.candidat.id })}}" target="_blank">Historique de {{ candidat.candidat.prenom }}</a></span><br>
+                <span class="small"><i class="bi bi-clock-history"></i> <a href="{{ path('app_v2_staff_history_user', {'user': candidat.candidat.id })}}" target="_blank">Historique de {{ candidat.candidat.prenom }}</a></span><br>
 				<form method="post" action="{{ path('change_status_candidat', {'uid': candidat.uid}) }}" class="d-flex justify-content-end">
 					<select name="status" class="form-select form-select-lg bg-dark text-white" onchange="confirmChange(this)">
 						<option value="PENDING" {{ candidat.status == 'PENDING' ? 'selected' : '' }}>En attente</option>
@@ -60,12 +60,6 @@
 			{% include "dashboard/moderateur/profile/candidat/sections/cv.html.twig" %}
 			{% include "dashboard/moderateur/profile/candidat/sections/email.html.twig" %}
 		</div>
-		<a href="javascript:history.back()" class="btn btn-primary rounded-pill my-3 px-5">
-			<i class="mx-2 bi bi-arrow-left"></i>Retour
-		</a>
-        <button type="button" id="submitButton" class="btn btn-success rounded-pill my-3 px-5">
-            <i class="mx-2 bi bi-save"></i>Enregistrer
-        </button>
 	</div>
     <!-- Modal -->
         <div class="modal fade" id="assignationModalAdd" tabindex="-1" aria-labelledby="assignationModalAddLabel" aria-hidden="true">
@@ -109,10 +103,6 @@
 <script>
     document.querySelector('.profile-img').addEventListener('click', function() {
         document.getElementById('{{ formCandidate.file.vars.id }}').click();
-    });
-    document.getElementById('submitButton').addEventListener('click', function() {
-        document.getElementById('formCandidate').submit();
-        document.getElementById('formCvCandidate').submit();
     });
     function confirmChange(selectElement) {
         if (confirm('Êtes-vous sûr de vouloir changer le statut du candidat ?')) {
@@ -446,5 +436,71 @@
         }
     });
 </script>
+<script>
+	function initCandidateForm() {
+        console.log('initCandidateForm')
+		const localisationSelect = document.querySelector('#candidat_localisation');
+		const madagascarInfoDiv = document.querySelector('#madagascar-info');
+		const provinceSelect = document.querySelector('#candidat_province');
+		const regionSelect = document.querySelector('#candidat_region');
 
+		if (!localisationSelect || localisationSelect.dataset.initialized === 'true') return;
+
+		localisationSelect.dataset.initialized = 'true'; // éviter double binding
+
+		const toggleMadagascarInfo = () => {
+			if (localisationSelect.value === 'MG') {
+				madagascarInfoDiv && (madagascarInfoDiv.style.display = 'block');
+			} else {
+				madagascarInfoDiv && (madagascarInfoDiv.style.display = 'none');
+			}
+		};
+
+		localisationSelect.addEventListener('change', toggleMadagascarInfo);
+		toggleMadagascarInfo();
+
+		if (provinceSelect && regionSelect && !provinceSelect.dataset.initialized) {
+			provinceSelect.dataset.initialized = 'true';
+			fetch('/data/provinces_regions.json')
+				.then(response => response.json())
+				.then(data => {
+					provinceSelect.addEventListener('change', () => {
+						const selectedProvince = provinceSelect.value;
+						regionSelect.innerHTML = '<option value="">Sélectionnez une région</option>';
+						const province = data.find(p => p.province === selectedProvince);
+						if (province) {
+							province.regions.forEach(region => {
+								const option = document.createElement('option');
+								option.value = region.region;
+								option.textContent = region.region;
+								regionSelect.appendChild(option);
+							});
+						}
+					});
+				});
+		}
+	}
+
+	// 1. Initialisation classique
+	document.addEventListener('DOMContentLoaded', initCandidateForm);
+
+	// 2. Initialisation après update dynamique avec MutationObserver
+	const observer = new MutationObserver((mutations) => {
+		for (const mutation of mutations) {
+			if ([...mutation.addedNodes].some(node =>
+				node.nodeType === 1 && (
+					node.querySelector?.('#candidate_localisation') ||
+					node.id === 'candidate_localisation'
+				)
+			)) {
+				setTimeout(initCandidateForm, 0);
+			}
+		}
+	});
+
+	observer.observe(document.body, {
+		childList: true,
+		subtree: true
+	});
+</script>
 {% endblock %}

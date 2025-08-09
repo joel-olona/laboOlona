@@ -2,6 +2,8 @@
 
 namespace App\Manager;
 
+use Exception;
+use Throwable;
 use App\Entity\User;
 use App\Entity\Prestation;
 use Twig\Environment as Twig;
@@ -13,6 +15,9 @@ use App\Entity\Entreprise\JobListing;
 use App\Service\Mailer\MailerService;
 use App\Manager\Finance\EmployeManager;
 use App\Entity\BusinessModel\BoostVisibility;
+use App\Entity\Coworking\Contract;
+use App\Entity\Coworking\Reservation;
+use App\Entity\Moderateur\ContactForm;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -143,6 +148,109 @@ class MailManager
                 'jobListing' => $jobListing,
                 'boost' => $boost,
                 'url' => $url,
+            ]
+        );
+    }
+
+    public function reservationEnLigne(Reservation $reservation)
+    {
+        $url = '';
+        $url = $this->urlGenerator->generate('app_coworking_reservation_edit', [
+            'id' => $reservation->getId()
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
+        
+        return $this->mailerService->sendMultiple(
+            ['ambassadrices@olona-talents.com', 'admin@olona-talents.com','partenaires@olona-talents.com', 'support@olona-talents.com', 'contact@olona-talents.com'],
+            'Réservation au nom de '.$reservation->getFullName(),
+            'reservation/coworking.mail.twig',
+            [
+                'reservation' => $reservation,
+                'url' => $url,
+            ]
+        );
+    }
+
+    public function contractVIP(Contract $contract)
+    {
+        $url = '';
+        $url = $this->urlGenerator->generate('app_coworking_contract_show', [
+            'id' => $contract->getId()
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        $this->mailerService->send(
+            $contract->getEmail(), 
+            'Confirmation de votre souscription au contrat VIP Coworking Olona Talents',
+            'reservation/confirmation_contrat_vip.mail.twig',
+            [
+                'contract' => $contract,
+            ]
+        );
+        
+        return $this->mailerService->sendMultiple(
+            ['ambassadrices@olona-talents.com', 'admin@olona-talents.com','partenaires@olona-talents.com', 'support@olona-talents.com', 'contact@olona-talents.com'],
+            'Réservation au nom de '.$contract->getFirstName().' '.$contract->getLastName(),
+            'reservation/contrat_vip.mail.twig',
+            [
+                'contract' => $contract,
+                'url' => $url,
+            ]
+        );
+    }
+
+    public function contractFLEXI(Contract $contract)
+    {
+        $url = '';
+        $url = $this->urlGenerator->generate('app_coworking_contract_show', [
+            'id' => $contract->getId()
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        $this->mailerService->send(
+            $contract->getEmail(), 
+            'Confirmation de votre souscription au contrat VIP Coworking Olona Talents',
+            'reservation/confirmation_contrat_flexi.mail.twig',
+            [
+                'contract' => $contract,
+            ]
+        );
+        
+        return $this->mailerService->sendMultiple(
+            ['ambassadrices@olona-talents.com', 'admin@olona-talents.com','partenaires@olona-talents.com', 'support@olona-talents.com', 'contact@olona-talents.com'],
+            'Réservation au nom de '.$contract->getFirstName().' '.$contract->getLastName(),
+            'reservation/contrat_vip.mail.twig',
+            [
+                'contract' => $contract,
+                'url' => $url,
+            ]
+        );
+    }
+
+    public function contactForm(ContactForm $contactForm)
+    {        
+        return $this->mailerService->sendMultiple(
+            ["contact@olona-talents.com", "support@olona-talents.com", "miandrisoa.olona@gmail.com"],
+            "Nouvelle entrée sur le formulaire de contact Coworking",
+            "contact.html.twig",
+            [
+                'user' => $contactForm,
+            ]
+        );
+    }
+
+    public function errorAlertUser(User $user, string $url, Throwable $exception)
+    {        
+        $dashboardUrl = $this->urlGenerator->generate('app_v2_staff_history_user', [
+            'user' => $user->getId()
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        return $this->mailerService->send(
+            'miandrisoa.olona@gmail.com',
+            'Erreur experience utilisateur : '.$user->getNom().' '.$user->getPrenom(),
+            'error/user_log.mail.twig',
+            [
+                'user' => $user,
+                'exception' => $exception,
+                'url' => $url,
+                'dashboard_url' => $dashboardUrl,
             ]
         );
     }

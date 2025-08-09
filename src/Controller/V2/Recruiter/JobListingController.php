@@ -53,6 +53,9 @@ class JobListingController extends AbstractController
     #[Route('/job-listings', name: 'app_v2_recruiter_job_listing')]
     public function index(Request $request): Response
     {
+        return $this->redirectToRoute('app_tableau_de_bord_entreprise_offre_emploi');
+
+        
         $this->denyAccessUnlessGranted('ENTREPRISE_ACCESS', null, 'Vous n\'avez pas les permissions nécessaires pour accéder à cette partie du site. Cette section est réservée aux recruteurs uniquement. Veuillez contacter l\'administrateur si vous pensez qu\'il s\'agit d\'une erreur.');
         $recruiter = $this->userService->checkProfile();
         $jobListings = $this->em->getRepository(JobListing::class)->findJobListingsByEntreprise($recruiter);
@@ -70,15 +73,17 @@ class JobListingController extends AbstractController
     #[Route('/job-listing/create', name: 'app_v2_recruiter_create_job_listing')]
     public function create(Request $request): Response
     {
+        return $this->redirectToRoute('app_tableau_de_bord_entreprise_creer_une_annonce');
+
+
         $this->denyAccessUnlessGranted('ENTREPRISE_ACCESS', null, 'Accès refusé. Cette section est réservée aux recruteurs.');
         /** @var EntrepriseProfile $recruiter */
         $recruiter = $this->userService->checkProfile();
         /** @var User $currentUser */
         $currentUser = $this->userService->getCurrentUser();
-        $jobListing = $this->jobListingManager->init();
+        $jobListing = $this->jobListingManager->init($recruiter);
         $devise = $this->entrepriseManager->getEntrepriseDevise($recruiter);
-        $budget = $this->jobListingManager->initBudgetAnnonce();
-        $budget->setCurrency($devise);
+        $budget = $this->jobListingManager->initBudgetAnnonce($devise);
         $jobListing->setEntreprise($recruiter);
         $jobListing->setBudgetAnnonce($budget);
     
@@ -214,6 +219,9 @@ class JobListingController extends AbstractController
     #[IsGranted(JobListingVoter::EDIT, subject: 'jobListing')]
     public function editJobListing(Request $request, JobListing $jobListing): Response
     {
+        
+        return $this->redirectToRoute('app_tableau_de_bord_entreprise_modifier_une_annonce', ['jobListing' => $jobListing->getId()]);
+
         $this->denyAccessUnlessGranted('ENTREPRISE_ACCESS', null, 'Accès refusé. Section réservée aux recruteurs.');
         $recruiter = $this->userService->checkProfile();
         /** @var User $currentUser */
@@ -277,6 +285,9 @@ class JobListingController extends AbstractController
     #[IsGranted(JobListingVoter::VIEW, subject: 'jobListing')]
     public function viewJobListing(Request $request, JobListing $jobListing): Response
     {
+
+        return $this->redirectToRoute('app_tableau_de_bord_entreprise_view_job_offer', ['id' => $jobListing->getId()]);
+
         $this->denyAccessUnlessGranted('ENTREPRISE_ACCESS', null, 'Vous n\'avez pas les permissions nécessaires pour accéder à cette partie du site. Cette section est réservée aux recruteurs uniquement. Veuillez contacter l\'administrateur si vous pensez qu\'il s\'agit d\'une erreur.');
         $recruiter = $this->userService->checkProfile();
 

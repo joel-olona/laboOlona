@@ -199,10 +199,10 @@ class SimulateurEntrepriseManager
     private function getCoeffSocial(float $salaireBrut) : float
     {
         $coeff = 0;
-        if($salaireBrut < 1910400){
+        if($salaireBrut < 2101440){
             $coeff = $salaireBrut / 100;
         }else{
-            $coeff = 19104;
+            $coeff = 21014.4;
         }
 
         return $coeff;
@@ -244,34 +244,26 @@ class SimulateurEntrepriseManager
 
     private function getFraisPortage(float $salaire_brut, Simulateur $simulateur):float
     {
-        if($simulateur->getStatus() === "FREELANCE"){
-            if($salaire_brut < 1500000 ){
-                return $salaire_brut * 20 / 100;
-            }elseif (1500001 < $salaire_brut and $salaire_brut < 3000000) {
-                return $salaire_brut * 15 / 100;
-            }elseif (3000001 < $salaire_brut and $salaire_brut < 6000000) {
-                return $salaire_brut * 12 / 100;
-            }elseif (6000001 < $salaire_brut) {
-                return $salaire_brut * 10 / 100;
-            }
-        }
-        if($salaire_brut < 1500000 ){
-            return $this->getCoutAvantPortage($salaire_brut) * 20 / 100;
-        }elseif (1500001 < $salaire_brut and $salaire_brut < 3000000) {
-            return $this->getCoutAvantPortage($salaire_brut) * 15 / 100;
-        }elseif (3000001 < $salaire_brut and $salaire_brut < 6000000) {
-            return $this->getCoutAvantPortage($salaire_brut) * 12 / 100;
-        }elseif (6000001 < $salaire_brut) {
-            return $this->getCoutAvantPortage($salaire_brut) * 10 / 100;
+        // Barème fixe sans distinction de statut
+        if ($salaire_brut <= 999_999) {
+            return 250_000; // 50 €
+        } elseif ($salaire_brut <= 1_499_999) {
+            return 325_000; // 65 €
+        } elseif ($salaire_brut <= 2_999_999) {
+            return 400_000; // 80 €
+        } elseif ($salaire_brut <= 5_999_999) {
+            return 600_000; // 120 €
+        } else {
+            return 800_000; // 160 €
         }
     }
 
     private function getChargesPatronales(float $salaire_brut):float
     {
-        if($salaire_brut < 1910400 ){
+        if($salaire_brut < 2101440 ){
             return $salaire_brut * 19 / 100;
         }
-        return 1910400 * 19 / 100;
+        return 2101440 * 19 / 100;
     }
 
     private function getChargesSalarial(float $salaire_brut, int $nbrEnfant):float
